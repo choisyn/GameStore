@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>游戏攻略 - 游戏社区商城</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --guide-bg: #0f172a;
+            --guide-bg-soft: #162032;
+            --guide-card: rgba(15, 23, 42, 0.82);
+            --guide-line: rgba(148, 163, 184, 0.16);
+            --guide-primary: #7dd3fc;
+            --guide-accent: #f59e0b;
+            --guide-text: #e2e8f0;
+            --guide-muted: #94a3b8;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            color: var(--guide-text);
+            background:
+                radial-gradient(circle at top left, rgba(125, 211, 252, 0.18), transparent 34%),
+                radial-gradient(circle at top right, rgba(245, 158, 11, 0.16), transparent 26%),
+                linear-gradient(135deg, #08111f 0%, #0f172a 48%, #111827 100%);
+            font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+        }
+
+        .navbar {
+            background: rgba(8, 17, 31, 0.92);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+        }
+
+        .navbar-brand,
+        .nav-link {
+            color: var(--guide-text) !important;
+        }
+
+        .nav-link.active,
+        .nav-link:hover {
+            color: var(--guide-primary) !important;
+        }
+
+        .hero {
+            padding: 4.5rem 0 2.5rem;
+        }
+
+        .hero-panel {
+            border: 1px solid rgba(125, 211, 252, 0.15);
+            border-radius: 28px;
+            padding: 2.25rem;
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(22, 32, 50, 0.9));
+            box-shadow: 0 30px 80px rgba(8, 15, 28, 0.38);
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.45rem 0.85rem;
+            border-radius: 999px;
+            background: rgba(125, 211, 252, 0.12);
+            color: var(--guide-primary);
+            font-size: 0.92rem;
+        }
+
+        .hero h1 {
+            margin: 1rem 0 0.9rem;
+            font-size: clamp(2rem, 4vw, 3.4rem);
+            font-weight: 800;
+            letter-spacing: 0.02em;
+        }
+
+        .hero p {
+            max-width: 760px;
+            color: var(--guide-muted);
+            line-height: 1.85;
+            margin-bottom: 0;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .section-title h2 {
+            margin: 0;
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+
+        .section-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+        }
+
+        .featured-grid,
+        .guides-grid {
+            display: grid;
+            gap: 1.2rem;
+        }
+
+        .featured-grid {
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            margin-bottom: 2.5rem;
+        }
+
+        .guides-grid {
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        }
+
+        .guide-card,
+        .featured-card,
+        .filter-panel {
+            border: 1px solid var(--guide-line);
+            border-radius: 24px;
+            background: var(--guide-card);
+            box-shadow: 0 18px 40px rgba(8, 15, 28, 0.24);
+        }
+
+        .featured-card {
+            overflow: hidden;
+            position: relative;
+        }
+
+        .featured-card img,
+        .guide-cover {
+            width: 100%;
+            height: 190px;
+            object-fit: cover;
+        }
+
+        .featured-card-body,
+        .guide-card-body {
+            padding: 1.25rem;
+        }
+
+        .guide-card {
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .guide-card-body {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .guide-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            font-size: 0.9rem;
+            color: var(--guide-muted);
+            margin-bottom: 0.8rem;
+        }
+
+        .guide-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.3rem 0.7rem;
+            border-radius: 999px;
+            background: rgba(245, 158, 11, 0.14);
+            color: #fcd34d;
+            font-size: 0.82rem;
+        }
+
+        .difficulty-badge {
+            background: rgba(125, 211, 252, 0.12);
+            color: var(--guide-primary);
+        }
+
+        .guide-title {
+            font-size: 1.18rem;
+            font-weight: 700;
+            line-height: 1.5;
+            margin-bottom: 0.75rem;
+        }
+
+        .guide-summary {
+            color: var(--guide-muted);
+            line-height: 1.75;
+            min-height: 4.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .guide-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.45rem;
+            margin-bottom: 1rem;
+        }
+
+        .guide-tag {
+            padding: 0.25rem 0.65rem;
+            border-radius: 999px;
+            background: rgba(148, 163, 184, 0.12);
+            color: #cbd5e1;
+            font-size: 0.8rem;
+        }
+
+        .guide-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .guide-card-footer {
+            margin-top: auto;
+            padding-top: 0.75rem;
+        }
+
+        .btn-guide,
+        .btn-guide-secondary {
+            border-radius: 999px;
+            padding: 0.68rem 1rem;
+            font-weight: 600;
+            border: none;
+        }
+
+        .btn-guide {
+            background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+            color: #03111f;
+        }
+
+        .btn-guide-secondary {
+            background: rgba(148, 163, 184, 0.12);
+            color: var(--guide-text);
+        }
+
+        .filter-panel {
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-control,
+        .form-select {
+            background: rgba(15, 23, 42, 0.7);
+            color: var(--guide-text);
+            border: 1px solid rgba(148, 163, 184, 0.16);
+            border-radius: 14px;
+            min-height: 46px;
+        }
+
+        .form-control::placeholder {
+            color: #7c8ba1;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            background: rgba(15, 23, 42, 0.92);
+            color: var(--guide-text);
+            border-color: rgba(125, 211, 252, 0.45);
+            box-shadow: 0 0 0 0.2rem rgba(125, 211, 252, 0.12);
+        }
+
+        .form-check-input {
+            background-color: rgba(15, 23, 42, 0.72);
+            border-color: rgba(148, 163, 184, 0.2);
+        }
+
+        .empty-state,
+        .loading-state {
+            border: 1px dashed rgba(148, 163, 184, 0.24);
+            border-radius: 24px;
+            padding: 2.5rem 1.5rem;
+            text-align: center;
+            color: var(--guide-muted);
+        }
+
+        .load-more-wrap {
+            text-align: center;
+            margin: 1.5rem 0 3rem;
+        }
+
+        .user-dropdown {
+            background: #0f172a;
+            border: 1px solid rgba(148, 163, 184, 0.16);
+        }
+
+        .user-dropdown .dropdown-item {
+            color: var(--guide-text);
+        }
+
+        .user-dropdown .dropdown-item:hover {
+            background: rgba(125, 211, 252, 0.12);
+            color: var(--guide-primary);
+        }
+
+        @media (max-width: 768px) {
+            .hero {
+                padding-top: 3.2rem;
+            }
+
+            .hero-panel,
+            .filter-panel {
+                padding: 1.2rem;
+            }
+
+            .guide-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="/"><i class="bi bi-controller"></i> 游戏社区商城</a>
+        <button class="navbar-toggler text-white border-0" type="button" data-bs-toggle="collapse" data-bs-target="#guideNavbar">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="guideNavbar">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item"><a class="nav-link" href="/">商店</a></li>
+                <li class="nav-item"><a class="nav-link" href="/community">社区</a></li>
+                <li class="nav-item"><a class="nav-link active" href="/guides">攻略</a></li>
+                <li class="nav-item"><a class="nav-link" href="/library">游戏库</a></li>
+                <li class="nav-item"><a class="nav-link" href="/points-shop">积分商店</a></li>
+            </ul>
+            <div class="navbar-nav" id="navbarLinks">
+                <a class="nav-link" href="/login" id="loginLink">登录</a>
+                <a class="nav-link" href="/register" id="registerLink">注册</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<main class="container">
+    <section class="hero">
+        <div class="hero-panel">
+            <div class="eyebrow"><i class="bi bi-journal-richtext"></i> 游戏攻略系统</div>
+            <h1>把“会玩”拆成可执行的步骤</h1>
+            <p>这里收录了按游戏整理的上手、开荒和进阶攻略。你可以按游戏、难度或关键词筛选，也可以从游戏详情页直接跳转查看对应攻略。</p>
+        </div>
+    </section>
+
+    <section>
+        <div class="section-title">
+            <h2>精选攻略</h2>
+            <span class="text-secondary small">适合首页展示和课程答辩演示</span>
+        </div>
+        <div class="featured-grid" id="featuredGuides">
+            <div class="loading-state">正在加载精选攻略...</div>
+        </div>
+    </section>
+
+    <section>
+        <div class="section-title">
+            <h2>全部攻略</h2>
+            <div class="section-actions">
+                <span class="text-secondary small" id="guideCountHint">支持按游戏和关键词筛选</span>
+                <a class="btn btn-guide" href="/guides/create"><i class="bi bi-plus-lg"></i> 发布攻略</a>
+            </div>
+        </div>
+
+        <div class="filter-panel">
+            <div class="row g-3 align-items-end">
+                <div class="col-lg-4">
+                    <label class="form-label">关键词</label>
+                    <input type="search" class="form-control" id="keywordInput" placeholder="搜索标题、摘要、标签或游戏名">
+                </div>
+                <div class="col-lg-3">
+                    <label class="form-label">按游戏筛选</label>
+                    <select class="form-select" id="gameSelect">
+                        <option value="">全部游戏</option>
+                    </select>
+                </div>
+                <div class="col-lg-2">
+                    <label class="form-label">难度</label>
+                    <select class="form-select" id="difficultySelect">
+                        <option value="">全部难度</option>
+                        <option value="BEGINNER">入门</option>
+                        <option value="INTERMEDIATE">进阶</option>
+                        <option value="ADVANCED">高阶</option>
+                    </select>
+                </div>
+                <div class="col-lg-2">
+                    <div class="form-check pt-lg-4">
+                        <input class="form-check-input" type="checkbox" id="featuredOnlyCheck">
+                        <label class="form-check-label" for="featuredOnlyCheck">只看精选</label>
+                    </div>
+                </div>
+                <div class="col-lg-1 d-grid">
+                    <button class="btn btn-guide" id="resetFiltersBtn" type="button">重置</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="guides-grid" id="guidesContainer">
+            <div class="loading-state">正在加载攻略列表...</div>
+        </div>
+
+        <div class="load-more-wrap">
+            <button class="btn btn-guide-secondary" id="loadMoreBtn" type="button" style="display:none;">加载更多</button>
+        </div>
+    </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    let keywordTimer = null;
+    const state = {
+        page: 0,
+        size: 9,
+        hasMore: true,
+        loading: false,
+        guides: [],
+        filters: {
+            keyword: '',
+            gameId: '',
+            difficulty: '',
+            featuredOnly: false
+        }
+    };
+
+    function escapeHtml(text) {
+        return String(text ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    function formatDate(dateText) {
+        if (!dateText) {
+            return '未知时间';
+        }
+        return new Date(dateText).toLocaleDateString('zh-CN', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        });
+    }
+
+    function renderTags(tags) {
+        if (!tags) {
+            return '';
+        }
+        return tags.split(',')
+            .map(tag => tag.trim())
+            .filter(Boolean)
+            .slice(0, 4)
+            .map(tag => `<span class="guide-tag">${escapeHtml(tag)}</span>`)
+            .join('');
+    }
+
+    function syncFiltersFromUrl() {
+        const params = new URLSearchParams(window.location.search);
+        state.filters.keyword = params.get('keyword') || '';
+        state.filters.gameId = params.get('gameId') || '';
+        state.filters.difficulty = params.get('difficulty') || '';
+        state.filters.featuredOnly = params.get('featuredOnly') === 'true';
+
+        document.getElementById('keywordInput').value = state.filters.keyword;
+        document.getElementById('difficultySelect').value = state.filters.difficulty;
+        document.getElementById('featuredOnlyCheck').checked = state.filters.featuredOnly;
+    }
+
+    function syncUrlFromFilters() {
+        const params = new URLSearchParams();
+        if (state.filters.keyword) params.set('keyword', state.filters.keyword);
+        if (state.filters.gameId) params.set('gameId', state.filters.gameId);
+        if (state.filters.difficulty) params.set('difficulty', state.filters.difficulty);
+        if (state.filters.featuredOnly) params.set('featuredOnly', 'true');
+        const query = params.toString();
+        history.replaceState(null, '', query ? `/guides?${query}` : '/guides');
+    }
+
+    function buildGuideCard(guide) {
+        return `
+            <article class="guide-card">
+                <img class="guide-cover" src="${escapeHtml(guide.coverImageUrl || '')}" alt="${escapeHtml(guide.title)}" onerror="this.src='https://images.unsplash.com/photo-1511512578047-dfb367046420?w=900&h=500&fit=crop';">
+                <div class="guide-card-body">
+                    <div class="guide-meta">
+                        <span class="guide-badge difficulty-badge"><i class="bi bi-bar-chart-steps"></i> ${escapeHtml(guide.difficultyText)}</span>
+                        ${guide.featured ? '<span class="guide-badge"><i class="bi bi-stars"></i> 精选</span>' : ''}
+                        <span><i class="bi bi-controller"></i> ${escapeHtml(guide.gameName)}</span>
+                    </div>
+                    <div class="guide-title">${escapeHtml(guide.title)}</div>
+                    <div class="guide-summary">${escapeHtml(guide.summary || '暂无摘要')}</div>
+                    <div class="guide-tags">${renderTags(guide.tags)}</div>
+                    <div class="guide-card-footer">
+                        <div class="guide-meta">
+                            <span><i class="bi bi-person"></i> ${escapeHtml(guide.authorName)}</span>
+                            <span><i class="bi bi-clock-history"></i> ${guide.estimatedMinutes || 15} 分钟</span>
+                            <span><i class="bi bi-eye"></i> ${guide.viewCount || 0}</span>
+                        </div>
+                        <div class="guide-actions">
+                            <a class="btn btn-guide flex-fill" href="/guides/${guide.id}">查看攻略</a>
+                            <a class="btn btn-guide-secondary flex-fill text-center text-decoration-none" href="/game/${guide.gameId}">查看游戏</a>
+                        </div>
+                    </div>
+                </div>
+            </article>
+        `;
+    }
+
+    function renderGuides() {
+        const container = document.getElementById('guidesContainer');
+        const hint = document.getElementById('guideCountHint');
+
+        if (!state.guides.length) {
+            container.innerHTML = '<div class="empty-state">当前筛选条件下还没有攻略，你可以先执行我给你的示例 SQL 导入几条数据。</div>';
+            hint.textContent = '当前没有匹配的攻略';
+            return;
+        }
+
+        container.innerHTML = state.guides.map(buildGuideCard).join('');
+        hint.textContent = `当前已加载 ${state.guides.length} 条攻略`;
+    }
+
+    async function loadFeaturedGuides() {
+        const container = document.getElementById('featuredGuides');
+        try {
+            const response = await fetch('/api/guides/featured?size=3');
+            const result = await response.json();
+            if (result.code !== 200 || !Array.isArray(result.data) || result.data.length === 0) {
+                container.innerHTML = '<div class="empty-state">暂时还没有精选攻略。</div>';
+                return;
+            }
+
+            container.innerHTML = result.data.map(guide => `
+                <article class="featured-card">
+                    <img src="${escapeHtml(guide.coverImageUrl || '')}" alt="${escapeHtml(guide.title)}" onerror="this.src='https://images.unsplash.com/photo-1542751371-adc38448a05e?w=900&h=500&fit=crop';">
+                    <div class="featured-card-body">
+                        <div class="guide-meta">
+                            <span class="guide-badge"><i class="bi bi-stars"></i> 精选攻略</span>
+                            <span>${formatDate(guide.publishedAt)}</span>
+                        </div>
+                        <div class="guide-title">${escapeHtml(guide.title)}</div>
+                        <div class="guide-summary">${escapeHtml(guide.summary || '暂无摘要')}</div>
+                        <div class="guide-actions">
+                            <a class="btn btn-guide flex-fill" href="/guides/${guide.id}">继续阅读</a>
+                        </div>
+                    </div>
+                </article>
+            `).join('');
+        } catch (error) {
+            console.error('加载精选攻略失败:', error);
+            container.innerHTML = '<div class="empty-state">精选攻略加载失败，请稍后刷新重试。</div>';
+        }
+    }
+
+    async function loadGames() {
+        try {
+            const response = await fetch('/api/games?page=0&size=200');
+            const result = await response.json();
+            const select = document.getElementById('gameSelect');
+            if (result.code !== 200 || !Array.isArray(result.data)) {
+                return;
+            }
+            const options = result.data.map(game => {
+                const selected = String(game.id) === String(state.filters.gameId) ? 'selected' : '';
+                const name = escapeHtml(game.displayName || game.name || `游戏 ${game.id}`);
+                return `<option value="${game.id}" ${selected}>${name}</option>`;
+            });
+            select.innerHTML = '<option value="">全部游戏</option>' + options.join('');
+        } catch (error) {
+            console.error('加载游戏列表失败:', error);
+        }
+    }
+
+    async function loadGuides(reset = false) {
+        if (state.loading) {
+            return;
+        }
+        if (reset) {
+            state.page = 0;
+            state.hasMore = true;
+            state.guides = [];
+            document.getElementById('guidesContainer').innerHTML = '<div class="loading-state">正在加载攻略列表...</div>';
+        }
+        if (!state.hasMore) {
+            return;
+        }
+
+        state.loading = true;
+        const params = new URLSearchParams({
+            page: String(state.page),
+            size: String(state.size)
+        });
+        if (state.filters.keyword) params.set('keyword', state.filters.keyword);
+        if (state.filters.gameId) params.set('gameId', state.filters.gameId);
+        if (state.filters.difficulty) params.set('difficulty', state.filters.difficulty);
+        if (state.filters.featuredOnly) params.set('featuredOnly', 'true');
+
+        try {
+            const response = await fetch(`/api/guides?${params.toString()}`);
+            const result = await response.json();
+            const data = Array.isArray(result.data) ? result.data : [];
+
+            if (reset) {
+                state.guides = data;
+            } else {
+                state.guides = state.guides.concat(data);
+            }
+
+            state.hasMore = data.length === state.size;
+            state.page += 1;
+            renderGuides();
+            document.getElementById('loadMoreBtn').style.display = state.hasMore ? 'inline-flex' : 'none';
+        } catch (error) {
+            console.error('加载攻略失败:', error);
+            document.getElementById('guidesContainer').innerHTML = '<div class="empty-state">攻略加载失败，请稍后重试。</div>';
+            document.getElementById('loadMoreBtn').style.display = 'none';
+        } finally {
+            state.loading = false;
+        }
+    }
+
+    function bindFilters() {
+        document.getElementById('keywordInput').addEventListener('input', event => {
+            clearTimeout(keywordTimer);
+            keywordTimer = setTimeout(() => {
+                state.filters.keyword = event.target.value.trim();
+                syncUrlFromFilters();
+                loadGuides(true);
+            }, 250);
+        });
+
+        document.getElementById('gameSelect').addEventListener('change', event => {
+            state.filters.gameId = event.target.value;
+            syncUrlFromFilters();
+            loadGuides(true);
+        });
+
+        document.getElementById('difficultySelect').addEventListener('change', event => {
+            state.filters.difficulty = event.target.value;
+            syncUrlFromFilters();
+            loadGuides(true);
+        });
+
+        document.getElementById('featuredOnlyCheck').addEventListener('change', event => {
+            state.filters.featuredOnly = event.target.checked;
+            syncUrlFromFilters();
+            loadGuides(true);
+        });
+
+        document.getElementById('resetFiltersBtn').addEventListener('click', () => {
+            state.filters = {
+                keyword: '',
+                gameId: '',
+                difficulty: '',
+                featuredOnly: false
+            };
+            document.getElementById('keywordInput').value = '';
+            document.getElementById('gameSelect').value = '';
+            document.getElementById('difficultySelect').value = '';
+            document.getElementById('featuredOnlyCheck').checked = false;
+            syncUrlFromFilters();
+            loadGuides(true);
+        });
+
+        document.getElementById('loadMoreBtn').addEventListener('click', () => loadGuides(false));
+    }
+
+    function resetGuestNav() {
+        document.getElementById('loginLink').style.display = '';
+        document.getElementById('registerLink').style.display = '';
+        document.getElementById('userInfo')?.remove();
+    }
+
+    function renderUserMenu(user) {
+        document.getElementById('loginLink').style.display = 'none';
+        document.getElementById('registerLink').style.display = 'none';
+
+        if (document.getElementById('userInfo')) {
+            return;
+        }
+
+        const navbarLinks = document.getElementById('navbarLinks');
+        const userInfo = document.createElement('div');
+        userInfo.id = 'userInfo';
+        userInfo.className = 'dropdown';
+
+        const adminMenuItem = user.role === 'ADMIN'
+            ? '<li><hr class="dropdown-divider"></li><li><a class="dropdown-item" href="/admin"><i class="bi bi-gear-fill"></i> 管理系统</a></li>'
+            : '';
+
+        userInfo.innerHTML = `
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-person-circle"></i> ${escapeHtml(user.username)}
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end user-dropdown">
+                <li><a class="dropdown-item" href="/profile"><i class="bi bi-person"></i> 个人中心</a></li>
+                <li><a class="dropdown-item" href="/library"><i class="bi bi-collection-play"></i> 游戏库</a></li>
+                <li><a class="dropdown-item" href="/orders"><i class="bi bi-receipt"></i> 我的订单</a></li>
+                <li><a class="dropdown-item" href="/cart"><i class="bi bi-cart"></i> 购物车</a></li>
+                ${adminMenuItem}
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="#" onclick="logout(event)"><i class="bi bi-box-arrow-right"></i> 退出登录</a></li>
+            </ul>
+        `;
+
+        navbarLinks.appendChild(userInfo);
+    }
+
+    async function checkLoginStatus() {
+        try {
+            const response = await fetch('/api/auth/current');
+            const result = await response.json();
+            if (result.code === 200 && result.data) {
+                renderUserMenu(result.data);
+            } else {
+                resetGuestNav();
+            }
+        } catch (error) {
+            console.error('检查登录状态失败:', error);
+            resetGuestNav();
+        }
+    }
+
+    async function logout(event) {
+        if (event) {
+            event.preventDefault();
+        }
+        try {
+            await fetch('/api/auth/logout', { method: 'POST' });
+        } finally {
+            window.location.href = '/';
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        syncFiltersFromUrl();
+        bindFilters();
+        await checkLoginStatus();
+        await loadGames();
+        await loadFeaturedGuides();
+        await loadGuides(true);
+    });
+</script>
+</body>
+</html>

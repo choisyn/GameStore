@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>讨论详情 - 游戏社区</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --steam-dark-bg: #1b2838;
+            --steam-light-bg: #2a475e;
+            --steam-card-bg: #1e2837;
+            --steam-hover: #16202d;
+            --steam-blue: #66c0f4;
+            --steam-text: #c7d5e0;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: Arial, "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #1b2838 0%, #2a475e 100%);
+            color: var(--steam-text);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 920px;
+            margin: 0 auto;
+        }
+
+        .header,
+        .post-container,
+        .comments-section {
+            background: var(--steam-card-bg);
+            border-radius: 10px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+        }
+
+        .header {
+            padding: 20px 24px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary {
+            background: var(--steam-light-bg);
+            color: var(--steam-text);
+        }
+
+        .btn-secondary:hover {
+            background: var(--steam-hover);
+        }
+
+        .btn-danger {
+            background: #f5576c;
+            color: white;
+        }
+
+        .btn-primary {
+            background: var(--steam-blue);
+            color: #123;
+        }
+
+        .post-container,
+        .comments-section {
+            padding: 28px;
+            margin-bottom: 20px;
+        }
+
+        .post-badges {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-pinned { background: #f5576c; color: white; }
+        .badge-featured { background: #ffd93d; color: #1b2838; }
+        .badge-game { background: var(--steam-blue); color: #1b2838; }
+        .badge-category { background: var(--steam-light-bg); color: var(--steam-text); }
+
+        .post-title {
+            font-size: 30px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .post-meta {
+            display: flex;
+            gap: 18px;
+            color: #8f98a0;
+            font-size: 14px;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            flex-wrap: wrap;
+        }
+
+        .author-name {
+            color: var(--steam-blue);
+            font-weight: 600;
+        }
+
+        .post-content {
+            color: var(--steam-text);
+            font-size: 16px;
+            line-height: 1.9;
+            word-break: break-word;
+        }
+
+        .forum-rich-image {
+            display: block;
+            width: min(100%, 760px);
+            max-height: 520px;
+            object-fit: cover;
+            margin: 18px 0;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 14px 32px rgba(0, 0, 0, 0.24);
+            background: rgba(0, 0, 0, 0.28);
+        }
+
+        .post-content code {
+            padding: 2px 8px;
+            border-radius: 6px;
+            background: rgba(0, 0, 0, 0.24);
+            font-family: Consolas, Monaco, monospace;
+        }
+
+        .post-content strong {
+            color: #fff;
+        }
+
+        .post-content em {
+            color: #d9efff;
+        }
+
+        .reward-panel {
+            margin-top: 24px;
+            padding: 16px 18px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .reward-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .reward-title {
+            font-weight: 700;
+            color: white;
+        }
+
+        .reward-summary {
+            color: #8f98a0;
+            font-size: 13px;
+        }
+
+        .reward-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .reward-input {
+            width: 120px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--steam-light-bg);
+            background: var(--steam-dark-bg);
+            color: var(--steam-text);
+        }
+
+        .reward-hint {
+            font-size: 13px;
+            color: #8f98a0;
+        }
+
+        .reward-supporters {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .reward-supporter-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 10px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.03);
+            font-size: 14px;
+        }
+
+        .reward-supporter-name {
+            color: var(--steam-blue);
+            font-weight: 600;
+        }
+
+        .reward-supporter-points {
+            color: #ffd93d;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .reward-footer {
+            margin-top: 10px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .reward-empty {
+            color: #8f98a0;
+            font-size: 13px;
+        }
+
+        .reward-modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.58);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 999;
+        }
+
+        .reward-modal {
+            width: min(560px, 100%);
+            max-height: min(80vh, 680px);
+            overflow-y: auto;
+            background: var(--steam-card-bg);
+            border-radius: 14px;
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .reward-modal-header,
+        .reward-modal-body {
+            padding: 18px 20px;
+        }
+
+        .reward-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .reward-modal-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .comments-header {
+            font-size: 20px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .comment-form {
+            background: var(--steam-hover);
+            border-radius: 10px;
+            padding: 18px;
+            margin-bottom: 24px;
+        }
+
+        .comment-textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 12px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--steam-light-bg);
+            background: var(--steam-dark-bg);
+            color: var(--steam-text);
+            resize: vertical;
+            margin-bottom: 12px;
+        }
+
+        .comment-textarea:focus {
+            outline: none;
+            border-color: var(--steam-blue);
+        }
+
+        .comment-item {
+            border-left: 3px solid var(--steam-blue);
+            padding: 14px 18px;
+            background: var(--steam-hover);
+            border-radius: 8px;
+            margin-bottom: 14px;
+        }
+
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 8px;
+        }
+
+        .comment-author {
+            color: var(--steam-blue);
+            font-weight: 600;
+        }
+
+        .comment-time {
+            color: #8f98a0;
+            font-size: 13px;
+        }
+
+        .comment-content {
+            line-height: 1.7;
+            margin-bottom: 8px;
+            white-space: pre-wrap;
+        }
+
+        .comment-footer {
+            display: flex;
+            gap: 14px;
+            font-size: 13px;
+            color: #8f98a0;
+        }
+
+        .comment-action {
+            cursor: pointer;
+        }
+
+        .reply-item {
+            margin-left: 22px;
+            margin-top: 12px;
+            padding-left: 16px;
+            border-left: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .empty,
+        .loading {
+            text-align: center;
+            padding: 30px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <a href="/forum.html" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> 返回广场</a>
+        <div id="postActions"></div>
+    </div>
+
+    <div class="post-container" id="postContainer">
+        <div class="loading">正在加载...</div>
+    </div>
+
+    <div class="comments-section">
+        <div class="comments-header">评论 <span id="commentCount">(0)</span></div>
+
+        <div class="comment-form" id="commentForm" style="display:none;">
+            <textarea class="comment-textarea" id="commentInput" placeholder="发表你的看法..." maxlength="1000"></textarea>
+            <div class="d-flex justify-content-end">
+                <button class="btn btn-primary" onclick="submitComment()">发表评论</button>
+            </div>
+        </div>
+
+        <div id="loginHint" class="empty" style="display:none;">
+            请先 <a href="/login" class="link-info">登录</a> 后发表评论。
+        </div>
+
+        <div id="commentList">
+            <div class="loading">正在加载评论...</div>
+        </div>
+    </div>
+</div>
+
+<div class="reward-modal-backdrop" id="rewardModal">
+    <div class="reward-modal">
+        <div class="reward-modal-header">
+            <strong>完整打赏名单</strong>
+            <button class="btn btn-secondary" type="button" onclick="closeRewardModal()">关闭</button>
+        </div>
+        <div class="reward-modal-body">
+            <div class="reward-modal-list" id="rewardModalList"></div>
+        </div>
+    </div>
+</div>
+
+<script src="/js/ui-feedback.js"></script>
+<script src="/js/forum-post-content.js"></script>
+<script>
+    let postId = null;
+    let currentUser = null;
+    let currentPost = null;
+    let rewardPreviewState = null;
+
+    function getQueryParam(name) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(name);
+    }
+
+    async function fetchCurrentUser() {
+        try {
+            const response = await fetch('/api/auth/current');
+            const result = await response.json();
+            return result.code === 200 ? result.data : null;
+        } catch (error) {
+            return null;
+        }
+    }
+
+    async function loadPost() {
+        const container = document.getElementById('postContainer');
+        try {
+            const response = await fetch(`/api/posts/${postId}`);
+            const result = await response.json();
+            if (result.code !== 200 || !result.data) {
+                container.innerHTML = '<div class="empty">帖子不存在或加载失败。</div>';
+                return;
+            }
+            currentPost = result.data;
+            renderPost(currentPost);
+            await loadRewardPreview();
+            recordPostView(currentPost);
+        } catch (error) {
+            console.error('加载帖子失败:', error);
+            container.innerHTML = '<div class="empty">加载失败，请稍后重试。</div>';
+        }
+    }
+
+    async function recordPostView(post) {
+        try {
+            await fetch('/api/innovation/events', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    behaviorType: 'VIEW_FORUM_POST',
+                    gameId: post.gameId,
+                    referenceId: post.id,
+                    detail: post.title
+                })
+            });
+        } catch (error) {
+            console.error('记录帖子浏览失败:', error);
+        }
+    }
+
+    function renderPost(post) {
+        const badges = [];
+        if (post.isPinned) badges.push('<span class="badge badge-pinned">置顶</span>');
+        if (post.isFeatured) badges.push('<span class="badge badge-featured">精华</span>');
+        if (post.gameName) badges.push(`<span class="badge badge-game">${escapeHtml(post.displayGameName || post.gameName)}</span>`);
+        if (post.category) badges.push(`<span class="badge badge-category">${escapeHtml(post.category)}</span>`);
+
+        document.getElementById('postContainer').innerHTML = `
+            <div class="post-badges">${badges.join('')}</div>
+            <h1 class="post-title">${escapeHtml(post.title)}</h1>
+            <div class="post-meta">
+                <span>作者：<span class="author-name">${escapeHtml(post.username || '匿名用户')}</span></span>
+                <span>浏览 ${post.viewCount || 0}</span>
+                <span>评论 ${post.commentCount || 0}</span>
+                <span>点赞 ${post.likeCount || 0}</span>
+                <span>发布时间 ${formatTime(post.createdAt)}</span>
+            </div>
+            <div class="post-content">${ForumPostContent.renderContent(post.content)}</div>
+            <div class="reward-panel">
+                <div class="reward-header">
+                    <div>
+                        <div class="reward-title"><i class="bi bi-coin"></i> 打赏支持</div>
+                        <div class="reward-summary" id="rewardSummary">正在加载打赏信息...</div>
+                    </div>
+                    <div class="reward-hint" id="rewardBalanceHint">${currentUser ? `我的积分：${currentUser.points || 0}` : '登录后可使用积分打赏作者'}</div>
+                </div>
+                <div class="reward-controls">
+                    <input class="reward-input" id="rewardPointsInput" type="number" min="1" step="1" value="10" placeholder="积分数">
+                    <button class="btn btn-primary" type="button" onclick="submitReward()">打赏</button>
+                </div>
+                <div class="reward-supporters" id="rewardSupporters">
+                    <div class="reward-empty">正在加载打赏名单...</div>
+                </div>
+                <div class="reward-footer">
+                    <button class="btn btn-secondary" id="rewardViewAllBtn" type="button" onclick="openRewardModal()" style="display:none;">查看全部</button>
+                </div>
+            </div>
+        `;
+
+        const actionContainer = document.getElementById('postActions');
+        actionContainer.innerHTML = currentUser && currentUser.userId === post.userId
+            ? '<button class="btn btn-danger" onclick="deletePost()">删除帖子</button>'
+            : '';
+    }
+
+    async function loadRewardPreview() {
+        const summaryElement = document.getElementById('rewardSummary');
+        const listElement = document.getElementById('rewardSupporters');
+        const viewAllBtn = document.getElementById('rewardViewAllBtn');
+        if (!summaryElement || !listElement || !viewAllBtn) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/rewards/posts/${postId}`);
+            const result = await response.json();
+            if (result.code !== 200 || !result.data) {
+                throw new Error(result.message || '加载失败');
+            }
+
+            rewardPreviewState = result.data;
+            summaryElement.textContent = `累计收到 ${result.data.totalRewardPoints || 0} 积分，已有 ${result.data.supporterCount || 0} 位用户打赏`;
+            renderRewardSupporters(result.data.supporters || [], listElement);
+            viewAllBtn.style.display = (result.data.supporterCount || 0) > 0 ? 'inline-flex' : 'none';
+        } catch (error) {
+            console.error('加载打赏摘要失败:', error);
+            summaryElement.textContent = '打赏信息加载失败';
+            listElement.innerHTML = '<div class="reward-empty">暂时无法加载打赏名单。</div>';
+            viewAllBtn.style.display = 'none';
+        }
+    }
+
+    function renderRewardSupporters(supporters, container) {
+        if (!Array.isArray(supporters) || supporters.length === 0) {
+            container.innerHTML = '<div class="reward-empty">还没有人打赏，成为第一个支持者吧。</div>';
+            return;
+        }
+
+        container.innerHTML = supporters.map(supporter => `
+            <div class="reward-supporter-item">
+                <span class="reward-supporter-name">${escapeHtml(supporter.username || '匿名用户')}</span>
+                <span class="reward-supporter-points">+${supporter.totalPoints || 0} 积分</span>
+            </div>
+        `).join('');
+    }
+
+    async function openRewardModal() {
+        const modal = document.getElementById('rewardModal');
+        const list = document.getElementById('rewardModalList');
+        modal.style.display = 'flex';
+        list.innerHTML = '<div class="reward-empty">正在加载...</div>';
+
+        try {
+            const response = await fetch(`/api/rewards/posts/${postId}/all`);
+            const result = await response.json();
+            if (result.code !== 200 || !result.data) {
+                throw new Error(result.message || '加载失败');
+            }
+
+            const supporters = result.data.supporters || [];
+            if (!supporters.length) {
+                list.innerHTML = '<div class="reward-empty">还没有完整打赏记录。</div>';
+                return;
+            }
+
+            list.innerHTML = supporters.map((supporter, index) => `
+                <div class="reward-supporter-item">
+                    <span>${index + 1}. <span class="reward-supporter-name">${escapeHtml(supporter.username || '匿名用户')}</span></span>
+                    <span class="reward-supporter-points">+${supporter.totalPoints || 0} 积分</span>
+                </div>
+            `).join('');
+        } catch (error) {
+            console.error('加载完整打赏名单失败:', error);
+            list.innerHTML = '<div class="reward-empty">完整名单加载失败。</div>';
+        }
+    }
+
+    function closeRewardModal() {
+        document.getElementById('rewardModal').style.display = 'none';
+    }
+
+    async function submitReward() {
+        if (!currentUser) {
+            await appAlert('请先登录后再打赏。', { title: '需要登录', type: 'warning' });
+            window.location.href = '/login';
+            return;
+        }
+        if (!currentPost) {
+            return;
+        }
+
+        const input = document.getElementById('rewardPointsInput');
+        const points = Number(input?.value || 0);
+        if (!Number.isInteger(points) || points <= 0) {
+            await appAlert('请输入大于 0 的整数积分。', { title: '输入有误', type: 'warning' });
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/rewards/posts/${postId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ points })
+            });
+            const result = await response.json();
+            if (result.code !== 200) {
+                await appAlert(result.message || '打赏失败', { title: '提示', type: 'warning' });
+                return;
+            }
+
+            currentUser.points = result.data?.senderPointsBalance ?? currentUser.points;
+            await appAlert(`已成功打赏 ${points} 积分。`, { title: '打赏成功', type: 'success' });
+            await loadRewardPreview();
+            const balanceHint = document.getElementById('rewardBalanceHint');
+            if (balanceHint) {
+                balanceHint.textContent = `我的积分：${currentUser.points || 0}`;
+            }
+        } catch (error) {
+            console.error('打赏失败:', error);
+            await appAlert('打赏失败，请稍后重试。', { title: '提示', type: 'warning' });
+        }
+    }
+
+    async function loadComments() {
+        const commentList = document.getElementById('commentList');
+        try {
+            const response = await fetch(`/api/posts/${postId}/comments?page=0&size=100`);
+            const result = await response.json();
+            if (result.code !== 200 || !result.data) {
+                commentList.innerHTML = '<div class="empty">评论加载失败。</div>';
+                return;
+            }
+
+            const comments = result.data.content || result.data || [];
+            const count = result.data.totalElements || (Array.isArray(comments) ? comments.length : 0);
+            document.getElementById('commentCount').textContent = `(${count})`;
+
+            commentList.innerHTML = Array.isArray(comments) && comments.length
+                ? comments.map(renderComment).join('')
+                : '<div class="empty">暂无评论，快来发表第一条吧。</div>';
+        } catch (error) {
+            console.error('加载评论失败:', error);
+            commentList.innerHTML = '<div class="empty">评论加载失败。</div>';
+        }
+    }
+
+    function renderComment(comment) {
+        const replies = comment.replies && comment.replies.length
+            ? comment.replies.map(reply => `
+                <div class="reply-item">
+                    <div class="comment-header">
+                        <span class="comment-author">${escapeHtml(reply.username || '匿名用户')}</span>
+                        <span class="comment-time">${formatTime(reply.createdAt)}</span>
+                    </div>
+                    <div class="comment-content">${escapeHtml(reply.content)}</div>
+                </div>
+            `).join('')
+            : '';
+
+        const deleteAction = currentUser && currentUser.userId === comment.userId
+            ? `<span class="comment-action" onclick="deleteComment(${comment.id})">删除</span>`
+            : '';
+
+        return `
+            <div class="comment-item">
+                <div class="comment-header">
+                    <span class="comment-author">${escapeHtml(comment.username || '匿名用户')}</span>
+                    <span class="comment-time">${formatTime(comment.createdAt)}</span>
+                </div>
+                <div class="comment-content">${escapeHtml(comment.content)}</div>
+                <div class="comment-footer">
+                    <span>点赞 ${comment.likeCount || 0}</span>
+                    ${deleteAction}
+                </div>
+                ${replies}
+            </div>
+        `;
+    }
+
+    async function submitComment() {
+        const content = document.getElementById('commentInput').value.trim();
+        if (!content) {
+            alert('请输入评论内容');
+            return;
+        }
+        if (content.length < 2) {
+            alert('评论内容至少需要 2 个字符');
+            return;
+        }
+
+        const response = await fetch('/api/posts/comments', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                postId: Number(postId),
+                content
+            })
+        });
+        const result = await response.json();
+        if (result.code !== 200) {
+            alert(result.message || '评论失败');
+            return;
+        }
+
+        document.getElementById('commentInput').value = '';
+        await loadPost();
+        await loadComments();
+    }
+
+    async function deletePost() {
+        if (!(await appConfirm('确定要删除这篇帖子吗？此操作不可恢复。', { title: '删除帖子', type: 'warning' }))) return;
+        const response = await fetch(`/api/posts/${postId}`, { method: 'DELETE' });
+        const result = await response.json();
+        if (result.code !== 200) {
+            alert(result.message || '删除失败');
+            return;
+        }
+        await appAlert('删除成功', { title: '操作完成', type: 'success' });
+        window.location.href = '/forum.html';
+    }
+
+    async function deleteComment(commentId) {
+        if (!(await appConfirm('确定要删除这条评论吗？', { title: '删除评论', type: 'warning' }))) return;
+        const response = await fetch(`/api/posts/comments/${commentId}`, { method: 'DELETE' });
+        const result = await response.json();
+        if (result.code !== 200) {
+            alert(result.message || '删除失败');
+            return;
+        }
+        await loadPost();
+        await loadComments();
+    }
+
+    function formatTime(dateString) {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        const now = new Date();
+        const diff = now - date;
+        const minute = 60 * 1000;
+        const hour = 60 * minute;
+        const day = 24 * hour;
+
+        if (diff < minute) return '刚刚';
+        if (diff < hour) return `${Math.floor(diff / minute)} 分钟前`;
+        if (diff < day) return `${Math.floor(diff / hour)} 小时前`;
+        if (diff < 7 * day) return `${Math.floor(diff / day)} 天前`;
+        return date.toLocaleString('zh-CN');
+    }
+
+    function escapeHtml(text) {
+        return ForumPostContent.escapeHtml(text);
+    }
+
+    document.addEventListener('DOMContentLoaded', async function () {
+        postId = getQueryParam('id');
+        if (!postId) {
+            await appAlert('帖子不存在', { title: '内容不存在', type: 'warning' });
+            window.location.href = '/forum.html';
+            return;
+        }
+
+        currentUser = await fetchCurrentUser();
+        document.getElementById('commentForm').style.display = currentUser ? 'block' : 'none';
+        document.getElementById('loginHint').style.display = currentUser ? 'none' : 'block';
+
+        await loadPost();
+        await loadComments();
+    });
+
+    document.getElementById('rewardModal').addEventListener('click', function (event) {
+        if (event.target === this) {
+            closeRewardModal();
+        }
+    });
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' && e.ctrlKey && document.activeElement === document.getElementById('commentInput')) {
+            submitComment();
+        }
+    });
+</script>
+</body>
+</html>

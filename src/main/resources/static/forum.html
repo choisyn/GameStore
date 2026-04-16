@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>讨论广场 - 游戏社区</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --steam-dark-bg: #1b2838;
+            --steam-light-bg: #2a475e;
+            --steam-card-bg: #1e2837;
+            --steam-hover: #16202d;
+            --steam-blue: #66c0f4;
+            --steam-text: #c7d5e0;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: Arial, "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #1b2838 0%, #2a475e 100%);
+            color: var(--steam-text);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header,
+        .filter-section,
+        .posts-container {
+            background: var(--steam-card-bg);
+            border-radius: 10px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+        }
+
+        .header {
+            padding: 24px 28px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .header h1 {
+            margin: 0;
+            color: var(--steam-blue);
+            font-size: 28px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--steam-blue);
+            color: #142433;
+        }
+
+        .btn-primary:hover {
+            background: #8fd6ff;
+        }
+
+        .btn-secondary {
+            background: var(--steam-light-bg);
+            color: var(--steam-text);
+        }
+
+        .btn-secondary:hover {
+            background: var(--steam-hover);
+        }
+
+        .filter-section {
+            padding: 18px 20px;
+            margin-bottom: 20px;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-select,
+        .search-input {
+            padding: 10px 12px;
+            border: 1px solid var(--steam-light-bg);
+            border-radius: 6px;
+            background: var(--steam-dark-bg);
+            color: var(--steam-text);
+        }
+
+        .filter-select:focus,
+        .search-input:focus {
+            outline: none;
+            border-color: var(--steam-blue);
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            flex: 1;
+            min-width: 260px;
+        }
+
+        .search-input {
+            flex: 1;
+        }
+
+        .posts-container {
+            padding: 20px;
+            min-height: 420px;
+        }
+
+        .post-item {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 20px 0;
+            cursor: pointer;
+        }
+
+        .post-item:hover {
+            background: var(--steam-hover);
+            margin: 0 -20px;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .post-item:last-child {
+            border-bottom: none;
+        }
+
+        .post-layout {
+            display: flex;
+            gap: 18px;
+            align-items: flex-start;
+        }
+
+        .post-main {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .post-header {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .post-badge {
+            padding: 3px 8px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-pinned { background: #f5576c; color: white; }
+        .badge-featured { background: #ffd93d; color: #1b2838; }
+        .badge-game { background: var(--steam-blue); color: #1b2838; }
+        .badge-image { background: rgba(102, 192, 244, 0.16); color: #cbeeff; }
+
+        .post-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 8px;
+        }
+
+        .post-content {
+            color: var(--steam-text);
+            font-size: 14px;
+            line-height: 1.7;
+            margin-bottom: 12px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .post-image-preview {
+            width: 200px;
+            aspect-ratio: 16 / 9;
+            border-radius: 12px;
+            overflow: hidden;
+            flex-shrink: 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.18);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .post-image-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .post-meta {
+            display: flex;
+            gap: 18px;
+            color: #8f98a0;
+            font-size: 13px;
+            flex-wrap: wrap;
+        }
+
+        .post-author {
+            color: var(--steam-blue);
+            font-weight: 600;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 24px;
+        }
+
+        .page-btn {
+            padding: 8px 14px;
+            border: 1px solid var(--steam-light-bg);
+            background: var(--steam-card-bg);
+            color: var(--steam-text);
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .page-btn.active {
+            background: var(--steam-blue);
+            border-color: var(--steam-blue);
+            color: #1b2838;
+        }
+
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .loading,
+        .empty {
+            text-align: center;
+            padding: 40px;
+            color: var(--steam-text);
+        }
+
+        .tip {
+            font-size: 13px;
+            color: #9fb4c5;
+        }
+
+        @media (max-width: 768px) {
+            .filter-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+
+            .post-layout {
+                flex-direction: column;
+            }
+
+            .post-image-preview {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1><i class="bi bi-chat-dots"></i> 讨论广场</h1>
+        <div class="header-actions">
+            <a href="/" class="btn btn-secondary"><i class="bi bi-house"></i> 返回首页</a>
+            <a href="/community" class="btn btn-secondary"><i class="bi bi-people"></i> 返回社区</a>
+            <a href="/points-shop" class="btn btn-secondary"><i class="bi bi-stars"></i> 积分商店</a>
+            <a href="/create-post.html" class="btn btn-primary" id="createPostBtn"><i class="bi bi-plus-circle"></i> 发布讨论</a>
+        </div>
+    </div>
+
+    <div class="filter-section">
+        <div class="filter-row">
+            <label for="gameFilter">游戏筛选</label>
+            <select class="filter-select" id="gameFilter">
+                <option value="">全部游戏</option>
+            </select>
+            <div class="search-box">
+                <input type="text" class="search-input" id="searchInput" placeholder="搜索讨论...">
+                <button class="btn btn-primary" onclick="searchPosts()">搜索</button>
+            </div>
+            <div class="tip" id="loginTip"></div>
+        </div>
+    </div>
+
+    <div class="posts-container">
+        <div id="postsContent">
+            <div class="loading">正在加载...</div>
+        </div>
+        <div class="pagination" id="pagination"></div>
+    </div>
+</div>
+
+<script src="/js/forum-post-content.js"></script>
+<script>
+    let currentPage = 0;
+    let totalPages = 0;
+    let currentGameId = null;
+    let currentUser = null;
+
+    async function fetchCurrentUser() {
+        try {
+            const response = await fetch('/api/auth/current');
+            const result = await response.json();
+            return result.code === 200 ? result.data : null;
+        } catch (error) {
+            return null;
+        }
+    }
+
+    async function loadGames() {
+        try {
+            const response = await fetch('/api/games?page=0&size=100');
+            const result = await response.json();
+            if (result.code !== 200 || !result.data) return;
+
+            const games = result.data.content || result.data;
+            const gameFilter = document.getElementById('gameFilter');
+            if (!Array.isArray(games)) return;
+
+            games.forEach(game => {
+                const option = document.createElement('option');
+                option.value = game.id;
+                option.textContent = game.displayName || game.name;
+                gameFilter.appendChild(option);
+            });
+
+            gameFilter.addEventListener('change', function () {
+                currentGameId = this.value || null;
+                currentPage = 0;
+                loadPosts();
+            });
+        } catch (error) {
+            console.error('加载游戏列表失败:', error);
+        }
+    }
+
+    async function loadPosts() {
+        const postsContent = document.getElementById('postsContent');
+        postsContent.innerHTML = '<div class="loading">正在加载...</div>';
+
+        try {
+            let url = `/api/posts?page=${currentPage}&size=20`;
+            if (currentGameId) {
+                url += `&gameId=${currentGameId}`;
+            }
+
+            const response = await fetch(url);
+            const result = await response.json();
+            if (result.code !== 200 || !result.data) {
+                postsContent.innerHTML = '<div class="empty">加载失败，请稍后重试。</div>';
+                return;
+            }
+
+            const posts = result.data.content || [];
+            totalPages = result.data.totalPages || 0;
+
+            if (!posts.length) {
+                postsContent.innerHTML = '<div class="empty">暂无讨论，快来发布第一条吧。</div>';
+            } else {
+                postsContent.innerHTML = posts.map(createPostHTML).join('');
+            }
+
+            renderPagination();
+        } catch (error) {
+            console.error('加载帖子失败:', error);
+            postsContent.innerHTML = '<div class="empty">加载失败，请稍后重试。</div>';
+        }
+    }
+
+    function createPostHTML(post) {
+        const badges = [];
+        if (post.isPinned) badges.push('<span class="post-badge badge-pinned">置顶</span>');
+        if (post.isFeatured) badges.push('<span class="post-badge badge-featured">精华</span>');
+        if (post.gameName) badges.push(`<span class="post-badge badge-game">${escapeHtml(post.displayGameName || post.gameName)}</span>`);
+        const imageUrls = ForumPostContent.getImageUrls(post);
+        if (imageUrls.length) badges.push(`<span class="post-badge badge-image"><i class="bi bi-image"></i> ${imageUrls.length}</span>`);
+
+        const createdTime = formatTime(post.createdAt);
+        const lastActiveTime = post.lastCommentAt ? formatTime(post.lastCommentAt) : createdTime;
+        const excerpt = ForumPostContent.createExcerpt(post.content, 120);
+        const previewImage = imageUrls.length
+            ? `
+                <div class="post-image-preview">
+                    <img src="${escapeHtml(imageUrls[0])}" alt="${escapeHtml(post.title)}" loading="lazy">
+                </div>
+            `
+            : '';
+
+        return `
+            <div class="post-item" onclick="viewPost(${post.id})">
+                <div class="post-layout">
+                    <div class="post-main">
+                        <div class="post-header">${badges.join('')}</div>
+                        <div class="post-title">${escapeHtml(post.title)}</div>
+                        <div class="post-content">${escapeHtml(excerpt || '这篇帖子包含图片内容，点击查看详情。')}</div>
+                        <div class="post-meta">
+                            <span class="post-author">${escapeHtml(post.username || '匿名用户')}</span>
+                            <span>浏览 ${post.viewCount || 0}</span>
+                            <span>评论 ${post.commentCount || 0}</span>
+                            <span>点赞 ${post.likeCount || 0}</span>
+                            <span>最后活跃 ${lastActiveTime}</span>
+                        </div>
+                    </div>
+                    ${previewImage}
+                </div>
+            </div>
+        `;
+    }
+
+    function renderPagination() {
+        const pagination = document.getElementById('pagination');
+        if (totalPages <= 1) {
+            pagination.innerHTML = '';
+            return;
+        }
+
+        let html = `
+            <button class="page-btn" onclick="goToPage(${currentPage - 1})" ${currentPage === 0 ? 'disabled' : ''}>
+                上一页
+            </button>
+        `;
+
+        for (let i = 0; i < totalPages; i++) {
+            if (i === 0 || i === totalPages - 1 || (i >= currentPage - 2 && i <= currentPage + 2)) {
+                html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i + 1}</button>`;
+            } else if (i === currentPage - 3 || i === currentPage + 3) {
+                html += '<span>...</span>';
+            }
+        }
+
+        html += `
+            <button class="page-btn" onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages - 1 ? 'disabled' : ''}>
+                下一页
+            </button>
+        `;
+
+        pagination.innerHTML = html;
+    }
+
+    function goToPage(page) {
+        if (page >= 0 && page < totalPages) {
+            currentPage = page;
+            loadPosts();
+            window.scrollTo(0, 0);
+        }
+    }
+
+    function viewPost(postId) {
+        window.location.href = `/post-detail.html?id=${postId}`;
+    }
+
+    async function searchPosts() {
+        const keyword = document.getElementById('searchInput').value.trim();
+        if (!keyword) {
+            currentPage = 0;
+            loadPosts();
+            return;
+        }
+
+        const postsContent = document.getElementById('postsContent');
+        postsContent.innerHTML = '<div class="loading">正在搜索...</div>';
+
+        try {
+            const response = await fetch(`/api/posts/search?keyword=${encodeURIComponent(keyword)}&page=0&size=20`);
+            const result = await response.json();
+            if (result.code !== 200 || !result.data) {
+                postsContent.innerHTML = '<div class="empty">搜索失败，请稍后重试。</div>';
+                return;
+            }
+
+            const posts = result.data.content || result.data || [];
+            totalPages = result.data.totalPages || 1;
+            currentPage = 0;
+
+            postsContent.innerHTML = Array.isArray(posts) && posts.length
+                ? posts.map(createPostHTML).join('')
+                : '<div class="empty">没有找到相关讨论。</div>';
+            renderPagination();
+        } catch (error) {
+            console.error('搜索失败:', error);
+            postsContent.innerHTML = '<div class="empty">搜索失败，请稍后重试。</div>';
+        }
+    }
+
+    function formatTime(dateString) {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        const now = new Date();
+        const diff = now - date;
+        const minute = 60 * 1000;
+        const hour = 60 * minute;
+        const day = 24 * hour;
+
+        if (diff < minute) return '刚刚';
+        if (diff < hour) return `${Math.floor(diff / minute)} 分钟前`;
+        if (diff < day) return `${Math.floor(diff / hour)} 小时前`;
+        if (diff < 7 * day) return `${Math.floor(diff / day)} 天前`;
+        return date.toLocaleDateString('zh-CN');
+    }
+
+    function escapeHtml(text) {
+        return ForumPostContent.escapeHtml(text);
+    }
+
+    document.getElementById('searchInput').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            searchPosts();
+        }
+    });
+
+    window.addEventListener('DOMContentLoaded', async function () {
+        currentUser = await fetchCurrentUser();
+        document.getElementById('loginTip').textContent = currentUser
+            ? `当前已登录：${currentUser.username}`
+            : '未登录也可浏览，发帖和评论需先登录。';
+        await loadGames();
+        await loadPosts();
+    });
+</script>
+</body>
+</html>

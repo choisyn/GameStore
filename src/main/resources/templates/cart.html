@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>购物车 - 游戏社区商城</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --steam-dark-bg: #1b2838;
+            --steam-light-bg: #2a475e;
+            --steam-card-bg: #1e2837;
+            --steam-hover: #16202d;
+            --steam-blue: #66c0f4;
+            --steam-green: #5cb85c;
+            --steam-text: #c7d5e0;
+            --steam-warning: #f0ad4e;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1b2838 0%, #2a475e 100%);
+            color: var(--steam-text);
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: var(--steam-dark-bg);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+            padding: 0.9rem 0;
+        }
+
+        .navbar .container {
+            gap: 0.75rem 1rem;
+            align-items: center;
+        }
+
+        .navbar-brand {
+            color: var(--steam-blue) !important;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            font-weight: 700;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .navbar-collapse {
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .navbar-nav {
+            align-items: center;
+            gap: 0.15rem;
+        }
+
+        .nav-link {
+            color: var(--steam-text) !important;
+            margin: 0;
+            padding: 0.55rem 0.85rem !important;
+            border-radius: 999px;
+            white-space: nowrap;
+            transition: color 0.2s ease, background 0.2s ease;
+        }
+
+        .nav-link:hover,
+        .nav-link:focus {
+            color: var(--steam-blue) !important;
+            background: rgba(102, 192, 244, 0.1);
+        }
+
+        .nav-link.active {
+            color: var(--steam-blue) !important;
+            background: rgba(102, 192, 244, 0.12);
+        }
+
+        .navbar-menu {
+            flex-wrap: wrap;
+        }
+
+        .navbar-toggler {
+            border: 1px solid rgba(102, 192, 244, 0.3);
+            border-radius: 999px;
+            padding: 0.45rem 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            color: var(--steam-text);
+        }
+
+        .navbar-toggler:hover {
+            background: rgba(102, 192, 244, 0.08);
+            border-color: rgba(102, 192, 244, 0.55);
+        }
+
+        .navbar-toggler:focus {
+            box-shadow: 0 0 0 0.2rem rgba(102, 192, 244, 0.18);
+        }
+
+        .navbar-toggler-icon {
+            width: 1.2rem;
+            height: 1.2rem;
+        }
+
+        .navbar-toggler-label {
+            font-size: 0.95rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+        }
+
+        .page-wrap {
+            max-width: 1280px;
+            margin: 2rem auto;
+            padding: 0 1rem 3rem;
+        }
+
+        .panel,
+        .summary-card,
+        .cart-item {
+            background: rgba(30, 40, 55, 0.95);
+            border: 1px solid rgba(102, 192, 244, 0.08);
+            border-radius: 16px;
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+        }
+
+        .panel {
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .cart-item {
+            padding: 1rem;
+            display: grid;
+            grid-template-columns: auto 160px 1fr auto;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .cart-cover {
+            width: 160px;
+            height: 90px;
+            object-fit: cover;
+            border-radius: 12px;
+        }
+
+        .cart-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .cart-desc {
+            color: #9fb4c5;
+            font-size: 0.92rem;
+            margin-top: 0.35rem;
+            line-height: 1.6;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .price-text {
+            color: var(--steam-green);
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        .summary-card {
+            position: sticky;
+            top: 1rem;
+            padding: 1.5rem;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.85rem;
+            color: #a8bfce;
+        }
+
+        .summary-total {
+            font-size: 1.6rem;
+            color: #fff;
+            font-weight: 700;
+        }
+
+        .btn-main {
+            background: linear-gradient(135deg, #66c0f4, #82d4ff);
+            color: #123;
+            border: none;
+            font-weight: 700;
+        }
+
+        .btn-main:hover {
+            background: linear-gradient(135deg, #86d3ff, #a0e1ff);
+        }
+
+        .btn-subtle {
+            background: transparent;
+            color: var(--steam-text);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .btn-subtle:hover {
+            background: rgba(255, 255, 255, 0.06);
+            color: #fff;
+        }
+
+        .warning-box {
+            background: rgba(240, 173, 78, 0.12);
+            border: 1px solid rgba(240, 173, 78, 0.32);
+            color: #ffd89b;
+            border-radius: 12px;
+            padding: 0.85rem 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 1rem;
+            color: #a8bfce;
+        }
+
+        .checkout-section {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 14px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .section-title {
+            color: #fff;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+        }
+
+        .card-option {
+            display: block;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 0.85rem;
+            margin-bottom: 0.75rem;
+            cursor: pointer;
+        }
+
+        .card-option.active {
+            border-color: rgba(102, 192, 244, 0.55);
+            box-shadow: 0 0 0 1px rgba(102, 192, 244, 0.25);
+        }
+
+        .form-control {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: var(--steam-text);
+        }
+
+        .form-control:focus {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--steam-blue);
+            color: var(--steam-text);
+            box-shadow: none;
+        }
+
+        @media (max-width: 992px) {
+            .cart-item {
+                grid-template-columns: 1fr;
+            }
+
+            .cart-cover {
+                width: 100%;
+                height: 200px;
+            }
+
+            .summary-card {
+                position: static;
+            }
+        }
+
+        @media (max-width: 1199.98px) {
+            .navbar {
+                padding: 0.75rem 0;
+            }
+
+            .navbar-collapse {
+                width: 100%;
+                margin-top: 0.4rem;
+                padding: 1rem;
+                border-radius: 18px;
+                background: rgba(15, 26, 38, 0.96);
+                border: 1px solid rgba(102, 192, 244, 0.18);
+                box-shadow: 0 16px 36px rgba(0, 0, 0, 0.28);
+                max-height: calc(100vh - 92px);
+                max-height: calc(100dvh - 92px);
+                overflow-y: auto;
+                overscroll-behavior: contain;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .navbar-menu {
+                width: 100%;
+                align-items: stretch;
+                gap: 0.35rem;
+            }
+
+            .navbar-menu > * {
+                width: 100%;
+            }
+
+            .nav-link {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+        }
+
+        @media (max-width: 575.98px) {
+            .navbar-brand {
+                font-size: 1.05rem;
+            }
+
+            .navbar-toggler {
+                padding: 0.42rem 0.7rem;
+            }
+
+            .navbar-toggler-label {
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-xl navbar-dark sticky-top">
+    <div class="container">
+        <a class="navbar-brand" href="/"><i class="bi bi-controller"></i> 游戏社区商城</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#cartNavbar" aria-controls="cartNavbar" aria-expanded="false" aria-label="切换导航">
+            <span class="navbar-toggler-icon"></span>
+            <span class="navbar-toggler-label">菜单</span>
+        </button>
+        <div class="collapse navbar-collapse" id="cartNavbar">
+        <div class="navbar-nav navbar-menu ms-auto">
+            <a class="nav-link" href="/">商店</a>
+            <a class="nav-link" href="/library">游戏库</a>
+            <a class="nav-link" href="/points-shop">积分商店</a>
+            <a class="nav-link" href="/orders">订单</a>
+            <a class="nav-link active" href="/cart">购物车</a>
+            <a class="nav-link" href="/profile">个人中心</a>
+        </div>
+        </div>
+    </div>
+</nav>
+
+<div class="page-wrap">
+    <div class="panel d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <h2 class="mb-1">我的购物车</h2>
+            <div class="text-secondary">支持消费卡、积分抵扣、模拟支付和自动入库。</div>
+        </div>
+        <div class="d-flex gap-2">
+            <a class="btn btn-subtle" href="/"><i class="bi bi-plus-circle"></i> 继续逛逛</a>
+            <a class="btn btn-subtle" href="/points-shop"><i class="bi bi-stars"></i> 去积分商店</a>
+            <button class="btn btn-subtle" onclick="clearCart()"><i class="bi bi-trash"></i> 清空购物车</button>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div id="cartWarning"></div>
+            <div id="cartList" class="panel">
+                <div class="empty-state">正在加载购物车...</div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="summary-card">
+                <h4 class="mb-4">结算信息</h4>
+                <div class="summary-row"><span>已选商品</span><strong id="totalItems">0</strong></div>
+                <div class="summary-row"><span>预计获得积分</span><strong id="estimatedPoints">0</strong></div>
+                <div class="summary-row"><span>积分余额</span><strong id="pointsBalance">0</strong></div>
+
+                <div class="checkout-section">
+                    <div class="section-title">消费卡</div>
+                    <div id="discountCardList" class="small text-secondary">正在加载可用消费卡...</div>
+                </div>
+
+                <div class="checkout-section">
+                    <div class="section-title">积分抵扣</div>
+                    <div class="small text-secondary mb-2" id="pointsRuleText">正在加载积分规则...</div>
+                    <div class="input-group">
+                        <input type="number" class="form-control" id="pointsToUseInput" min="0" step="1" value="0">
+                        <button class="btn btn-subtle" type="button" onclick="useMaxPoints()">全用</button>
+                    </div>
+                    <div class="small text-secondary mt-2" id="pointsHint">当前可用 0 积分</div>
+                </div>
+
+                <hr>
+                <div class="summary-row"><span>商品原价</span><span id="originAmount">¥0.00</span></div>
+                <div class="summary-row"><span>消费卡优惠</span><span id="couponDiscountAmount">-¥0.00</span></div>
+                <div class="summary-row"><span>积分抵扣</span><span id="pointsDiscountAmount">-¥0.00</span></div>
+                <div class="summary-row summary-total"><span>实付</span><span id="totalAmount">¥0.00</span></div>
+
+                <button class="btn btn-main w-100 mt-3 py-3" id="checkoutButton" onclick="checkout()">
+                    <i class="bi bi-bag-check"></i> 提交订单并模拟支付
+                </button>
+                <div class="text-secondary small mt-3">支付完成后会自动生成订单、发放游戏，并按照实付金额返还积分。</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/ui-feedback.js"></script>
+<script>
+    const DEFAULT_POINTS_EARN_RATE = 2;
+    const DEFAULT_POINTS_REDEEM_RATE = 100;
+
+    const state = {
+        cart: { items: [], totalAmount: 0, totalItems: 0, hasOwnedItems: false },
+        pointsBalance: 0,
+        pointsEarnRate: DEFAULT_POINTS_EARN_RATE,
+        pointsRedeemRate: DEFAULT_POINTS_REDEEM_RATE,
+        availableCards: [],
+        selectedCardId: null,
+        pointsToUse: 0
+    };
+
+    function formatMoney(value) {
+        return `¥${Number(value || 0).toFixed(2)}`;
+    }
+
+    async function ensureLogin() {
+        const response = await fetch('/api/auth/current');
+        const result = await response.json();
+        if (result.code !== 200) {
+            window.location.href = '/login';
+            return false;
+        }
+        return true;
+    }
+
+    async function loadPageData() {
+        const [cartResponse, optionsResponse] = await Promise.all([
+            fetch('/api/store/cart'),
+            fetch('/api/store/checkout/options')
+        ]);
+
+        const cartResult = await cartResponse.json();
+        const optionsResult = await optionsResponse.json();
+
+        if (cartResult.code !== 200) {
+            document.getElementById('cartList').innerHTML = '<div class="empty-state">购物车加载失败，请稍后重试。</div>';
+            return;
+        }
+
+        if (optionsResult.code === 200 && optionsResult.data) {
+            state.pointsBalance = optionsResult.data.pointsBalance || 0;
+            state.pointsEarnRate = optionsResult.data.pointsEarnRate || DEFAULT_POINTS_EARN_RATE;
+            state.pointsRedeemRate = optionsResult.data.pointsRedeemRate || DEFAULT_POINTS_REDEEM_RATE;
+            state.availableCards = optionsResult.data.availableDiscountCards || [];
+        } else {
+            state.pointsBalance = 0;
+            state.pointsEarnRate = DEFAULT_POINTS_EARN_RATE;
+            state.pointsRedeemRate = DEFAULT_POINTS_REDEEM_RATE;
+            state.availableCards = [];
+        }
+
+        state.cart = cartResult.data || { items: [], totalAmount: 0, totalItems: 0, hasOwnedItems: false };
+        clampCheckoutState();
+        renderCart();
+        renderCheckoutOptions();
+        renderSummary();
+    }
+
+    function clampCheckoutState() {
+        if (!state.availableCards.some(card => card.id === state.selectedCardId)) {
+            state.selectedCardId = null;
+        }
+
+        const preview = getCheckoutPreview();
+        if (state.pointsToUse > preview.maxPointsUsable) {
+            state.pointsToUse = preview.maxPointsUsable;
+        }
+    }
+
+    function getSelectedCard() {
+        return state.availableCards.find(card => card.id === state.selectedCardId) || null;
+    }
+
+    function getCheckoutPreview() {
+        const originAmount = Number(state.cart.totalAmount || 0);
+        const selectedCard = getSelectedCard();
+        let couponDiscount = 0;
+
+        if (selectedCard) {
+            couponDiscount = Math.min(
+                originAmount * Number(selectedCard.discountRate || 0),
+                Number(selectedCard.maxDiscountAmount || 0),
+                originAmount
+            );
+        }
+
+        const amountAfterCoupon = Math.max(originAmount - couponDiscount, 0);
+        const maxPointsUsable = Math.min(
+            state.pointsBalance,
+            Math.floor(amountAfterCoupon * state.pointsRedeemRate)
+        );
+        const pointsToUse = Math.min(Math.max(Number(state.pointsToUse || 0), 0), maxPointsUsable);
+        const pointsDiscount = pointsToUse / state.pointsRedeemRate;
+        const payableAmount = Math.max(amountAfterCoupon - pointsDiscount, 0);
+
+        return {
+            originAmount,
+            couponDiscount,
+            pointsDiscount,
+            payableAmount,
+            maxPointsUsable
+        };
+    }
+
+    function renderCart() {
+        const cartList = document.getElementById('cartList');
+        const warning = document.getElementById('cartWarning');
+        const cart = state.cart;
+
+        warning.innerHTML = cart.hasOwnedItems
+            ? '<div class="warning-box"><i class="bi bi-exclamation-triangle"></i> 购物车中存在你已拥有的游戏，系统会在结算时自动忽略这些条目。</div>'
+            : '';
+
+        if (!cart.items || cart.items.length === 0) {
+            cartList.innerHTML = '<div class="empty-state"><i class="bi bi-cart-x fs-1 d-block mb-3"></i>购物车还是空的，先去挑几款游戏吧。</div>';
+            return;
+        }
+
+        cartList.innerHTML = cart.items.map(item => `
+            <div class="cart-item">
+                <div>
+                    <input class="form-check-input mt-2" type="checkbox" ${item.selected ? 'checked' : ''} onchange="toggleSelected(${item.id}, this.checked)">
+                </div>
+                <img class="cart-cover" src="${item.imageUrl || ''}" alt="${item.displayGameName || item.gameName}" onerror="this.src='https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&h=450&fit=crop'">
+                <div>
+                    <div class="cart-title">${item.displayGameName || item.gameName}</div>
+                    <div class="cart-desc">${item.description || '暂无简介'}</div>
+                    ${item.alreadyOwned ? '<div class="text-warning mt-2"><i class="bi bi-check-circle"></i> 该游戏已在你的游戏库中</div>' : ''}
+                </div>
+                <div class="text-end">
+                    <div class="price-text">${formatMoney(item.unitPrice || 0)}</div>
+                    <button class="btn btn-sm btn-subtle mt-2" onclick="removeItem(${item.id})">
+                        <i class="bi bi-trash"></i> 移除
+                    </button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function renderCheckoutOptions() {
+        const container = document.getElementById('discountCardList');
+        if (!state.availableCards.length) {
+            container.innerHTML = `
+                <div class="small text-secondary">
+                    你当前还没有可用消费卡，可以先去 <a href="/points-shop" class="link-info">积分商店</a> 兑换。
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = `
+            <label class="card-option ${state.selectedCardId === null ? 'active' : ''}">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="discountCard" ${state.selectedCardId === null ? 'checked' : ''} onchange="selectDiscountCard(null)">
+                    <span class="ms-2">本次不使用消费卡</span>
+                </div>
+            </label>
+            ${state.availableCards.map(card => `
+                <label class="card-option ${state.selectedCardId === card.id ? 'active' : ''}">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="discountCard" ${state.selectedCardId === card.id ? 'checked' : ''} onchange="selectDiscountCard(${card.id})">
+                        <span class="ms-2 fw-semibold text-white">${card.cardName}</span>
+                    </div>
+                    <div class="small text-secondary mt-2">${card.description}</div>
+                </label>
+            `).join('')}
+        `;
+    }
+
+    function renderSummary() {
+        const preview = getCheckoutPreview();
+        const maxDeduction = preview.maxPointsUsable / state.pointsRedeemRate;
+
+        document.getElementById('totalItems').textContent = state.cart.totalItems || 0;
+        document.getElementById('pointsBalance').textContent = state.pointsBalance;
+        document.getElementById('estimatedPoints').textContent = Math.floor(preview.payableAmount * state.pointsEarnRate);
+        document.getElementById('originAmount').textContent = formatMoney(preview.originAmount);
+        document.getElementById('couponDiscountAmount').textContent = `-${formatMoney(preview.couponDiscount)}`;
+        document.getElementById('pointsDiscountAmount').textContent = `-${formatMoney(preview.pointsDiscount)}`;
+        document.getElementById('totalAmount').textContent = formatMoney(preview.payableAmount);
+        document.getElementById('pointsRuleText').textContent =
+            `当前规则：每消费 1 元返 ${state.pointsEarnRate} 积分，${state.pointsRedeemRate} 积分可抵 1 元，积分最高可抵扣应付金额的 100%。`;
+        document.getElementById('pointsHint').textContent =
+            `当前可用 ${state.pointsBalance} 积分，本单最多可用 ${preview.maxPointsUsable} 积分，约可抵 ${formatMoney(maxDeduction)}。`;
+
+        const input = document.getElementById('pointsToUseInput');
+        input.value = state.pointsToUse;
+        input.max = preview.maxPointsUsable;
+
+        document.getElementById('checkoutButton').disabled = !state.cart.totalItems;
+    }
+
+    function selectDiscountCard(cardId) {
+        state.selectedCardId = cardId === null ? null : Number(cardId);
+        clampCheckoutState();
+        renderCheckoutOptions();
+        renderSummary();
+    }
+
+    function useMaxPoints() {
+        const preview = getCheckoutPreview();
+        state.pointsToUse = preview.maxPointsUsable;
+        renderSummary();
+    }
+
+    async function toggleSelected(itemId, selected) {
+        await fetch(`/api/store/cart/items/${itemId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ selected })
+        });
+        await loadPageData();
+    }
+
+    async function removeItem(itemId) {
+        await fetch(`/api/store/cart/items/${itemId}`, { method: 'DELETE' });
+        await loadPageData();
+    }
+
+    async function clearCart() {
+        if (!(await appConfirm('确定要清空购物车吗？', { title: '清空购物车', type: 'warning' }))) {
+            return;
+        }
+        await fetch('/api/store/cart', { method: 'DELETE' });
+        await loadPageData();
+    }
+
+    async function checkout() {
+        const response = await fetch('/api/store/checkout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                paymentMethod: 'MOCK',
+                discountCardId: state.selectedCardId,
+                pointsToUse: state.pointsToUse
+            })
+        });
+        const result = await response.json();
+        if (result.code !== 200) {
+            await appAlert(result.message || '结算失败', { title: '结算失败', type: 'error' });
+            return;
+        }
+        await appAlert(`支付成功，订单号：${result.data.orderNo}`, { title: '支付成功', type: 'success' });
+        window.location.href = '/orders';
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        const ok = await ensureLogin();
+        if (ok) {
+            document.getElementById('pointsToUseInput').addEventListener('input', function () {
+                state.pointsToUse = Number(this.value || 0);
+                clampCheckoutState();
+                renderSummary();
+            });
+            await loadPageData();
+        }
+    });
+</script>
+</body>
+</html>

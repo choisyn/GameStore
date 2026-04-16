@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>社区游戏商城平台用户结构示意图</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', Arial, sans-serif;
+            background: #fafbfc;
+            color: #222;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 30px;
+        }
+        h1 {
+            color: #1a174a;
+            text-align: center;
+            font-size: 2.2em;
+            font-weight: 800;
+        }
+        .mermaid {
+            margin: auto;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 16px 0 rgba(0,0,0,0.08);
+            padding: 16px;
+            max-width: 700px;
+            min-height: 480px;
+        }
+    </style>
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: 'default',
+        themeVariables: {
+          fontFamily: 'Segoe UI, Microsoft YaHei, Arial, sans-serif',
+          fontSize: '18px',
+          fontWeight: 'bold',
+          lineColor: '#222',
+          textColor: '#222',
+          clusterBkg: '#fff',
+        }
+      });
+    </script>
+</head>
+<body>
+    <h1>社区游戏商城平台用户结构示意图</h1>
+    <div class="mermaid">
+    graph TB
+      U[平台用户]
+      U --> USER[普通用户（USER）]
+      U --> ADMIN[管理员（ADMIN）]
+      U --> MOD[版主（MODERATOR）]
+
+      USER --> CM[社区模块]
+      USER --> SM[商城模块]
+
+      ADMIN --> CM
+      ADMIN --> BM[后台管理系统]
+
+      MOD --> CM
+
+      style U fill:#f9f,stroke:#222,stroke-width:2px,color:#222;
+      style USER fill:#bbf,stroke:#222,color:#222;
+      style ADMIN fill:#fea,stroke:#222,color:#222;
+      style MOD fill:#bfb,stroke:#222,color:#222;
+      style CM fill:#fff,stroke:#2096f3,color:#222;
+      style SM fill:#fff,stroke:#06b889,color:#222;
+      style BM fill:#fff,stroke:#f57c00,color:#222;
+    </div>
+    <p style="text-align:center;font-size:13px;font-weight:normal;margin-top:40px;color:#444;">如需导出图片，请在Mermaid图上方右键截图即可，或使用浏览器自带截图工具。</p>
+</body>
+</html>

@@ -1,0 +1,12 @@
+.git
+.idea
+.vscode
+.maven-home
+.maven-user-home
+target
+docs
+开发文档
+论文文档
+tmp_*
+*.bat
+HELP.md

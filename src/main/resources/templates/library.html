@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>游戏库 - 游戏社区商城</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --steam-dark-bg: #1b2838;
+            --steam-card-bg: #1e2837;
+            --steam-blue: #66c0f4;
+            --steam-green: #5cb85c;
+            --steam-text: #c7d5e0;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1b2838 0%, #2a475e 100%);
+            color: var(--steam-text);
+            min-height: 100vh;
+            font-family: Arial, "Microsoft YaHei", sans-serif;
+        }
+
+        .navbar {
+            background: var(--steam-dark-bg);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+            padding: 0.9rem 0;
+        }
+
+        .navbar .container {
+            gap: 0.75rem 1rem;
+            align-items: center;
+        }
+
+        .navbar-brand {
+            color: var(--steam-blue) !important;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            font-weight: 700;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .navbar-collapse {
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .navbar-nav {
+            align-items: center;
+            gap: 0.15rem;
+        }
+
+        .nav-link {
+            color: var(--steam-text) !important;
+            margin: 0;
+            padding: 0.55rem 0.85rem !important;
+            border-radius: 999px;
+            white-space: nowrap;
+            transition: color 0.2s ease, background 0.2s ease;
+        }
+
+        .nav-link:hover,
+        .nav-link:focus {
+            color: var(--steam-blue) !important;
+            background: rgba(102, 192, 244, 0.1);
+        }
+
+        .nav-link.active {
+            color: var(--steam-blue) !important;
+            background: rgba(102, 192, 244, 0.12);
+        }
+
+        .navbar-menu {
+            flex-wrap: wrap;
+        }
+
+        .navbar-toggler {
+            border: 1px solid rgba(102, 192, 244, 0.3);
+            border-radius: 999px;
+            padding: 0.45rem 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            color: var(--steam-text);
+        }
+
+        .navbar-toggler:hover {
+            background: rgba(102, 192, 244, 0.08);
+            border-color: rgba(102, 192, 244, 0.55);
+        }
+
+        .navbar-toggler:focus {
+            box-shadow: 0 0 0 0.2rem rgba(102, 192, 244, 0.18);
+        }
+
+        .navbar-toggler-icon {
+            width: 1.2rem;
+            height: 1.2rem;
+        }
+
+        .navbar-toggler-label {
+            font-size: 0.95rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+        }
+
+        .page-wrap {
+            max-width: 1280px;
+            margin: 2rem auto;
+            padding: 0 1rem 3rem;
+        }
+
+        .library-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .library-card {
+            background: rgba(30, 40, 55, 0.95);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.28);
+            cursor: pointer;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .library-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 22px 45px rgba(0, 0, 0, 0.36);
+        }
+
+        .library-cover {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+        }
+
+        .library-body {
+            padding: 1rem;
+        }
+
+        .library-title {
+            font-size: 1.08rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .library-desc {
+            color: #9fb4c5;
+            margin-top: 0.5rem;
+            line-height: 1.6;
+            min-height: 3.2rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .meta-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 0.75rem;
+            font-size: 0.9rem;
+            margin-top: 0.9rem;
+            color: #a8bfce;
+        }
+
+        .owned-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.3rem 0.75rem;
+            border-radius: 999px;
+            background: rgba(92, 184, 92, 0.16);
+            color: #95f395;
+            border: 1px solid rgba(92, 184, 92, 0.28);
+            font-size: 0.85rem;
+            margin-top: 0.9rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 1rem;
+            color: #9fb4c5;
+        }
+
+        @media (max-width: 1199.98px) {
+            .navbar {
+                padding: 0.75rem 0;
+            }
+
+            .navbar-collapse {
+                width: 100%;
+                margin-top: 0.4rem;
+                padding: 1rem;
+                border-radius: 18px;
+                background: rgba(15, 26, 38, 0.96);
+                border: 1px solid rgba(102, 192, 244, 0.18);
+                box-shadow: 0 16px 36px rgba(0, 0, 0, 0.28);
+                max-height: calc(100vh - 92px);
+                max-height: calc(100dvh - 92px);
+                overflow-y: auto;
+                overscroll-behavior: contain;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .navbar-menu {
+                width: 100%;
+                align-items: stretch;
+                gap: 0.35rem;
+            }
+
+            .navbar-menu > * {
+                width: 100%;
+            }
+
+            .nav-link {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .page-wrap {
+                margin-top: 1.25rem;
+            }
+
+            .library-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 575.98px) {
+            .navbar-brand {
+                font-size: 1.05rem;
+            }
+
+            .navbar-toggler {
+                padding: 0.42rem 0.7rem;
+            }
+
+            .navbar-toggler-label {
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-xl navbar-dark sticky-top">
+    <div class="container">
+        <a class="navbar-brand" href="/"><i class="bi bi-controller"></i> 游戏社区商城</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#libraryNavbar" aria-controls="libraryNavbar" aria-expanded="false" aria-label="切换导航">
+            <span class="navbar-toggler-icon"></span>
+            <span class="navbar-toggler-label">菜单</span>
+        </button>
+        <div class="collapse navbar-collapse" id="libraryNavbar">
+            <div class="navbar-nav navbar-menu ms-auto">
+                <a class="nav-link" href="/">商店</a>
+                <a class="nav-link active" href="/library">游戏库</a>
+                <a class="nav-link" href="/points-shop">积分商店</a>
+                <a class="nav-link" href="/orders">订单</a>
+                <a class="nav-link" href="/cart">购物车</a>
+                <a class="nav-link" href="/profile">个人中心</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="page-wrap">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+        <div>
+            <h2 class="mb-1">我的游戏库</h2>
+            <div class="text-secondary">已购买或已领取的数字游戏会自动进入这里。</div>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+            <a class="btn btn-outline-light" href="/orders"><i class="bi bi-receipt"></i> 查看订单</a>
+            <a class="btn btn-outline-light" href="/points-shop"><i class="bi bi-stars"></i> 积分商店</a>
+        </div>
+    </div>
+    <div id="libraryGrid" class="library-grid">
+        <div class="empty-state">正在加载游戏库...</div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    async function ensureLogin() {
+        const response = await fetch('/api/auth/current');
+        const result = await response.json();
+        if (result.code !== 200) {
+            window.location.href = '/login';
+            return false;
+        }
+        return true;
+    }
+
+    function formatDate(value) {
+        if (!value) return '-';
+        return value.slice(0, 10);
+    }
+
+    function formatMoney(value) {
+        return `¥${Number(value || 0).toFixed(2)}`;
+    }
+
+    async function loadLibrary() {
+        const response = await fetch('/api/store/library');
+        const result = await response.json();
+        const container = document.getElementById('libraryGrid');
+
+        if (result.code !== 200) {
+            container.innerHTML = '<div class="empty-state">游戏库加载失败，请稍后重试。</div>';
+            return;
+        }
+
+        const games = result.data || [];
+        if (games.length === 0) {
+            container.innerHTML = '<div class="empty-state"><i class="bi bi-collection fs-1 d-block mb-3"></i>你的游戏库还是空的，快去商店购买或领取游戏吧。</div>';
+            return;
+        }
+
+        container.innerHTML = games.map(game => `
+            <div class="library-card" onclick="window.location.href='/game/${game.gameId}'">
+                <img class="library-cover" src="${game.imageUrl || ''}" alt="${game.displayGameName || game.gameName}" onerror="this.src='https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&h=450&fit=crop'">
+                <div class="library-body">
+                    <div class="library-title">${game.displayGameName || game.gameName}</div>
+                    <div class="library-desc">${game.description || '暂无简介'}</div>
+                    <div class="owned-badge"><i class="bi bi-check-circle"></i> 已入库</div>
+                    <div class="meta-row">
+                        <span>${game.developer || '未知厂商'}</span>
+                        <span>${formatMoney(game.acquiredPrice || 0)}</span>
+                    </div>
+                    <div class="meta-row">
+                        <span>评分 ${Number(game.rating || 0).toFixed(1)}</span>
+                        <span>${formatDate(game.acquiredAt)}</span>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        const ok = await ensureLogin();
+        if (ok) {
+            loadLibrary();
+        }
+    });
+</script>
+</body>
+</html>

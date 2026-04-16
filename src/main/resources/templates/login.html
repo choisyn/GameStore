@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录 - 游戏社区商城</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --steam-dark-bg: #1b2838;
+            --steam-light-bg: #2a475e;
+            --steam-card-bg: #1e2837;
+            --steam-blue: #66c0f4;
+            --steam-text: #c7d5e0;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1b2838 0%, #2a475e 100%);
+            color: var(--steam-text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-container {
+            background: var(--steam-card-bg);
+            border-radius: 8px;
+            padding: 3rem;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-header h2 {
+            color: var(--steam-blue);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--steam-text);
+            padding: 0.75rem;
+            border-radius: 4px;
+        }
+
+        .form-control:focus {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--steam-blue);
+            color: var(--steam-text);
+            box-shadow: 0 0 0 0.2rem rgba(102, 192, 244, 0.25);
+        }
+
+        .form-label {
+            color: #8f98a0;
+            margin-bottom: 0.5rem;
+        }
+
+        .btn-login {
+            background: var(--steam-blue);
+            color: #1b2838;
+            border: none;
+            padding: 0.75rem;
+            width: 100%;
+            font-weight: bold;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        .btn-login:hover {
+            background: #5ab0e6;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 192, 244, 0.4);
+        }
+
+        .link-register {
+            color: var(--steam-blue);
+            text-decoration: none;
+        }
+
+        .link-register:hover {
+            color: #5ab0e6;
+            text-decoration: underline;
+        }
+
+        .alert-custom {
+            background: rgba(244, 67, 54, 0.1);
+            border: 1px solid rgba(244, 67, 54, 0.3);
+            color: #f44336;
+            border-radius: 4px;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <h2><i class="bi bi-controller"></i> 游戏社区商城</h2>
+            <p>欢迎回来，请登录您的账号</p>
+        </div>
+
+        <div id="errorAlert" class="alert-custom"></div>
+
+        <form id="loginForm">
+            <div class="mb-3">
+                <label for="username" class="form-label">用户名</label>
+                <input type="text" class="form-control" id="username" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="password" class="form-label">密码</label>
+                <input type="password" class="form-control" id="password" required>
+            </div>
+
+            <button type="submit" class="btn btn-login mb-3">
+                <i class="bi bi-box-arrow-in-right"></i> 登录
+            </button>
+
+            <div class="text-center">
+                <span class="text-muted">还没有账号？</span>
+                <a href="/register" class="link-register">立即注册</a>
+            </div>
+        </form>
+
+        <div class="text-center mt-3">
+            <a href="/" class="text-muted text-decoration-none">
+                <i class="bi bi-arrow-left"></i> 返回首页
+            </a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorAlert = document.getElementById('errorAlert');
+
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (data.code === 200) {
+                    // 登录成功，检查是否为管理员
+                    if (data.data.role === 'ADMIN') {
+                        window.location.href = '/admin';
+                    } else {
+                        window.location.href = '/';
+                    }
+                } else {
+                    errorAlert.textContent = data.message || '登录失败';
+                    errorAlert.style.display = 'block';
+                }
+            } catch (error) {
+                errorAlert.textContent = '登录请求失败，请稍后重试';
+                errorAlert.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
+

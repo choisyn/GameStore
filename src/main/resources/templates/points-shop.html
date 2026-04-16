@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>积分商城 - 游戏社区商城</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --steam-dark-bg: #1b2838;
+            --steam-card-bg: #1e2837;
+            --steam-blue: #66c0f4;
+            --steam-text: #c7d5e0;
+            --steam-gold: #f6c351;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1b2838 0%, #2a475e 100%);
+            color: var(--steam-text);
+            min-height: 100vh;
+            font-family: Arial, "Microsoft YaHei", sans-serif;
+        }
+
+        .navbar {
+            background: var(--steam-dark-bg);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+            padding: 0.9rem 0;
+        }
+
+        .navbar .container {
+            gap: 0.75rem 1rem;
+            align-items: center;
+        }
+
+        .navbar-brand {
+            color: var(--steam-blue) !important;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            font-weight: 700;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .navbar-collapse {
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .navbar-nav {
+            align-items: center;
+            gap: 0.15rem;
+        }
+
+        .nav-link {
+            color: var(--steam-text) !important;
+            margin: 0;
+            padding: 0.55rem 0.85rem !important;
+            border-radius: 999px;
+            white-space: nowrap;
+            transition: color 0.2s ease, background 0.2s ease;
+        }
+
+        .nav-link:hover,
+        .nav-link:focus {
+            color: var(--steam-blue) !important;
+            background: rgba(102, 192, 244, 0.1);
+        }
+
+        .nav-link.active {
+            color: var(--steam-blue) !important;
+            background: rgba(102, 192, 244, 0.12);
+        }
+
+        .navbar-menu {
+            flex-wrap: wrap;
+        }
+
+        .navbar-toggler {
+            border: 1px solid rgba(102, 192, 244, 0.3);
+            border-radius: 999px;
+            padding: 0.45rem 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            color: var(--steam-text);
+        }
+
+        .navbar-toggler:hover {
+            background: rgba(102, 192, 244, 0.08);
+            border-color: rgba(102, 192, 244, 0.55);
+        }
+
+        .navbar-toggler:focus {
+            box-shadow: 0 0 0 0.2rem rgba(102, 192, 244, 0.18);
+        }
+
+        .navbar-toggler-icon {
+            width: 1.2rem;
+            height: 1.2rem;
+        }
+
+        .navbar-toggler-label {
+            font-size: 0.95rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+        }
+
+        .page-wrap {
+            max-width: 1280px;
+            margin: 2rem auto;
+            padding: 0 1rem 3rem;
+        }
+
+        .panel,
+        .shop-card,
+        .owned-card {
+            background: rgba(30, 40, 55, 0.95);
+            border-radius: 18px;
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+        }
+
+        .panel {
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-points {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: rgba(246, 195, 81, 0.12);
+            color: #ffe7a5;
+            border: 1px solid rgba(246, 195, 81, 0.3);
+            border-radius: 999px;
+            padding: 0.65rem 1rem;
+            font-weight: 700;
+        }
+
+        .shop-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .shop-card {
+            padding: 1.5rem;
+            border: 1px solid rgba(102, 192, 244, 0.08);
+        }
+
+        .shop-icon {
+            width: 56px;
+            height: 56px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #f6c351, #ffdf88);
+            color: #382900;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .shop-title {
+            color: #fff;
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .shop-desc {
+            color: #9fb4c5;
+            line-height: 1.7;
+            margin: 0.75rem 0 1rem;
+            min-height: 4.2rem;
+        }
+
+        .point-price {
+            color: var(--steam-gold);
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+
+        .owned-card {
+            padding: 1rem;
+            margin-bottom: 0.85rem;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: #9fb4c5;
+        }
+
+        @media (max-width: 1199.98px) {
+            .navbar {
+                padding: 0.75rem 0;
+            }
+
+            .navbar-collapse {
+                width: 100%;
+                margin-top: 0.4rem;
+                padding: 1rem;
+                border-radius: 18px;
+                background: rgba(15, 26, 38, 0.96);
+                border: 1px solid rgba(102, 192, 244, 0.18);
+                box-shadow: 0 16px 36px rgba(0, 0, 0, 0.28);
+                max-height: calc(100vh - 92px);
+                max-height: calc(100dvh - 92px);
+                overflow-y: auto;
+                overscroll-behavior: contain;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .navbar-menu {
+                width: 100%;
+                align-items: stretch;
+                gap: 0.35rem;
+            }
+
+            .navbar-menu > * {
+                width: 100%;
+            }
+
+            .nav-link {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .page-wrap {
+                margin-top: 1.25rem;
+            }
+
+            .shop-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 575.98px) {
+            .navbar-brand {
+                font-size: 1.05rem;
+            }
+
+            .navbar-toggler {
+                padding: 0.42rem 0.7rem;
+            }
+
+            .navbar-toggler-label {
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-xl navbar-dark sticky-top">
+    <div class="container">
+        <a class="navbar-brand" href="/"><i class="bi bi-controller"></i> 游戏社区商城</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#pointsNavbar" aria-controls="pointsNavbar" aria-expanded="false" aria-label="切换导航">
+            <span class="navbar-toggler-icon"></span>
+            <span class="navbar-toggler-label">菜单</span>
+        </button>
+        <div class="collapse navbar-collapse" id="pointsNavbar">
+            <div class="navbar-nav navbar-menu ms-auto">
+                <a class="nav-link" href="/">商店</a>
+                <a class="nav-link" href="/library">游戏库</a>
+                <a class="nav-link active" href="/points-shop">积分商店</a>
+                <a class="nav-link" href="/orders">订单</a>
+                <a class="nav-link" href="/cart">购物车</a>
+                <a class="nav-link" href="/profile">个人中心</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="page-wrap">
+    <div class="panel d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <h2 class="mb-1">积分商城</h2>
+            <div class="text-secondary">兑换消费券，在购物车结算时可与积分抵扣搭配使用。</div>
+        </div>
+        <div class="hero-points">
+            <i class="bi bi-stars"></i>
+            当前积分 <span id="pointsBalance">0</span>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="panel">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+                    <div>
+                        <h4 class="mb-1">可兑换商品</h4>
+                        <div class="text-secondary small" id="pointsRuleSummary">正在加载积分规则...</div>
+                    </div>
+                    <a class="btn btn-outline-light btn-sm" href="/cart"><i class="bi bi-cart3"></i> 去购物车结算</a>
+                </div>
+                <div id="shopGrid" class="shop-grid">
+                    <div class="empty-state">正在加载积分商品...</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="panel">
+                <h4 class="mb-3">我的消费券</h4>
+                <div id="ownedCards">
+                    <div class="empty-state">正在加载可用消费券...</div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h4 class="mb-3">使用说明</h4>
+                <div class="text-secondary small" id="rulesPanel">
+                    正在加载规则...
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/ui-feedback.js"></script>
+<script>
+    const DEFAULT_POINTS_EARN_RATE = 2;
+    const DEFAULT_POINTS_REDEEM_RATE = 100;
+
+    const pageState = {
+        items: [],
+        pointsBalance: 0,
+        pointsEarnRate: DEFAULT_POINTS_EARN_RATE,
+        pointsRedeemRate: DEFAULT_POINTS_REDEEM_RATE,
+        cards: []
+    };
+
+    function formatMoney(value) {
+        return `¥${Number(value || 0).toFixed(2)}`;
+    }
+
+    function formatDate(value) {
+        if (!value) {
+            return '-';
+        }
+        return value.replace('T', ' ').slice(0, 19);
+    }
+
+    async function ensureLogin() {
+        const response = await fetch('/api/auth/current');
+        const result = await response.json();
+        if (result.code !== 200) {
+            window.location.href = '/login';
+            return false;
+        }
+        return true;
+    }
+
+    async function loadData() {
+        const [itemsResponse, optionsResponse] = await Promise.all([
+            fetch('/api/store/point-shop/items'),
+            fetch('/api/store/checkout/options')
+        ]);
+
+        const itemsResult = await itemsResponse.json();
+        const optionsResult = await optionsResponse.json();
+
+        pageState.items = itemsResult.code === 200 ? (itemsResult.data || []) : [];
+        if (optionsResult.code === 200 && optionsResult.data) {
+            pageState.pointsBalance = optionsResult.data.pointsBalance || 0;
+            pageState.pointsEarnRate = optionsResult.data.pointsEarnRate || DEFAULT_POINTS_EARN_RATE;
+            pageState.pointsRedeemRate = optionsResult.data.pointsRedeemRate || DEFAULT_POINTS_REDEEM_RATE;
+            pageState.cards = optionsResult.data.availableDiscountCards || [];
+        } else {
+            pageState.pointsBalance = 0;
+            pageState.pointsEarnRate = DEFAULT_POINTS_EARN_RATE;
+            pageState.pointsRedeemRate = DEFAULT_POINTS_REDEEM_RATE;
+            pageState.cards = [];
+        }
+
+        renderRules();
+        renderShopItems();
+        renderOwnedCards();
+        document.getElementById('pointsBalance').textContent = pageState.pointsBalance;
+    }
+
+    function renderRules() {
+        document.getElementById('pointsRuleSummary').textContent =
+            `当前规则：每消费 1 元返 ${pageState.pointsEarnRate} 积分，${pageState.pointsRedeemRate} 积分可抵 1 元。`;
+
+        document.getElementById('rulesPanel').innerHTML = `
+            <div class="mb-2">1. 消费券每次结算最多使用一张，可以和积分抵扣叠加。</div>
+            <div class="mb-2">2. 积分直接抵扣更稳定，${pageState.pointsRedeemRate} 积分约等于 1 元现金价值。</div>
+            <div class="mb-2">3. 每消费 1 元可获得 ${pageState.pointsEarnRate} 积分，因此积分返利约为 ${(pageState.pointsEarnRate / pageState.pointsRedeemRate * 100).toFixed(1)}%。</div>
+            <div>4. 消费券更适合较高金额订单，订单越接近优惠上限，兑换越划算。</div>
+        `;
+    }
+
+    function renderShopItems() {
+        const container = document.getElementById('shopGrid');
+        if (!pageState.items.length) {
+            container.innerHTML = '<div class="empty-state">暂时还没有可兑换商品。</div>';
+            return;
+        }
+
+        container.innerHTML = pageState.items.map(item => {
+            const canRedeem = pageState.pointsBalance >= Number(item.pointsCost || 0);
+            const directCashValue = Number(item.pointsCost || 0) / pageState.pointsRedeemRate;
+            return `
+                <div class="shop-card">
+                    <div class="shop-icon"><i class="bi bi-ticket-perforated"></i></div>
+                    <div class="shop-title">${item.cardName}</div>
+                    <div class="shop-desc">${item.description}</div>
+                    <div class="small text-secondary mb-3">
+                        按直接抵扣换算，约等于 ${formatMoney(directCashValue)} 的积分价值。
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                        <div>
+                            <div class="point-price">${item.pointsCost} 积分</div>
+                            <div class="small text-secondary">结算时可与积分抵扣叠加</div>
+                        </div>
+                        <button class="btn btn-${canRedeem ? 'warning' : 'secondary'}" ${canRedeem ? '' : 'disabled'} onclick="redeemItem('${item.code}')">
+                            ${canRedeem ? '立即兑换' : '积分不足'}
+                        </button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function renderOwnedCards() {
+        const container = document.getElementById('ownedCards');
+        if (!pageState.cards.length) {
+            container.innerHTML = '<div class="empty-state">你当前还没有可用消费券。</div>';
+            return;
+        }
+
+        container.innerHTML = pageState.cards.map(card => `
+            <div class="owned-card">
+                <div class="fw-semibold text-white">${card.cardName}</div>
+                <div class="small text-secondary mt-2">${card.description}</div>
+                <div class="small mt-2">获得时间：${formatDate(card.createdAt)}</div>
+            </div>
+        `).join('');
+    }
+
+    async function redeemItem(code) {
+        const response = await fetch(`/api/store/point-shop/items/${code}/redeem`, { method: 'POST' });
+        const result = await response.json();
+        if (result.code !== 200) {
+            alert(result.message || '兑换失败');
+            return;
+        }
+        alert(`兑换成功：${result.data.cardName}`);
+        await loadData();
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        const ok = await ensureLogin();
+        if (ok) {
+            await loadData();
+        }
+    });
+</script>
+</body>
+</html>

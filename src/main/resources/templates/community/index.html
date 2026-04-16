@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>社区 - 游戏社区商城</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --steam-dark-bg: #1b2838;
+            --steam-light-bg: #2a475e;
+            --steam-card-bg: #1e2837;
+            --steam-hover: #16202d;
+            --steam-blue: #66c0f4;
+            --steam-text: #c7d5e0;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1b2838 0%, #2a475e 100%);
+            color: var(--steam-text);
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: var(--steam-dark-bg);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+            padding: 0.9rem 0;
+        }
+
+        .navbar .container {
+            gap: 0.75rem 1rem;
+            align-items: center;
+        }
+
+        .navbar-brand {
+            color: var(--steam-blue) !important;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            font-weight: 700;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .navbar-collapse {
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .navbar-nav {
+            align-items: center;
+            gap: 0.15rem;
+        }
+
+        .nav-link {
+            color: var(--steam-text) !important;
+            margin: 0;
+            padding: 0.55rem 0.85rem !important;
+            border-radius: 999px;
+            white-space: nowrap;
+            transition: color 0.2s ease, background 0.2s ease;
+        }
+
+        .nav-link:hover,
+        .nav-link.active,
+        .nav-link:focus {
+            color: var(--steam-blue) !important;
+            background: rgba(102, 192, 244, 0.1);
+        }
+
+        .navbar-menu {
+            flex-wrap: wrap;
+        }
+
+        .navbar-toggler {
+            border: 1px solid rgba(102, 192, 244, 0.3);
+            border-radius: 999px;
+            padding: 0.45rem 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            color: var(--steam-text);
+        }
+
+        .navbar-toggler:hover {
+            background: rgba(102, 192, 244, 0.08);
+            border-color: rgba(102, 192, 244, 0.55);
+        }
+
+        .navbar-toggler:focus {
+            box-shadow: 0 0 0 0.2rem rgba(102, 192, 244, 0.18);
+        }
+
+        .navbar-toggler-icon {
+            width: 1.2rem;
+            height: 1.2rem;
+        }
+
+        .navbar-toggler-label {
+            font-size: 0.95rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+        }
+
+        .community-header {
+            background: var(--steam-card-bg);
+            padding: 2rem;
+            margin: 2rem 0;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .section-card {
+            background: var(--steam-card-bg);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .section-card:hover {
+            background: var(--steam-hover);
+            border-color: var(--steam-blue);
+            transform: translateY(-5px);
+        }
+
+        .section-icon {
+            font-size: 2.5rem;
+            color: var(--steam-blue);
+            margin-bottom: 1rem;
+        }
+
+        .section-name {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-description {
+            color: #8f98a0;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .section-stats {
+            display: flex;
+            justify-content: space-around;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.2rem;
+            color: var(--steam-blue);
+            font-weight: bold;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #8f98a0;
+        }
+
+        .user-dropdown {
+            background: var(--steam-card-bg);
+            border: 1px solid var(--steam-light-bg);
+            border-radius: 8px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7);
+            min-width: 220px;
+            margin-top: 0.5rem;
+            max-height: min(70vh, 420px);
+            overflow-y: auto;
+            overflow-x: hidden;
+            overscroll-behavior: contain;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .account-toggle {
+            width: 100%;
+            min-width: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+        }
+
+        .account-toggle::after {
+            flex-shrink: 0;
+            margin-left: 0;
+        }
+
+        .account-label {
+            min-width: 0;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            overflow: hidden;
+        }
+
+        .account-name {
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .user-dropdown .dropdown-item {
+            color: var(--steam-text);
+            padding: 0.6rem 1.2rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .user-dropdown .dropdown-item:hover {
+            background: var(--steam-hover);
+            color: var(--steam-blue);
+        }
+
+        .user-dropdown .dropdown-item i {
+            font-size: 1.1rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .user-dropdown .dropdown-divider {
+            border-color: var(--steam-light-bg);
+            opacity: 0.5;
+        }
+
+        @media (max-width: 1199.98px) {
+            .navbar {
+                padding: 0.75rem 0;
+            }
+
+            .navbar-collapse {
+                width: 100%;
+                margin-top: 0.4rem;
+                padding: 1rem;
+                border-radius: 18px;
+                background: rgba(15, 26, 38, 0.96);
+                border: 1px solid rgba(102, 192, 244, 0.18);
+                box-shadow: 0 16px 36px rgba(0, 0, 0, 0.28);
+                max-height: calc(100vh - 92px);
+                max-height: calc(100dvh - 92px);
+                overflow-y: auto;
+                overscroll-behavior: contain;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .navbar-menu {
+                width: 100%;
+                align-items: stretch;
+                gap: 0.35rem;
+            }
+
+            .navbar-menu > * {
+                width: 100%;
+            }
+
+            .navbar-menu .dropdown {
+                width: 100%;
+            }
+
+            .nav-link {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+            .user-dropdown {
+                max-height: min(60vh, 360px);
+            }
+        }
+
+        @media (max-width: 575.98px) {
+            .navbar-brand {
+                font-size: 1.05rem;
+            }
+
+            .navbar-toggler {
+                padding: 0.42rem 0.7rem;
+            }
+
+            .navbar-toggler-label {
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-xl navbar-dark sticky-top">
+    <div class="container">
+        <a class="navbar-brand" href="/">
+            <i class="bi bi-controller"></i> 游戏社区商城
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#communityNavbar" aria-controls="communityNavbar" aria-expanded="false" aria-label="切换导航">
+            <span class="navbar-toggler-icon"></span>
+            <span class="navbar-toggler-label">菜单</span>
+        </button>
+        <div class="collapse navbar-collapse" id="communityNavbar">
+        <div class="navbar-nav navbar-menu ms-auto" id="navbarLinks">
+            <a class="nav-link" href="/">首页</a>
+            <a class="nav-link active" href="/community">社区</a>
+            <a class="nav-link" href="/guides">攻略</a>
+            <a class="nav-link" href="/points-shop">积分商店</a>
+            <a class="nav-link" href="/login" id="loginLink">登录</a>
+            <a class="nav-link" href="/register" id="registerLink">注册</a>
+        </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="community-header">
+        <h1><i class="bi bi-people-fill"></i> 游戏社区</h1>
+        <p>分享你的游戏经验，结识志同道合的玩家</p>
+    </div>
+
+    <div class="row" id="sectionsContainer"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/ui-feedback.js"></script>
+<script>
+    async function loadSections() {
+        try {
+            const response = await fetch('/api/community/sections');
+            const data = await response.json();
+
+            if (data.code === 200 && data.data) {
+                const container = document.getElementById('sectionsContainer');
+
+                let sectionsHTML = `
+                    <div class="col-md-4">
+                        <div class="section-card" onclick="goToForum()">
+                            <div class="text-center">
+                                <i class="bi bi-chat-dots section-icon"></i>
+                                <div class="section-name">讨论广场</div>
+                                <div class="section-description">自由讨论游戏相关话题，分享游戏心得体会</div>
+                            </div>
+                            <div class="section-stats">
+                                <div class="stat-item">
+                                    <div class="stat-value" id="forumPostCount">...</div>
+                                    <div class="stat-label">帖子</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value">
+                                        <i class="bi bi-fire text-warning"></i>
+                                    </div>
+                                    <div class="stat-label">热度</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                sectionsHTML += data.data
+                    .filter(section => section.name !== '讨论广场')
+                    .map(section => {
+                        const isGuideSection = section.name === '游戏攻略';
+                        const countId = isGuideSection ? 'guideCount' : '';
+                        const countValue = isGuideSection ? '...' : (section.postCount || 0);
+                        const countLabel = isGuideSection ? '攻略' : '帖子';
+
+                        return `
+                        <div class="col-md-4">
+                            <div class="section-card" onclick='goToSection(${section.id}, ${JSON.stringify(section.name)})'>
+                                <div class="text-center">
+                                    <i class="${section.icon || 'bi bi-chat-dots'} section-icon"></i>
+                                    <div class="section-name">${section.name}</div>
+                                    <div class="section-description">${section.description || ''}</div>
+                                </div>
+                                <div class="section-stats">
+                                    <div class="stat-item">
+                                        <div class="stat-value"${countId ? ` id="${countId}"` : ''}>${countValue}</div>
+                                        <div class="stat-label">${countLabel}</div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div class="stat-value">
+                                            <i class="bi bi-fire text-warning"></i>
+                                        </div>
+                                        <div class="stat-label">热度</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    }).join('');
+
+                container.innerHTML = sectionsHTML;
+                loadForumPostCount();
+                loadGuideCount();
+            }
+        } catch (error) {
+            console.error('加载板块失败:', error);
+        }
+    }
+
+    async function loadForumPostCount() {
+        try {
+            const response = await fetch('/api/posts?page=0&size=1');
+            const data = await response.json();
+            if (data.code === 200 && data.data) {
+                document.getElementById('forumPostCount').textContent = data.data.totalElements || 0;
+            }
+        } catch (error) {
+            console.error('加载讨论广场帖子数失败:', error);
+            const target = document.getElementById('forumPostCount');
+            if (target) {
+                target.textContent = '0';
+            }
+        }
+    }
+
+    async function loadGuideCount() {
+        const target = document.getElementById('guideCount');
+        if (!target) {
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/guides/count');
+            const data = await response.json();
+            if (data.code === 200) {
+                target.textContent = data.data ?? 0;
+                return;
+            }
+        } catch (error) {
+            console.error('加载攻略数量失败:', error);
+        }
+
+        target.textContent = '0';
+    }
+
+    function goToForum() {
+        window.location.href = '/forum.html';
+    }
+
+    function goToSection(sectionId, sectionName) {
+        if (sectionName === '游戏攻略') {
+            window.location.href = '/guides';
+            return;
+        }
+        alert('该板块页面正在开发中，敬请期待。\n\n你可以先访问“讨论广场”参与讨论。');
+    }
+
+    function resetGuestNav() {
+        document.getElementById('loginLink').style.display = '';
+        document.getElementById('registerLink').style.display = '';
+        document.getElementById('userInfo')?.remove();
+    }
+
+    function renderUserMenu(user) {
+        document.getElementById('loginLink').style.display = 'none';
+        document.getElementById('registerLink').style.display = 'none';
+
+        if (document.getElementById('userInfo')) {
+            return;
+        }
+
+        const navbarLinks = document.getElementById('navbarLinks');
+        const userInfo = document.createElement('div');
+        userInfo.id = 'userInfo';
+        userInfo.className = 'dropdown';
+        userInfo.style.cssText = 'display: block;';
+
+        const adminMenuItem = user.role === 'ADMIN'
+            ? `
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="/admin"><i class="bi bi-gear-fill"></i> 管理系统</a></li>
+            `
+            : '';
+
+        userInfo.innerHTML = `
+            <a class="nav-link dropdown-toggle account-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <span class="account-label">
+                    <i class="bi bi-person-circle"></i>
+                    <span class="account-name">${user.username}</span>
+                </span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end user-dropdown">
+                <li><a class="dropdown-item" href="/profile"><i class="bi bi-person"></i> 个人中心</a></li>
+                <li><a class="dropdown-item" href="/library"><i class="bi bi-collection-play"></i> 游戏库</a></li>
+                <li><a class="dropdown-item" href="/points-shop"><i class="bi bi-stars"></i> 积分商店</a></li>
+                <li><a class="dropdown-item" href="/orders"><i class="bi bi-receipt"></i> 我的订单</a></li>
+                <li><a class="dropdown-item" href="/cart"><i class="bi bi-cart"></i> 购物车</a></li>
+                ${adminMenuItem}
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="#" onclick="logout(event); return false;">
+                    <i class="bi bi-box-arrow-right"></i> 退出登录
+                </a></li>
+            </ul>
+        `;
+
+        navbarLinks.appendChild(userInfo);
+    }
+
+    async function checkLoginStatus() {
+        try {
+            const response = await fetch('/api/auth/current');
+            const result = await response.json();
+
+            if (result.code === 200 && result.data) {
+                renderUserMenu(result.data);
+            } else {
+                resetGuestNav();
+            }
+        } catch (error) {
+            console.error('检查登录状态失败:', error);
+            resetGuestNav();
+        }
+    }
+
+    async function logout(event) {
+        if (event) {
+            event.preventDefault();
+        }
+
+        try {
+            await fetch('/api/auth/logout', { method: 'POST' });
+        } finally {
+            window.location.href = '/';
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        checkLoginStatus();
+        loadSections();
+    });
+</script>
+</body>
+</html>

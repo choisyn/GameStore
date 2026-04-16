@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>攻略详情 - 游戏社区商城</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --detail-card: rgba(12, 21, 36, 0.86);
+            --detail-line: rgba(148, 163, 184, 0.16);
+            --detail-primary: #38bdf8;
+            --detail-accent: #f59e0b;
+            --detail-text: #e2e8f0;
+            --detail-muted: #93a5be;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            color: var(--detail-text);
+            background:
+                radial-gradient(circle at 20% 0%, rgba(56, 189, 248, 0.16), transparent 26%),
+                radial-gradient(circle at 100% 20%, rgba(245, 158, 11, 0.16), transparent 22%),
+                linear-gradient(180deg, #07111f 0%, #0a1322 45%, #111827 100%);
+            font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+        }
+
+        .navbar {
+            background: rgba(7, 17, 31, 0.92);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+        }
+
+        .navbar-brand,
+        .nav-link {
+            color: var(--detail-text) !important;
+        }
+
+        .nav-link.active,
+        .nav-link:hover {
+            color: var(--detail-primary) !important;
+        }
+
+        .page-wrap {
+            padding: 2.2rem 0 4rem;
+        }
+
+        .hero-card,
+        .content-card {
+            border: 1px solid var(--detail-line);
+            border-radius: 28px;
+            background: var(--detail-card);
+            box-shadow: 0 28px 60px rgba(5, 12, 24, 0.35);
+        }
+
+        .hero-card {
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-cover {
+            width: 100%;
+            height: 340px;
+            object-fit: cover;
+        }
+
+        .hero-body {
+            padding: 1.8rem;
+        }
+
+        .guide-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            margin-bottom: 1rem;
+        }
+
+        .guide-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.35rem 0.8rem;
+            border-radius: 999px;
+            font-size: 0.84rem;
+        }
+
+        .guide-badge.primary {
+            background: rgba(56, 189, 248, 0.14);
+            color: #7dd3fc;
+        }
+
+        .guide-badge.accent {
+            background: rgba(245, 158, 11, 0.14);
+            color: #fcd34d;
+        }
+
+        .guide-title {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 800;
+            line-height: 1.3;
+            margin-bottom: 1rem;
+        }
+
+        .guide-summary {
+            color: var(--detail-muted);
+            line-height: 1.85;
+            font-size: 1.02rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .meta-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 1rem;
+        }
+
+        .meta-item {
+            padding: 1rem;
+            border-radius: 20px;
+            background: rgba(15, 23, 42, 0.65);
+            border: 1px solid rgba(148, 163, 184, 0.12);
+        }
+
+        .meta-label {
+            color: var(--detail-muted);
+            font-size: 0.88rem;
+            margin-bottom: 0.45rem;
+        }
+
+        .meta-value {
+            font-size: 1.04rem;
+            font-weight: 600;
+        }
+
+        .content-card {
+            padding: 1.8rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .content-card h2 {
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .guide-content {
+            line-height: 1.95;
+            color: #d9e3ee;
+            font-size: 1rem;
+        }
+
+        .guide-content p {
+            margin-bottom: 1rem;
+        }
+
+        .guide-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .guide-tag {
+            padding: 0.3rem 0.75rem;
+            border-radius: 999px;
+            background: rgba(148, 163, 184, 0.12);
+            color: #cbd5e1;
+            font-size: 0.82rem;
+        }
+
+        .guide-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin-top: 1.5rem;
+        }
+
+        .reward-panel {
+            margin-top: 1.4rem;
+            padding: 1rem 1.1rem;
+            border-radius: 18px;
+            background: rgba(15, 23, 42, 0.72);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+        }
+
+        .reward-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 0.9rem;
+        }
+
+        .reward-title {
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .reward-summary,
+        .reward-hint {
+            font-size: 0.9rem;
+            color: var(--detail-muted);
+        }
+
+        .reward-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            align-items: center;
+            margin-bottom: 0.9rem;
+        }
+
+        .reward-input {
+            width: 120px;
+            min-height: 44px;
+            border-radius: 12px;
+            border: 1px solid rgba(148, 163, 184, 0.16);
+            background: rgba(15, 23, 42, 0.9);
+            color: var(--detail-text);
+            padding: 0.6rem 0.8rem;
+        }
+
+        .reward-supporters {
+            display: flex;
+            flex-direction: column;
+            gap: 0.65rem;
+        }
+
+        .reward-supporter-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.7rem 0.85rem;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .reward-supporter-name {
+            color: var(--detail-primary);
+            font-weight: 600;
+        }
+
+        .reward-supporter-points {
+            color: #fcd34d;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .reward-footer {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 0.8rem;
+        }
+
+        .reward-empty {
+            color: var(--detail-muted);
+            font-size: 0.9rem;
+        }
+
+        .reward-modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 1200;
+        }
+
+        .reward-modal {
+            width: min(560px, 100%);
+            max-height: min(80vh, 680px);
+            overflow-y: auto;
+            background: #0f172a;
+            border-radius: 20px;
+            border: 1px solid rgba(148, 163, 184, 0.16);
+            box-shadow: 0 30px 70px rgba(0, 0, 0, 0.45);
+        }
+
+        .reward-modal-header,
+        .reward-modal-body {
+            padding: 1rem 1.15rem;
+        }
+
+        .reward-modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+        }
+
+        .reward-modal-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .btn-guide,
+        .btn-guide-secondary {
+            border-radius: 999px;
+            padding: 0.75rem 1.15rem;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .btn-guide {
+            background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+            color: #04111d;
+        }
+
+        .btn-guide-secondary {
+            background: rgba(148, 163, 184, 0.12);
+            color: var(--detail-text);
+        }
+
+        .related-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .related-list {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .related-item {
+            padding: 1rem 1.1rem;
+            border-radius: 20px;
+            background: rgba(15, 23, 42, 0.72);
+            border: 1px solid rgba(148, 163, 184, 0.12);
+        }
+
+        .related-item-title {
+            font-size: 1.04rem;
+            font-weight: 700;
+            margin-bottom: 0.45rem;
+        }
+
+        .text-muted-soft {
+            color: var(--detail-muted);
+        }
+
+        .title-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+        }
+
+        .user-dropdown {
+            background: #0f172a;
+            border: 1px solid rgba(148, 163, 184, 0.16);
+        }
+
+        .user-dropdown .dropdown-item {
+            color: var(--detail-text);
+        }
+
+        .user-dropdown .dropdown-item:hover {
+            background: rgba(56, 189, 248, 0.12);
+            color: var(--detail-primary);
+        }
+
+        @media (max-width: 768px) {
+            .hero-cover {
+                height: 240px;
+            }
+
+            .hero-body,
+            .content-card {
+                padding: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="/"><i class="bi bi-controller"></i> 游戏社区商城</a>
+        <button class="navbar-toggler text-white border-0" type="button" data-bs-toggle="collapse" data-bs-target="#guideNavbar">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="guideNavbar">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item"><a class="nav-link" href="/">商店</a></li>
+                <li class="nav-item"><a class="nav-link" href="/community">社区</a></li>
+                <li class="nav-item"><a class="nav-link active" href="/guides">攻略</a></li>
+                <li class="nav-item"><a class="nav-link" href="/library">游戏库</a></li>
+            </ul>
+            <div class="navbar-nav" id="navbarLinks">
+                <a class="nav-link" href="/login" id="loginLink">登录</a>
+                <a class="nav-link" href="/register" id="registerLink">注册</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<main class="container page-wrap">
+    <div id="guideDetailRoot">
+        <div class="content-card text-center text-muted-soft">正在加载攻略详情...</div>
+    </div>
+</main>
+
+<div class="reward-modal-backdrop" id="rewardModal">
+    <div class="reward-modal">
+        <div class="reward-modal-header">
+            <strong>完整打赏名单</strong>
+            <button class="btn-guide-secondary" type="button" onclick="closeRewardModal()">关闭</button>
+        </div>
+        <div class="reward-modal-body">
+            <div class="reward-modal-list" id="rewardModalList"></div>
+        </div>
+    </div>
+</div>
+
+<script src="/js/ui-feedback.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const guideId = /*[[${guideId}]]*/ 0;
+    /*]]>*/
+</script>
+<script>
+    let currentUser = null;
+    let currentGuide = null;
+
+    function escapeHtml(text) {
+        return String(text ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    function formatDate(dateText) {
+        if (!dateText) {
+            return '未知时间';
+        }
+        return new Date(dateText).toLocaleString('zh-CN', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+
+    function renderContent(content) {
+        if (!content) {
+            return '<p>暂无正文内容。</p>';
+        }
+        return escapeHtml(content)
+            .split(/\n{2,}/)
+            .map(paragraph => `<p>${paragraph.replace(/\n/g, '<br>')}</p>`)
+            .join('');
+    }
+
+    function renderTags(tags) {
+        if (!tags) {
+            return '';
+        }
+        return tags.split(',')
+            .map(tag => tag.trim())
+            .filter(Boolean)
+            .map(tag => `<span class="guide-tag">${escapeHtml(tag)}</span>`)
+            .join('');
+    }
+
+    function resetGuestNav() {
+        document.getElementById('loginLink').style.display = '';
+        document.getElementById('registerLink').style.display = '';
+        document.getElementById('userInfo')?.remove();
+    }
+
+    function renderUserMenu(user) {
+        document.getElementById('loginLink').style.display = 'none';
+        document.getElementById('registerLink').style.display = 'none';
+
+        if (document.getElementById('userInfo')) {
+            return;
+        }
+
+        const navbarLinks = document.getElementById('navbarLinks');
+        const userInfo = document.createElement('div');
+        userInfo.id = 'userInfo';
+        userInfo.className = 'dropdown';
+
+        userInfo.innerHTML = `
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-person-circle"></i> ${escapeHtml(user.username)}
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end user-dropdown">
+                <li><a class="dropdown-item" href="/profile"><i class="bi bi-person"></i> 个人中心</a></li>
+                <li><a class="dropdown-item" href="/library"><i class="bi bi-collection-play"></i> 游戏库</a></li>
+                <li><a class="dropdown-item" href="/orders"><i class="bi bi-receipt"></i> 我的订单</a></li>
+                <li><a class="dropdown-item" href="/cart"><i class="bi bi-cart"></i> 购物车</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="#" onclick="logout(event)"><i class="bi bi-box-arrow-right"></i> 退出登录</a></li>
+            </ul>
+        `;
+
+        navbarLinks.appendChild(userInfo);
+    }
+
+    async function checkLoginStatus() {
+        try {
+            const response = await fetch('/api/auth/current');
+            const result = await response.json();
+            if (result.code === 200 && result.data) {
+                currentUser = result.data;
+                renderUserMenu(result.data);
+            } else {
+                resetGuestNav();
+            }
+        } catch (error) {
+            console.error('检查登录状态失败:', error);
+            resetGuestNav();
+        }
+    }
+
+    async function logout(event) {
+        if (event) {
+            event.preventDefault();
+        }
+        try {
+            await fetch('/api/auth/logout', { method: 'POST' });
+        } finally {
+            window.location.href = '/';
+        }
+    }
+
+    async function loadRelatedGuides(gameId, currentGuideId) {
+        if (!gameId) {
+            return '<div class="text-muted-soft">暂无关联攻略。</div>';
+        }
+
+        try {
+            const response = await fetch(`/api/guides?gameId=${gameId}&size=4`);
+            const result = await response.json();
+            const related = (Array.isArray(result.data) ? result.data : []).filter(item => Number(item.id) !== Number(currentGuideId)).slice(0, 3);
+            if (!related.length) {
+                return '<div class="text-muted-soft">这款游戏目前只有这一篇攻略。</div>';
+            }
+            return related.map(item => `
+                <article class="related-item">
+                    <div class="related-item-title">${escapeHtml(item.title)}</div>
+                    <div class="text-muted-soft mb-2">${escapeHtml(item.summary || '暂无摘要')}</div>
+                    <div class="d-flex flex-wrap gap-3 text-muted-soft small mb-3">
+                        <span><i class="bi bi-bar-chart-steps"></i> ${escapeHtml(item.difficultyText)}</span>
+                        <span><i class="bi bi-eye"></i> ${item.viewCount || 0}</span>
+                        <span><i class="bi bi-clock-history"></i> ${item.estimatedMinutes || 15} 分钟</span>
+                    </div>
+                    <a class="btn-guide-secondary" href="/guides/${item.id}">查看这篇</a>
+                </article>
+            `).join('');
+        } catch (error) {
+            console.error('加载关联攻略失败:', error);
+            return '<div class="text-muted-soft">关联攻略加载失败。</div>';
+        }
+    }
+
+    async function loadGuideDetail() {
+        const root = document.getElementById('guideDetailRoot');
+        try {
+            const response = await fetch(`/api/guides/${guideId}`);
+            const result = await response.json();
+            if (result.code !== 200 || !result.data) {
+                root.innerHTML = '<div class="content-card text-center text-muted-soft">未找到这篇攻略。</div>';
+                return;
+            }
+
+            const guide = result.data;
+            currentGuide = guide;
+            const relatedHtml = await loadRelatedGuides(guide.gameId, guide.id);
+            document.title = `${guide.title} - 游戏攻略`;
+
+            root.innerHTML = `
+                <section class="hero-card">
+                    <img class="hero-cover" src="${escapeHtml(guide.coverImageUrl || '')}" alt="${escapeHtml(guide.title)}" onerror="this.src='https://images.unsplash.com/photo-1511512578047-dfb367046420?w=1200&h=600&fit=crop';">
+                    <div class="hero-body">
+                        <div class="guide-badges">
+                            <span class="guide-badge primary"><i class="bi bi-controller"></i> ${escapeHtml(guide.gameName)}</span>
+                            <span class="guide-badge primary"><i class="bi bi-bar-chart-steps"></i> ${escapeHtml(guide.difficultyText)}</span>
+                            ${guide.featured ? '<span class="guide-badge accent"><i class="bi bi-stars"></i> 精选攻略</span>' : ''}
+                        </div>
+                        <div class="guide-title">${escapeHtml(guide.title)}</div>
+                        <div class="guide-summary">${escapeHtml(guide.summary || '暂无摘要')}</div>
+                        <div class="meta-grid">
+                            <div class="meta-item">
+                                <div class="meta-label">作者</div>
+                                <div class="meta-value">${escapeHtml(guide.authorName)}</div>
+                            </div>
+                            <div class="meta-item">
+                                <div class="meta-label">发布时间</div>
+                                <div class="meta-value">${formatDate(guide.publishedAt)}</div>
+                            </div>
+                            <div class="meta-item">
+                                <div class="meta-label">预计阅读/完成</div>
+                                <div class="meta-value">${guide.estimatedMinutes || 15} 分钟</div>
+                            </div>
+                            <div class="meta-item">
+                                <div class="meta-label">浏览量</div>
+                                <div class="meta-value">${guide.viewCount || 0}</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="content-card">
+                    <h2>攻略正文</h2>
+                    <div class="guide-content">${renderContent(guide.content)}</div>
+                    <div class="guide-tags">${renderTags(guide.tags)}</div>
+                    <div class="reward-panel">
+                        <div class="reward-header">
+                            <div>
+                                <div class="reward-title"><i class="bi bi-coin"></i> 打赏支持</div>
+                                <div class="reward-summary" id="rewardSummary">正在加载打赏信息...</div>
+                            </div>
+                            <div class="reward-hint" id="rewardBalanceHint">${currentUser ? `我的积分：${currentUser.points || 0}` : '登录后可使用积分打赏作者'}</div>
+                        </div>
+                        <div class="reward-controls">
+                            <input class="reward-input" id="rewardPointsInput" type="number" min="1" step="1" value="10">
+                            <button class="btn-guide" type="button" onclick="submitGuideReward()">打赏</button>
+                        </div>
+                        <div class="reward-supporters" id="rewardSupporters">
+                            <div class="reward-empty">正在加载打赏名单...</div>
+                        </div>
+                        <div class="reward-footer">
+                            <button class="btn-guide-secondary" id="rewardViewAllBtn" type="button" onclick="openRewardModal()" style="display:none;">查看全部</button>
+                        </div>
+                    </div>
+                    <div class="guide-actions">
+                        <a class="btn-guide" href="/game/${guide.gameId}"><i class="bi bi-controller"></i> 查看游戏详情</a>
+                        <a class="btn-guide-secondary" href="/guides?gameId=${guide.gameId}"><i class="bi bi-journal-text"></i> 查看该游戏全部攻略</a>
+                        <a class="btn-guide-secondary" href="/guides"><i class="bi bi-arrow-left"></i> 返回攻略列表</a>
+                    </div>
+                </section>
+
+                <section class="content-card">
+                    <div class="related-title">
+                        <h2 class="mb-0">相关攻略</h2>
+                        <div class="title-actions">
+                            <span class="text-muted-soft small">同一款游戏下的其他内容</span>
+                            <a class="btn-guide-secondary" href="/guides/create">发布我的攻略</a>
+                        </div>
+                    </div>
+                    <div class="related-list">${relatedHtml}</div>
+                </section>
+            `;
+            await loadGuideRewardPreview();
+        } catch (error) {
+            console.error('加载攻略详情失败:', error);
+            root.innerHTML = '<div class="content-card text-center text-muted-soft">攻略加载失败，请稍后重试。</div>';
+        }
+    }
+
+    async function loadGuideRewardPreview() {
+        const summaryElement = document.getElementById('rewardSummary');
+        const listElement = document.getElementById('rewardSupporters');
+        const viewAllBtn = document.getElementById('rewardViewAllBtn');
+        if (!summaryElement || !listElement || !viewAllBtn) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/rewards/guides/${guideId}`);
+            const result = await response.json();
+            if (result.code !== 200 || !result.data) {
+                throw new Error(result.message || '加载失败');
+            }
+
+            const data = result.data;
+            summaryElement.textContent = `累计收到 ${data.totalRewardPoints || 0} 积分，已有 ${data.supporterCount || 0} 位用户打赏`;
+            renderRewardSupporters(data.supporters || [], listElement);
+            viewAllBtn.style.display = (data.supporterCount || 0) > 0 ? 'inline-flex' : 'none';
+        } catch (error) {
+            console.error('加载攻略打赏摘要失败:', error);
+            summaryElement.textContent = '打赏信息加载失败';
+            listElement.innerHTML = '<div class="reward-empty">暂时无法加载打赏名单。</div>';
+            viewAllBtn.style.display = 'none';
+        }
+    }
+
+    function renderRewardSupporters(supporters, container) {
+        if (!Array.isArray(supporters) || supporters.length === 0) {
+            container.innerHTML = '<div class="reward-empty">还没有人打赏，成为第一个支持者吧。</div>';
+            return;
+        }
+
+        container.innerHTML = supporters.map((supporter) => `
+            <div class="reward-supporter-item">
+                <span class="reward-supporter-name">${escapeHtml(supporter.username || '匿名用户')}</span>
+                <span class="reward-supporter-points">+${supporter.totalPoints || 0} 积分</span>
+            </div>
+        `).join('');
+    }
+
+    async function submitGuideReward() {
+        if (!currentUser) {
+            await appAlert('请先登录后再打赏。', { title: '需要登录', type: 'warning' });
+            window.location.href = '/login';
+            return;
+        }
+        const input = document.getElementById('rewardPointsInput');
+        const points = Number(input?.value || 0);
+        if (!Number.isInteger(points) || points <= 0) {
+            await appAlert('请输入大于 0 的整数积分。', { title: '输入有误', type: 'warning' });
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/rewards/guides/${guideId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ points })
+            });
+            const result = await response.json();
+            if (result.code !== 200) {
+                await appAlert(result.message || '打赏失败', { title: '提示', type: 'warning' });
+                return;
+            }
+            currentUser.points = result.data?.senderPointsBalance ?? currentUser.points;
+            const balanceHint = document.getElementById('rewardBalanceHint');
+            if (balanceHint) {
+                balanceHint.textContent = `我的积分：${currentUser.points || 0}`;
+            }
+            await loadGuideRewardPreview();
+            await appAlert(`已成功打赏 ${points} 积分。`, { title: '打赏成功', type: 'success' });
+        } catch (error) {
+            console.error('打赏攻略失败:', error);
+            await appAlert('打赏失败，请稍后重试。', { title: '提示', type: 'warning' });
+        }
+    }
+
+    async function openRewardModal() {
+        const modal = document.getElementById('rewardModal');
+        const list = document.getElementById('rewardModalList');
+        modal.style.display = 'flex';
+        list.innerHTML = '<div class="reward-empty">正在加载...</div>';
+
+        try {
+            const response = await fetch(`/api/rewards/guides/${guideId}/all`);
+            const result = await response.json();
+            if (result.code !== 200 || !result.data) {
+                throw new Error(result.message || '加载失败');
+            }
+
+            const supporters = result.data.supporters || [];
+            if (!supporters.length) {
+                list.innerHTML = '<div class="reward-empty">还没有完整打赏记录。</div>';
+                return;
+            }
+
+            list.innerHTML = supporters.map((supporter, index) => `
+                <div class="reward-supporter-item">
+                    <span>${index + 1}. <span class="reward-supporter-name">${escapeHtml(supporter.username || '匿名用户')}</span></span>
+                    <span class="reward-supporter-points">+${supporter.totalPoints || 0} 积分</span>
+                </div>
+            `).join('');
+        } catch (error) {
+            console.error('加载完整打赏名单失败:', error);
+            list.innerHTML = '<div class="reward-empty">完整名单加载失败。</div>';
+        }
+    }
+
+    function closeRewardModal() {
+        document.getElementById('rewardModal').style.display = 'none';
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        await checkLoginStatus();
+        await loadGuideDetail();
+    });
+
+    document.getElementById('rewardModal').addEventListener('click', function (event) {
+        if (event.target === this) {
+            closeRewardModal();
+        }
+    });
+</script>
+</body>
+</html>

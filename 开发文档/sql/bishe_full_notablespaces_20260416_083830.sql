@@ -1,0 +1,923 @@
+-- MySQL dump 10.13  Distrib 8.0.41, for Win64 (x86_64)
+--
+-- Host: localhost    Database: bishe
+-- ------------------------------------------------------
+-- Server version	8.0.41
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!50503 SET NAMES utf8mb4 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Current Database: `bishe`
+--
+
+CREATE DATABASE /*!32312 IF NOT EXISTS*/ `bishe` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
+
+USE `bishe`;
+
+--
+-- Table structure for table `admin_logs`
+--
+
+DROP TABLE IF EXISTS `admin_logs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `admin_logs` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `admin_id` bigint NOT NULL COMMENT '管理员ID',
+  `action` varchar(50) NOT NULL COMMENT '操作类型',
+  `target_type` varchar(50) DEFAULT NULL COMMENT '操作目标类型',
+  `target_id` bigint DEFAULT NULL COMMENT '操作目标ID',
+  `description` varchar(500) DEFAULT NULL COMMENT '操作描述',
+  `ip_address` varchar(50) DEFAULT NULL COMMENT 'IP地址',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '操作时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_admin` (`admin_id`),
+  KEY `idx_action` (`action`),
+  KEY `idx_created_at` (`created_at`),
+  CONSTRAINT `admin_logs_ibfk_1` FOREIGN KEY (`admin_id`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='管理员操作日志表';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `admin_logs`
+--
+
+LOCK TABLES `admin_logs` WRITE;
+/*!40000 ALTER TABLE `admin_logs` DISABLE KEYS */;
+/*!40000 ALTER TABLE `admin_logs` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `banners`
+--
+
+DROP TABLE IF EXISTS `banners`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `banners` (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `title` varchar(200) NOT NULL COMMENT '标题',
+  `image_url` varchar(500) NOT NULL COMMENT '图片URL',
+  `link_url` varchar(500) DEFAULT NULL COMMENT '跳转链接',
+  `description` text COMMENT '描述',
+  `sort_order` int DEFAULT '0' COMMENT '排序顺序,数字越小越靠前',
+  `is_active` tinyint(1) DEFAULT '1' COMMENT '是否启用',
+  `type` enum('HOME','COMMUNITY','CUSTOM') DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_sort_order` (`sort_order`),
+  KEY `idx_is_active` (`is_active`),
+  KEY `idx_type` (`type`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='轮播图表';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `banners`
+--
+
+LOCK TABLES `banners` WRITE;
+/*!40000 ALTER TABLE `banners` DISABLE KEYS */;
+INSERT INTO `banners` VALUES (1,'赛博朋克2077','/image/ss_9beef14102f164fa1163536d0fb3a51d0a2e4a3f.1920x1080.jpg','/game/18','探索夜之城的全新篇章,体验未来世界的无限可能',1,1,'HOME','2025-10-18 22:49:50','2026-03-22 13:45:52'),(2,'艾尔登法环','image/ss_943bf6fe62352757d9070c1d33e50b92fe8539f1.1920x1080.jpg','/game/20','踏上征途,成为艾尔登之王',2,1,'HOME','2025-10-18 22:49:50','2026-03-22 13:48:27'),(3,'巫师3:狂猎','image/ss_0901e64e9d4b8ebaea8348c194e7a3644d2d832d.1920x1080.jpg','/game/19','史诗级RPG巨作',3,1,'HOME','2025-10-18 22:49:50','2026-03-22 13:50:26');
+/*!40000 ALTER TABLE `banners` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `cart_items`
+--
+
+DROP TABLE IF EXISTS `cart_items`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `cart_items` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `user_id` bigint NOT NULL COMMENT '用户ID',
+  `quantity` int NOT NULL DEFAULT '1' COMMENT '数量',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `game_id` bigint NOT NULL,
+  `selected` bit(1) NOT NULL DEFAULT b'1',
+  `unit_price` decimal(10,2) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_cart_items_user_game` (`user_id`,`game_id`),
+  KEY `idx_user_id` (`user_id`),
+  KEY `idx_cart_items_user_id` (`user_id`),
+  KEY `idx_cart_items_game_id` (`game_id`),
+  KEY `idx_cart_items_selected` (`selected`),
+  CONSTRAINT `cart_items_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_cart_items_game` FOREIGN KEY (`game_id`) REFERENCES `games` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='购物车表';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `cart_items`
+--
+
+LOCK TABLES `cart_items` WRITE;
+/*!40000 ALTER TABLE `cart_items` DISABLE KEYS */;
+INSERT INTO `cart_items` VALUES (9,6,1,'2026-03-22 07:47:23','2026-03-22 07:47:23',523,0x01,298.00),(10,9,1,'2026-03-22 13:55:29','2026-03-22 13:55:29',551,0x01,109.00);
+/*!40000 ALTER TABLE `cart_items` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `categories`
+--
+
+DROP TABLE IF EXISTS `categories`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `categories` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '分类名称',
+  `description` text COLLATE utf8mb4_unicode_ci COMMENT '分类描述',
+  `parent_id` bigint DEFAULT NULL COMMENT '父分类ID',
+  `sort_order` int DEFAULT '0' COMMENT '排序',
+  `is_active` tinyint(1) DEFAULT '1' COMMENT '是否启用',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `icon_url` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `status` enum('ACTIVE','INACTIVE') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_categories_name` (`name`),
+  KEY `idx_parent_id` (`parent_id`),
+  KEY `idx_sort_order` (`sort_order`),
+  CONSTRAINT `categories_ibfk_1` FOREIGN KEY (`parent_id`) REFERENCES `categories` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB AUTO_INCREMENT=40 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='分类表';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `categories`
+--
+
+LOCK TABLES `categories` WRITE;
+/*!40000 ALTER TABLE `categories` DISABLE KEYS */;
+INSERT INTO `categories` VALUES (1,'动作游戏','包含各种动作冒险类游戏',NULL,1,1,'2025-10-16 13:24:03','2025-10-18 16:48:35',NULL,'ACTIVE'),(2,'角色扮演','包含RPG、MMORPG等角色扮演游戏',NULL,2,1,'2025-10-16 13:24:03','2025-10-18 16:48:35',NULL,'ACTIVE'),(3,'策略游戏','包含即时战略、回合制策略等游戏',NULL,3,1,'2025-10-16 13:24:03','2025-10-18 16:48:35',NULL,'ACTIVE'),(4,'射击游戏','包含FPS、TPS等射击类游戏',NULL,4,1,'2025-10-16 13:24:03','2025-10-18 16:48:35',NULL,'ACTIVE'),(5,'体育游戏','包含各种体育竞技类游戏',NULL,5,1,'2025-10-16 13:24:03','2025-10-18 16:48:35',NULL,'ACTIVE'),(6,'游戏周边','游戏相关的周边商品',NULL,6,1,'2025-10-16 13:24:03','2025-10-18 16:48:35',NULL,'ACTIVE'),(7,'RPG','角色扮演游戏，注重剧情和角色成长',NULL,1,1,'2025-10-18 15:15:30','2025-10-18 15:15:30',NULL,'ACTIVE'),(11,'冒险游戏','注重探索和解谜的游戏',NULL,5,1,'2025-10-18 15:15:30','2025-10-18 15:15:30',NULL,'ACTIVE'),(12,'模拟游戏','模拟现实或虚拟场景的游戏',NULL,6,1,'2025-10-18 15:15:30','2025-10-18 15:15:30',NULL,'ACTIVE'),(14,'竞速游戏','赛车或其他竞速类游戏',NULL,8,1,'2025-10-18 15:15:30','2025-10-18 15:15:30',NULL,'ACTIVE'),(15,'格斗游戏','格斗对战类游戏',NULL,9,1,'2025-10-18 15:15:30','2025-10-18 15:15:30',NULL,'ACTIVE'),(16,'休闲游戏','轻松休闲的游戏',NULL,10,1,'2025-10-18 15:15:30','2025-10-18 15:15:30',NULL,'ACTIVE'),(18,'解谜游戏','包含益智、解谜类游戏',NULL,11,1,'2025-10-18 16:03:59','2025-10-18 16:03:59',NULL,'ACTIVE'),(19,'开放世界','强调高自由度地图探索与区域推进',NULL,7,1,'2026-03-15 11:24:42','2026-03-15 11:24:42',NULL,'ACTIVE'),(20,'剧情向','强调叙事表现、角色塑造与沉浸式流程',NULL,8,1,'2026-03-15 11:24:42','2026-03-15 11:24:42',NULL,'ACTIVE'),(21,'生存建造','围绕采集、制造、基地建设与资源循环',NULL,9,1,'2026-03-15 11:24:42','2026-03-15 11:24:42',NULL,'ACTIVE'),(22,'模拟经营','以模拟、经营、养成和资源调配为核心',NULL,10,1,'2026-03-15 11:24:42','2026-03-15 11:24:42',NULL,'ACTIVE'),(23,'回合策略','围绕回合制部署、博弈和战术规划',NULL,11,1,'2026-03-15 11:24:42','2026-03-15 11:24:42',NULL,'ACTIVE'),(24,'竞速驾驶','以竞速、漂移、车辆调校和赛道对抗为核心',NULL,12,1,'2026-03-15 11:24:42','2026-03-15 11:24:42',NULL,'ACTIVE'),(25,'体育竞技','以球类、极限运动或竞技赛事为主题',NULL,13,1,'2026-03-15 11:24:42','2026-03-15 11:24:42',NULL,'ACTIVE'),(26,'恐怖惊悚','围绕恐怖氛围、生存压力和惊悚叙事展开',NULL,14,1,'2026-03-15 11:24:42','2026-03-15 11:24:42',NULL,'ACTIVE'),(27,'解谜探索','强调机关破解、线索拼接与探索式推进',NULL,15,1,'2026-03-15 11:24:42','2026-03-15 11:24:42',NULL,'ACTIVE'),(28,'Roguelike肉鸽','强调随机生成、循环成长与高重玩价值',NULL,16,1,'2026-03-15 11:24:42','2026-03-15 11:24:42',NULL,'ACTIVE'),(29,'卡牌构筑','强调卡组构筑、策略组合和数值取舍',NULL,17,1,'2026-03-15 11:24:42','2026-03-15 11:24:42',NULL,'ACTIVE'),(30,'沙盒创造','强调自由编辑、世界搭建与创造性玩法',NULL,18,1,'2026-03-15 11:24:42','2026-03-15 11:24:42',NULL,'ACTIVE'),(31,'多人联机','强调在线组队、竞技或合作互动',NULL,19,1,'2026-03-15 11:24:42','2026-03-15 11:24:42',NULL,'ACTIVE'),(32,'音乐节奏','以音符判定、节拍挑战和音乐表现为核心',NULL,20,1,'2026-03-15 11:24:43','2026-03-15 11:24:43',NULL,'ACTIVE'),(33,'派对欢乐','强调多人同乐、轻度竞技和聚会氛围',NULL,21,1,'2026-03-15 11:24:43','2026-03-15 11:24:43',NULL,'ACTIVE'),(34,'平台跳跃','以移动、跳跃、关卡挑战和操作精度为核心',NULL,22,1,'2026-03-15 11:24:43','2026-03-15 11:24:43',NULL,'ACTIVE'),(35,'格斗对战','强调连招、博弈和近身对抗',NULL,23,1,'2026-03-15 11:24:43','2026-03-15 11:24:43',NULL,'ACTIVE'),(36,'塔防策略','以路线规划、塔组组合和资源节奏为核心',NULL,24,1,'2026-03-15 11:24:43','2026-03-15 11:24:43',NULL,'ACTIVE'),(37,'MMO大型多人','强调长期养成、多人协作和公会社交',NULL,25,1,'2026-03-15 11:24:43','2026-03-15 11:24:43',NULL,'ACTIVE'),(38,'视觉小说','以文本叙事、分支选择和角色互动为核心',NULL,26,1,'2026-03-15 11:24:43','2026-03-15 11:24:43',NULL,'ACTIVE'),(39,'魂like','强调高压战斗、死亡学习和关卡压迫感',NULL,27,1,'2026-03-15 11:24:43','2026-03-15 11:24:43',NULL,'ACTIVE');
+/*!40000 ALTER TABLE `categories` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `comments`
+--
+
+DROP TABLE IF EXISTS `comments`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `comments` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `post_id` bigint NOT NULL COMMENT '帖子ID',
+  `user_id` bigint NOT NULL COMMENT '用户ID',
+  `parent_id` bigint DEFAULT NULL COMMENT '父评论ID',
+  `content` text COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '评论内容',
+  `like_count` int DEFAULT '0' COMMENT '点赞数',
+  `status` enum('PUBLISHED','DELETED') COLLATE utf8mb4_unicode_ci DEFAULT 'PUBLISHED',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_post_id` (`post_id`),
+  KEY `idx_user_id` (`user_id`),
+  KEY `idx_parent_id` (`parent_id`),
+  KEY `idx_created_at` (`created_at`),
+  CONSTRAINT `comments_ibfk_1` FOREIGN KEY (`post_id`) REFERENCES `posts` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `comments_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
+  CONSTRAINT `comments_ibfk_3` FOREIGN KEY (`parent_id`) REFERENCES `comments` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='评论表';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `comments`
+--
+
+LOCK TABLES `comments` WRITE;
+/*!40000 ALTER TABLE `comments` DISABLE KEYS */;
+INSERT INTO `comments` VALUES (1,1,4,NULL,'我也玩了这款游戏，确实很不错！',12,'PUBLISHED','2025-10-16 13:24:03','2025-10-16 13:24:03'),(2,1,5,NULL,'画面真的很震撼，就是优化还需要改进',8,'PUBLISHED','2025-10-16 13:24:03','2025-10-16 13:24:03'),(3,2,3,NULL,'攻略很详细，谢谢分享！',15,'PUBLISHED','2025-10-16 13:24:03','2025-10-16 13:24:03'),(4,2,5,NULL,'按照攻略成功获得了白金奖杯',9,'PUBLISHED','2025-10-16 13:24:03','2025-10-16 13:24:03'),(5,3,4,NULL,'对新手很有帮助的建议',6,'PUBLISHED','2025-10-16 13:24:03','2025-10-16 13:24:03'),(6,4,5,NULL,'期待榜单上的几款游戏早日发售',7,'PUBLISHED','2025-10-16 13:24:03','2025-10-16 13:24:03');
+/*!40000 ALTER TABLE `comments` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `community_comments`
+--
+
+DROP TABLE IF EXISTS `community_comments`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `community_comments` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `content` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `like_count` int DEFAULT NULL,
+  `parent_id` bigint DEFAULT NULL,
+  `post_id` bigint NOT NULL,
+  `status` enum('PUBLISHED','DELETED','HIDDEN') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `updated_at` datetime(6) NOT NULL,
+  `user_id` bigint NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKlrj6e98eodhkxqxolyyqowvbc` (`post_id`),
+  KEY `FKs4ksn2jvby5andojfxos6jvx3` (`user_id`),
+  CONSTRAINT `FKlrj6e98eodhkxqxolyyqowvbc` FOREIGN KEY (`post_id`) REFERENCES `community_posts` (`id`),
+  CONSTRAINT `FKs4ksn2jvby5andojfxos6jvx3` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `community_comments`
+--
+
+LOCK TABLES `community_comments` WRITE;
+/*!40000 ALTER TABLE `community_comments` DISABLE KEYS */;
+/*!40000 ALTER TABLE `community_comments` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `community_posts`
+--
+
+DROP TABLE IF EXISTS `community_posts`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `community_posts` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `comment_count` int DEFAULT NULL,
+  `content` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `images` text COLLATE utf8mb4_unicode_ci,
+  `is_closed` bit(1) DEFAULT NULL,
+  `is_essence` bit(1) DEFAULT NULL,
+  `is_pinned` bit(1) DEFAULT NULL,
+  `last_comment_at` datetime(6) DEFAULT NULL,
+  `like_count` int DEFAULT NULL,
+  `section_id` bigint NOT NULL,
+  `status` enum('PUBLISHED','DELETED','HIDDEN') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `title` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `updated_at` datetime(6) NOT NULL,
+  `user_id` bigint NOT NULL,
+  `view_count` int DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKcnm2lbkpq9gs9fbt02qme1spy` (`section_id`),
+  KEY `FK44o0kkmkldhul00k2lm08bqje` (`user_id`),
+  CONSTRAINT `FK44o0kkmkldhul00k2lm08bqje` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
+  CONSTRAINT `FKcnm2lbkpq9gs9fbt02qme1spy` FOREIGN KEY (`section_id`) REFERENCES `community_sections` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `community_posts`
+--
+
+LOCK TABLES `community_posts` WRITE;
+/*!40000 ALTER TABLE `community_posts` DISABLE KEYS */;
+/*!40000 ALTER TABLE `community_posts` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `community_sections`
+--
+
+DROP TABLE IF EXISTS `community_sections`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `community_sections` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `created_at` datetime(6) NOT NULL,
+  `description` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `icon` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `name` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `post_count` int DEFAULT NULL,
+  `sort_order` int DEFAULT NULL,
+  `status` enum('ACTIVE','INACTIVE') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `updated_at` datetime(6) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `UK_mhdbuphd6cgvjvdt85y5u9nii` (`name`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `community_sections`
+--
+
+LOCK TABLES `community_sections` WRITE;
+/*!40000 ALTER TABLE `community_sections` DISABLE KEYS */;
+INSERT INTO `community_sections` VALUES (1,'2025-10-18 16:49:12.000000','自由讨论游戏相关话题，分享游戏心得体会','bi-chat-dots','讨论广场',NULL,1,'ACTIVE','2025-10-18 16:49:12.000000'),(2,'2025-10-18 16:49:12.000000','寻找志同道合的队友，一起开黑组队','bi-people','游戏组队',NULL,2,'ACTIVE','2025-10-18 16:49:12.000000'),(3,'2025-10-18 16:49:12.000000','分享精彩游戏片段、截图和高光时刻','bi-share','游戏分享',NULL,3,'ACTIVE','2025-10-18 16:49:12.000000'),(4,'2025-10-18 16:49:12.000000','发布和查看游戏攻略、技巧指南','bi-book','游戏攻略',NULL,4,'ACTIVE','2025-10-18 16:49:12.000000'),(5,'2025-10-18 16:49:12.000000','展示MOD、地图、皮肤等创意作品','bi-brush','创意工坊',NULL,5,'ACTIVE','2025-10-18 16:49:12.000000');
+/*!40000 ALTER TABLE `community_sections` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `content_rewards`
+--
+
+DROP TABLE IF EXISTS `content_rewards`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `content_rewards` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `created_at` datetime(6) NOT NULL,
+  `giver_user_id` bigint NOT NULL,
+  `points_amount` int NOT NULL,
+  `receiver_user_id` bigint NOT NULL,
+  `target_id` bigint NOT NULL,
+  `target_type` enum('FORUM_POST','GAME_GUIDE') COLLATE utf8mb4_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_content_rewards_target` (`target_type`,`target_id`),
+  KEY `idx_content_rewards_giver` (`giver_user_id`),
+  KEY `idx_content_rewards_receiver` (`receiver_user_id`),
+  KEY `idx_content_rewards_created_at` (`created_at`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `content_rewards`
+--
+
+LOCK TABLES `content_rewards` WRITE;
+/*!40000 ALTER TABLE `content_rewards` DISABLE KEYS */;
+INSERT INTO `content_rewards` VALUES (1,'2026-03-17 22:38:27.217935',6,10,7,3,'GAME_GUIDE'),(2,'2026-03-17 22:39:00.706649',6,10,7,3,'GAME_GUIDE'),(3,'2026-03-17 22:40:55.490256',6,1,7,3,'GAME_GUIDE');
+/*!40000 ALTER TABLE `content_rewards` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `game_categories`
+--
+
+DROP TABLE IF EXISTS `game_categories`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `game_categories` (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `game_id` bigint NOT NULL COMMENT '游戏ID',
+  `category_id` bigint NOT NULL COMMENT '分类ID',
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_game_category` (`game_id`,`category_id`) COMMENT '游戏-分类唯一约束',
+  KEY `idx_game_id` (`game_id`) COMMENT '游戏ID索引',
+  KEY `idx_category_id` (`category_id`) COMMENT '分类ID索引',
+  CONSTRAINT `fk_gc_category` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_gc_game` FOREIGN KEY (`game_id`) REFERENCES `games` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=2077 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='游戏-分类关联表';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `game_categories`
+--
+
+LOCK TABLES `game_categories` WRITE;
+/*!40000 ALTER TABLE `game_categories` DISABLE KEYS */;
+INSERT INTO `game_categories` VALUES (1113,474,34,'2026-03-16 21:55:56'),(1116,466,28,'2026-03-16 21:55:56'),(1117,436,3,'2026-03-16 21:55:56'),(1118,435,3,'2026-03-16 21:55:56'),(1119,442,22,'2026-03-16 21:55:56'),(1120,443,22,'2026-03-16 21:55:56'),(1121,472,27,'2026-03-16 21:55:56'),(1123,434,3,'2026-03-16 21:55:56'),(1126,461,28,'2026-03-16 21:55:56'),(1127,463,28,'2026-03-16 21:55:56'),(1128,457,28,'2026-03-16 21:55:56'),(1129,458,28,'2026-03-16 21:55:56'),(1130,464,28,'2026-03-16 21:55:56'),(1133,432,3,'2026-03-16 21:55:56'),(1138,479,26,'2026-03-16 21:55:56'),(1140,459,29,'2026-03-16 21:55:56'),(1143,437,3,'2026-03-16 21:55:56'),(1144,445,22,'2026-03-16 21:55:56'),(1145,481,20,'2026-03-16 21:55:56'),(1147,439,22,'2026-03-16 21:55:56'),(1148,454,11,'2026-03-16 21:55:56'),(1152,440,22,'2026-03-16 21:55:56'),(1153,465,28,'2026-03-16 21:55:56'),(1155,447,11,'2026-03-16 21:55:56'),(1158,483,11,'2026-03-16 21:55:56'),(1164,455,11,'2026-03-16 21:55:56'),(1165,460,29,'2026-03-16 21:55:56'),(1168,453,1,'2026-03-16 21:55:56'),(1170,462,28,'2026-03-16 21:55:56'),(1171,484,26,'2026-03-16 21:55:56'),(1172,448,11,'2026-03-16 21:55:56'),(1173,449,11,'2026-03-16 21:55:56'),(1174,473,34,'2026-03-16 21:55:56'),(1175,451,11,'2026-03-16 21:55:56'),(1179,450,11,'2026-03-16 21:55:56'),(1180,438,3,'2026-03-16 21:55:56'),(1181,478,26,'2026-03-16 21:55:56'),(1182,476,26,'2026-03-16 21:55:56'),(1183,477,26,'2026-03-16 21:55:56'),(1184,485,11,'2026-03-16 21:55:56'),(1185,482,11,'2026-03-16 21:55:56'),(1190,467,34,'2026-03-16 21:55:56'),(1191,475,11,'2026-03-16 21:55:56'),(1192,444,22,'2026-03-16 21:55:56'),(1193,433,3,'2026-03-16 21:55:56'),(1194,471,34,'2026-03-16 21:55:56'),(1195,456,11,'2026-03-16 21:55:56'),(1197,452,11,'2026-03-16 21:55:56'),(1198,480,11,'2026-03-16 21:55:56'),(1200,446,22,'2026-03-16 21:55:56'),(1202,441,22,'2026-03-16 21:55:56'),(1240,474,1,'2026-03-16 21:55:56'),(1243,466,1,'2026-03-16 21:55:56'),(1244,436,23,'2026-03-16 21:55:56'),(1245,435,23,'2026-03-16 21:55:56'),(1246,442,3,'2026-03-16 21:55:56'),(1247,443,3,'2026-03-16 21:55:56'),(1248,472,34,'2026-03-16 21:55:56'),(1250,434,22,'2026-03-16 21:55:56'),(1253,461,1,'2026-03-16 21:55:56'),(1254,463,22,'2026-03-16 21:55:56'),(1255,457,1,'2026-03-16 21:55:56'),(1256,458,1,'2026-03-16 21:55:56'),(1257,464,1,'2026-03-16 21:55:56'),(1260,432,23,'2026-03-16 21:55:56'),(1265,479,27,'2026-03-16 21:55:56'),(1267,459,28,'2026-03-16 21:55:56'),(1270,437,23,'2026-03-16 21:55:56'),(1271,445,3,'2026-03-16 21:55:56'),(1272,481,11,'2026-03-16 21:55:56'),(1274,439,30,'2026-03-16 21:55:56'),(1275,454,30,'2026-03-16 21:55:56'),(1280,440,30,'2026-03-16 21:55:56'),(1281,465,4,'2026-03-16 21:55:56'),(1284,447,19,'2026-03-16 21:55:56'),(1287,483,27,'2026-03-16 21:55:56'),(1293,455,21,'2026-03-16 21:55:56'),(1294,460,28,'2026-03-16 21:55:56'),(1298,453,28,'2026-03-16 21:55:56'),(1300,462,1,'2026-03-16 21:55:56'),(1301,484,27,'2026-03-16 21:55:56'),(1302,448,21,'2026-03-16 21:55:56'),(1303,449,21,'2026-03-16 21:55:56'),(1304,473,39,'2026-03-16 21:55:56'),(1305,451,27,'2026-03-16 21:55:56'),(1309,450,22,'2026-03-16 21:55:56'),(1310,438,22,'2026-03-16 21:55:56'),(1311,478,1,'2026-03-16 21:55:56'),(1312,476,1,'2026-03-16 21:55:56'),(1313,477,1,'2026-03-16 21:55:56'),(1314,485,20,'2026-03-16 21:55:56'),(1315,482,20,'2026-03-16 21:55:56'),(1320,467,1,'2026-03-16 21:55:56'),(1321,475,27,'2026-03-16 21:55:56'),(1322,444,3,'2026-03-16 21:55:56'),(1323,433,30,'2026-03-16 21:55:56'),(1324,471,1,'2026-03-16 21:55:56'),(1325,456,21,'2026-03-16 21:55:56'),(1327,452,21,'2026-03-16 21:55:56'),(1328,480,27,'2026-03-16 21:55:56'),(1330,446,30,'2026-03-16 21:55:56'),(1333,441,3,'2026-03-16 21:55:56'),(1367,474,39,'2026-03-16 21:55:56'),(1370,466,16,'2026-03-16 21:55:56'),(1371,442,21,'2026-03-16 21:55:56'),(1372,443,21,'2026-03-16 21:55:56'),(1373,472,11,'2026-03-16 21:55:56'),(1377,461,16,'2026-03-16 21:55:56'),(1378,463,1,'2026-03-16 21:55:56'),(1379,457,2,'2026-03-16 21:55:56'),(1380,458,2,'2026-03-16 21:55:56'),(1381,464,16,'2026-03-16 21:55:56'),(1384,432,2,'2026-03-16 21:55:56'),(1389,479,20,'2026-03-16 21:55:56'),(1391,459,3,'2026-03-16 21:55:56'),(1394,437,4,'2026-03-16 21:55:56'),(1395,445,30,'2026-03-16 21:55:56'),(1396,481,38,'2026-03-16 21:55:56'),(1398,439,3,'2026-03-16 21:55:56'),(1399,454,21,'2026-03-16 21:55:56'),(1404,440,3,'2026-03-16 21:55:56'),(1405,465,1,'2026-03-16 21:55:56'),(1406,447,30,'2026-03-16 21:55:56'),(1409,483,20,'2026-03-16 21:55:56'),(1415,455,30,'2026-03-16 21:55:56'),(1416,460,3,'2026-03-16 21:55:56'),(1419,453,4,'2026-03-16 21:55:56'),(1421,462,34,'2026-03-16 21:55:56'),(1422,484,20,'2026-03-16 21:55:56'),(1423,448,19,'2026-03-16 21:55:56'),(1424,449,19,'2026-03-16 21:55:56'),(1425,473,1,'2026-03-16 21:55:56'),(1426,451,16,'2026-03-16 21:55:56'),(1430,450,16,'2026-03-16 21:55:56'),(1431,438,30,'2026-03-16 21:55:56'),(1432,478,20,'2026-03-16 21:55:56'),(1433,476,20,'2026-03-16 21:55:56'),(1434,477,20,'2026-03-16 21:55:56'),(1435,485,1,'2026-03-16 21:55:56'),(1436,482,27,'2026-03-16 21:55:56'),(1441,467,27,'2026-03-16 21:55:56'),(1442,475,1,'2026-03-16 21:55:56'),(1443,444,30,'2026-03-16 21:55:56'),(1444,433,22,'2026-03-16 21:55:56'),(1445,471,16,'2026-03-16 21:55:56'),(1446,456,30,'2026-03-16 21:55:56'),(1447,452,27,'2026-03-16 21:55:56'),(1448,480,20,'2026-03-16 21:55:56'),(1450,446,3,'2026-03-16 21:55:56'),(1452,441,30,'2026-03-16 21:55:56'),(1495,549,4,'2026-03-16 22:01:57'),(1496,548,4,'2026-03-16 22:01:57'),(1497,582,32,'2026-03-16 22:01:57'),(1498,578,25,'2026-03-16 22:01:57'),(1499,575,24,'2026-03-16 22:01:57'),(1500,573,3,'2026-03-16 22:01:57'),(1502,577,25,'2026-03-16 22:01:57'),(1505,564,22,'2026-03-16 22:01:57'),(1509,571,2,'2026-03-16 22:01:57'),(1512,587,16,'2026-03-16 22:01:57'),(1513,583,32,'2026-03-16 22:01:57'),(1523,562,27,'2026-03-16 22:01:57'),(1532,565,2,'2026-03-16 22:01:57'),(1539,556,21,'2026-03-16 22:01:57'),(1541,550,4,'2026-03-16 22:01:57'),(1554,585,27,'2026-03-16 22:01:57'),(1555,527,2,'2026-03-16 22:01:57'),(1559,572,3,'2026-03-16 22:01:57'),(1561,561,2,'2026-03-16 22:01:57'),(1622,575,25,'2026-03-16 22:01:57'),(1623,573,28,'2026-03-16 22:01:57'),(1625,564,2,'2026-03-16 22:01:57'),(1629,571,20,'2026-03-16 22:01:57'),(1632,587,32,'2026-03-16 22:01:57'),(1633,583,34,'2026-03-16 22:01:57'),(1641,562,20,'2026-03-16 22:01:57'),(1651,565,3,'2026-03-16 22:01:57'),(1666,527,1,'2026-03-16 22:01:57'),(1669,572,23,'2026-03-16 22:01:57'),(1670,561,20,'2026-03-16 22:01:57'),(1684,549,31,'2026-03-16 22:01:58'),(1685,548,31,'2026-03-16 22:01:58'),(1686,582,16,'2026-03-16 22:01:58'),(1687,578,31,'2026-03-16 22:01:58'),(1689,577,31,'2026-03-16 22:01:58'),(1690,564,16,'2026-03-16 22:01:58'),(1694,571,32,'2026-03-16 22:01:58'),(1697,587,31,'2026-03-16 22:01:58'),(1698,583,16,'2026-03-16 22:01:58'),(1715,565,20,'2026-03-16 22:01:58'),(1721,556,20,'2026-03-16 22:01:58'),(1723,550,31,'2026-03-16 22:01:58'),(1734,585,20,'2026-03-16 22:01:58'),(1735,527,19,'2026-03-16 22:01:58'),(1738,572,28,'2026-03-16 22:01:58'),(1757,23,3,'2026-03-22 13:55:11'),(1758,31,7,'2026-03-22 13:55:22'),(1762,19,20,'2026-03-22 14:01:01'),(1763,19,2,'2026-03-22 14:01:01'),(1764,19,19,'2026-03-22 14:01:01'),(1765,20,19,'2026-03-22 14:01:08'),(1766,20,39,'2026-03-22 14:01:08'),(1767,20,2,'2026-03-22 14:01:08'),(1768,22,1,'2026-03-22 14:01:15'),(1769,26,1,'2026-03-22 14:01:22'),(1770,26,19,'2026-03-22 14:01:22'),(1771,26,20,'2026-03-22 14:01:22'),(1772,35,2,'2026-03-22 14:02:20'),(1773,35,1,'2026-03-22 14:02:20'),(1774,35,7,'2026-03-22 14:02:20'),(1775,37,11,'2026-03-22 14:05:12'),(1776,37,20,'2026-03-22 14:05:12'),(1777,37,1,'2026-03-22 14:05:12'),(1778,38,1,'2026-03-22 14:07:42'),(1779,38,20,'2026-03-22 14:07:42'),(1780,39,1,'2026-03-22 14:08:55'),(1781,40,1,'2026-03-22 14:11:05'),(1782,42,2,'2026-03-22 14:13:02'),(1783,44,2,'2026-03-22 14:13:44'),(1784,44,1,'2026-03-22 14:13:44'),(1785,44,31,'2026-03-22 14:13:44'),(1786,48,4,'2026-03-22 14:15:17'),(1787,51,23,'2026-03-22 14:16:02'),(1788,51,3,'2026-03-22 14:16:02'),(1789,53,3,'2026-03-22 14:16:14'),(1790,54,3,'2026-03-22 14:16:55'),(1791,54,22,'2026-03-22 14:16:55'),(1792,55,3,'2026-03-22 14:17:39'),(1793,55,22,'2026-03-22 14:17:39'),(1794,56,11,'2026-03-22 14:18:20'),(1795,58,11,'2026-03-22 14:19:12'),(1796,59,11,'2026-03-22 14:19:52'),(1797,60,1,'2026-03-22 14:20:15'),(1798,60,27,'2026-03-22 14:20:15'),(1799,60,34,'2026-03-22 14:20:15'),(1800,60,11,'2026-03-22 14:20:15'),(1801,61,12,'2026-03-22 14:20:50'),(1802,61,22,'2026-03-22 14:20:50'),(1803,61,30,'2026-03-22 14:20:50'),(1804,62,12,'2026-03-22 14:21:20'),(1805,63,3,'2026-03-22 14:21:57'),(1806,63,30,'2026-03-22 14:21:57'),(1807,63,12,'2026-03-22 14:21:57'),(1808,63,22,'2026-03-22 14:21:57'),(1809,64,12,'2026-03-22 14:22:21'),(1810,64,16,'2026-03-22 14:22:21'),(1811,64,30,'2026-03-22 14:22:21'),(1812,64,2,'2026-03-22 14:22:21'),(1813,64,22,'2026-03-22 14:22:21'),(1814,65,12,'2026-03-22 14:22:36'),(1815,66,5,'2026-03-22 14:22:55'),(1816,67,5,'2026-03-22 14:23:12'),(1817,68,5,'2026-03-22 14:23:20'),(1818,69,5,'2026-03-22 14:23:27'),(1819,70,5,'2026-03-22 14:23:32'),(1820,72,14,'2026-03-22 14:23:38'),(1821,73,14,'2026-03-22 14:24:03'),(1822,74,14,'2026-03-22 14:24:11'),(1823,75,14,'2026-03-22 14:24:17'),(1824,76,15,'2026-03-22 14:24:47'),(1825,77,15,'2026-03-22 14:24:55'),(1826,78,15,'2026-03-22 14:25:01'),(1827,79,15,'2026-03-22 14:25:31'),(1828,80,15,'2026-03-22 14:25:56'),(1829,83,16,'2026-03-22 14:26:22'),(1830,84,31,'2026-03-22 14:26:55'),(1831,84,16,'2026-03-22 14:26:55'),(1832,84,33,'2026-03-22 14:26:55'),(1833,396,1,'2026-03-22 14:27:41'),(1834,396,19,'2026-03-22 14:27:41'),(1835,396,20,'2026-03-22 14:27:41'),(1836,397,20,'2026-03-22 14:28:35'),(1837,397,1,'2026-03-22 14:28:35'),(1838,397,39,'2026-03-22 14:28:35'),(1839,398,19,'2026-03-22 14:29:03'),(1840,398,2,'2026-03-22 14:29:03'),(1841,398,20,'2026-03-22 14:29:03'),(1842,399,1,'2026-03-22 14:29:13'),(1843,399,20,'2026-03-22 14:29:13'),(1844,399,19,'2026-03-22 14:29:13'),(1845,400,1,'2026-03-22 14:29:19'),(1846,400,19,'2026-03-22 14:29:19'),(1847,400,20,'2026-03-22 14:29:19'),(1848,401,20,'2026-03-22 14:29:24'),(1849,401,11,'2026-03-22 14:29:24'),(1850,401,1,'2026-03-22 14:29:24'),(1851,402,20,'2026-03-22 14:30:09'),(1852,402,19,'2026-03-22 14:30:09'),(1853,402,1,'2026-03-22 14:30:09'),(1854,403,20,'2026-03-22 14:30:17'),(1855,403,1,'2026-03-22 14:30:17'),(1856,403,19,'2026-03-22 14:30:17'),(1857,404,1,'2026-03-22 14:30:48'),(1858,404,19,'2026-03-22 14:30:48'),(1859,404,20,'2026-03-22 14:30:48'),(1860,405,20,'2026-03-22 14:31:25'),(1861,405,19,'2026-03-22 14:31:25'),(1862,405,11,'2026-03-22 14:31:25'),(1863,406,1,'2026-03-22 14:31:52'),(1864,406,19,'2026-03-22 14:31:52'),(1865,406,20,'2026-03-22 14:31:52'),(1866,407,1,'2026-03-22 14:32:00'),(1867,407,11,'2026-03-22 14:32:00'),(1868,407,20,'2026-03-22 14:32:00'),(1869,408,11,'2026-03-22 14:32:28'),(1870,408,1,'2026-03-22 14:32:28'),(1871,408,20,'2026-03-22 14:32:28'),(1872,409,1,'2026-03-22 14:33:04'),(1873,409,20,'2026-03-22 14:33:04'),(1874,409,11,'2026-03-22 14:33:04'),(1875,410,1,'2026-03-22 14:33:13'),(1876,410,11,'2026-03-22 14:33:13'),(1877,410,20,'2026-03-22 14:33:13'),(1881,412,23,'2026-03-22 14:34:40'),(1882,412,20,'2026-03-22 14:34:40'),(1883,412,2,'2026-03-22 14:34:40'),(1884,413,2,'2026-03-22 14:35:05'),(1885,413,20,'2026-03-22 14:35:05'),(1886,413,23,'2026-03-22 14:35:05'),(1887,414,20,'2026-03-22 14:35:41'),(1888,414,11,'2026-03-22 14:35:41'),(1889,414,2,'2026-03-22 14:35:41'),(1890,415,2,'2026-03-22 14:36:09'),(1891,415,23,'2026-03-22 14:36:09'),(1892,415,20,'2026-03-22 14:36:09'),(1893,416,20,'2026-03-22 14:36:16'),(1894,416,23,'2026-03-22 14:36:16'),(1895,416,2,'2026-03-22 14:36:16'),(1896,417,20,'2026-03-22 14:36:49'),(1897,417,2,'2026-03-22 14:36:49'),(1898,417,23,'2026-03-22 14:36:49'),(1899,419,20,'2026-03-22 14:37:20'),(1900,419,23,'2026-03-22 14:37:20'),(1901,419,2,'2026-03-22 14:37:20'),(1902,418,20,'2026-03-22 14:37:38'),(1903,418,23,'2026-03-22 14:37:38'),(1904,418,2,'2026-03-22 14:37:38'),(1905,420,2,'2026-03-22 14:38:05'),(1906,420,11,'2026-03-22 14:38:05'),(1907,420,20,'2026-03-22 14:38:05'),(1908,421,2,'2026-03-22 14:38:37'),(1909,421,11,'2026-03-22 14:38:37'),(1910,421,20,'2026-03-22 14:38:37'),(1911,422,20,'2026-03-22 14:39:01'),(1912,422,1,'2026-03-22 14:39:01'),(1913,422,2,'2026-03-22 14:39:01'),(1914,423,2,'2026-03-22 14:39:08'),(1915,423,20,'2026-03-22 14:39:08'),(1916,423,1,'2026-03-22 14:39:08'),(1917,424,2,'2026-03-22 14:39:42'),(1918,424,20,'2026-03-22 14:39:42'),(1919,424,1,'2026-03-22 14:39:42'),(1920,425,1,'2026-03-22 14:40:03'),(1921,425,2,'2026-03-22 14:40:03'),(1922,425,20,'2026-03-22 14:40:03'),(1923,426,2,'2026-03-22 14:40:09'),(1924,426,1,'2026-03-22 14:40:09'),(1925,426,19,'2026-03-22 14:40:09'),(1926,427,2,'2026-03-22 14:40:36'),(1927,427,20,'2026-03-22 14:40:36'),(1928,427,23,'2026-03-22 14:40:36'),(1929,428,2,'2026-03-22 14:40:59'),(1930,428,23,'2026-03-22 14:40:59'),(1931,428,20,'2026-03-22 14:40:59'),(1932,429,20,'2026-03-22 14:41:32'),(1933,429,2,'2026-03-22 14:41:32'),(1934,429,1,'2026-03-22 14:41:32'),(1935,430,1,'2026-03-22 14:42:05'),(1936,430,2,'2026-03-22 14:42:05'),(1937,430,19,'2026-03-22 14:42:05'),(1938,431,23,'2026-03-22 14:42:12'),(1939,431,3,'2026-03-22 14:42:12'),(1940,590,33,'2026-03-22 14:42:24'),(1941,590,31,'2026-03-22 14:42:24'),(1942,590,16,'2026-03-22 14:42:24'),(1943,589,31,'2026-03-22 14:42:29'),(1944,589,16,'2026-03-22 14:42:29'),(1945,589,27,'2026-03-22 14:42:29'),(1946,588,1,'2026-03-22 14:43:12'),(1947,588,31,'2026-03-22 14:43:12'),(1948,523,1,'2026-03-22 14:43:50'),(1949,523,31,'2026-03-22 14:43:50'),(1950,523,4,'2026-03-22 14:43:50'),(1951,553,31,'2026-03-22 14:44:27'),(1952,553,26,'2026-03-22 14:44:27'),(1953,552,20,'2026-03-22 14:48:04'),(1954,552,26,'2026-03-22 14:48:04'),(1955,551,30,'2026-03-22 14:48:37'),(1956,551,3,'2026-03-22 14:48:37'),(1957,551,22,'2026-03-22 14:48:37'),(1958,547,31,'2026-03-22 14:49:33'),(1959,547,4,'2026-03-22 14:49:33'),(1960,546,4,'2026-03-22 14:50:12'),(1961,546,2,'2026-03-22 14:50:12'),(1962,546,31,'2026-03-22 14:50:12'),(1963,545,4,'2026-03-22 14:50:47'),(1964,545,1,'2026-03-22 14:50:47'),(1965,544,31,'2026-03-22 14:51:35'),(1966,544,4,'2026-03-22 14:51:35'),(1967,544,1,'2026-03-22 14:51:35'),(1968,543,4,'2026-03-22 14:52:26'),(1969,543,21,'2026-03-22 14:52:26'),(1970,542,4,'2026-03-22 14:53:07'),(1971,541,1,'2026-03-22 14:54:24'),(1972,541,4,'2026-03-22 14:54:24'),(1973,541,26,'2026-03-22 14:54:24'),(1974,540,1,'2026-03-22 14:55:01'),(1975,539,2,'2026-03-22 14:55:36'),(1976,539,1,'2026-03-22 14:55:36'),(1977,539,20,'2026-03-22 14:55:36'),(1978,538,2,'2026-03-22 14:56:33'),(1979,538,20,'2026-03-22 14:56:33'),(1980,538,1,'2026-03-22 14:56:33'),(1981,537,2,'2026-03-22 14:57:07'),(1982,537,20,'2026-03-22 14:57:07'),(1983,537,1,'2026-03-22 14:57:07'),(1984,536,20,'2026-03-22 14:57:49'),(1985,536,2,'2026-03-22 14:57:49'),(1986,536,1,'2026-03-22 14:57:49'),(1987,535,2,'2026-03-22 14:58:18'),(1988,535,1,'2026-03-22 14:58:18'),(1989,535,26,'2026-03-22 14:58:18'),(1990,411,20,'2026-03-22 14:59:04'),(1991,411,39,'2026-03-22 14:59:04'),(1992,411,1,'2026-03-22 14:59:04'),(1993,534,20,'2026-03-22 14:59:09'),(1994,534,1,'2026-03-22 14:59:09'),(1995,533,19,'2026-03-22 15:00:04'),(1996,533,2,'2026-03-22 15:00:04'),(1997,532,1,'2026-03-22 15:00:27'),(1998,532,20,'2026-03-22 15:00:27'),(1999,568,28,'2026-03-22 15:00:44'),(2000,568,2,'2026-03-22 15:00:44'),(2001,568,3,'2026-03-22 15:00:44'),(2002,567,2,'2026-03-22 15:01:36'),(2003,567,20,'2026-03-22 15:01:36'),(2004,567,1,'2026-03-22 15:01:36'),(2005,531,1,'2026-03-22 15:02:17'),(2006,531,31,'2026-03-22 15:02:17'),(2007,531,4,'2026-03-22 15:02:17'),(2008,530,2,'2026-03-22 15:02:58'),(2009,530,19,'2026-03-22 15:02:58'),(2010,529,1,'2026-03-22 15:04:04'),(2011,529,4,'2026-03-22 15:04:04'),(2012,529,26,'2026-03-22 15:04:04'),(2013,528,20,'2026-03-22 15:04:40'),(2014,528,2,'2026-03-22 15:04:40'),(2015,528,1,'2026-03-22 15:04:40'),(2016,18,2,'2026-03-22 15:05:12'),(2017,18,19,'2026-03-22 15:05:12'),(2018,18,20,'2026-03-22 15:05:12'),(2019,526,2,'2026-03-22 15:05:54'),(2020,526,1,'2026-03-22 15:05:54'),(2021,526,19,'2026-03-22 15:05:54'),(2022,525,19,'2026-03-22 15:06:51'),(2023,525,2,'2026-03-22 15:06:51'),(2024,525,1,'2026-03-22 15:06:51'),(2025,524,2,'2026-03-22 15:07:28'),(2026,524,1,'2026-03-22 15:07:28'),(2027,524,19,'2026-03-22 15:07:28'),(2028,558,21,'2026-03-22 15:08:03'),(2029,558,31,'2026-03-22 15:08:03'),(2030,559,28,'2026-03-22 15:08:52'),(2031,559,21,'2026-03-22 15:08:52'),(2032,560,3,'2026-03-22 15:09:59'),(2033,560,22,'2026-03-22 15:09:59'),(2034,560,21,'2026-03-22 15:09:59'),(2035,563,1,'2026-03-22 15:11:35'),(2036,563,31,'2026-03-22 15:11:35'),(2037,563,21,'2026-03-22 15:11:35'),(2038,566,1,'2026-03-22 15:13:02'),(2039,566,20,'2026-03-22 15:13:02'),(2040,566,2,'2026-03-22 15:13:02'),(2041,570,3,'2026-03-22 15:13:30'),(2042,570,20,'2026-03-22 15:13:30'),(2043,570,2,'2026-03-22 15:13:30'),(2044,576,25,'2026-03-22 15:14:20'),(2045,576,24,'2026-03-22 15:14:20'),(2046,569,28,'2026-03-22 15:15:06'),(2047,569,2,'2026-03-22 15:15:06'),(2048,574,19,'2026-03-22 15:15:46'),(2049,574,24,'2026-03-22 15:15:46'),(2050,574,31,'2026-03-22 15:15:46'),(2051,470,34,'2026-03-22 15:16:39'),(2052,470,16,'2026-03-22 15:16:39'),(2053,468,27,'2026-03-22 15:17:06'),(2054,468,34,'2026-03-22 15:17:06'),(2055,468,11,'2026-03-22 15:17:06'),(2056,469,34,'2026-03-22 15:17:28'),(2057,469,11,'2026-03-22 15:17:28'),(2058,469,27,'2026-03-22 15:17:28'),(2059,579,20,'2026-03-22 15:18:03'),(2060,579,25,'2026-03-22 15:18:03'),(2061,580,25,'2026-03-22 15:18:27'),(2062,580,24,'2026-03-22 15:18:27'),(2063,586,16,'2026-03-22 15:19:02'),(2064,586,27,'2026-03-22 15:19:02'),(2065,581,32,'2026-03-22 15:19:39'),(2066,581,1,'2026-03-22 15:19:39'),(2067,557,30,'2026-03-22 15:27:56'),(2068,557,31,'2026-03-22 15:27:56'),(2069,557,21,'2026-03-22 15:27:56'),(2070,555,21,'2026-03-22 15:28:57'),(2071,554,26,'2026-03-22 15:29:40'),(2072,554,19,'2026-03-22 15:29:40'),(2073,554,21,'2026-03-22 15:29:40'),(2074,584,31,'2026-03-22 15:30:43'),(2075,584,27,'2026-03-22 15:30:43'),(2076,584,20,'2026-03-22 15:30:43');
+/*!40000 ALTER TABLE `game_categories` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `game_guides`
+--
+
+DROP TABLE IF EXISTS `game_guides`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `game_guides` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `author_id` bigint NOT NULL,
+  `content` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `cover_image_url` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `difficulty` enum('BEGINNER','INTERMEDIATE','ADVANCED') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `estimated_minutes` int DEFAULT NULL,
+  `game_id` bigint NOT NULL,
+  `is_featured` bit(1) NOT NULL,
+  `like_count` int NOT NULL,
+  `published_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `status` enum('PUBLISHED','DRAFT','ARCHIVED') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `summary` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tags` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `title` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `view_count` int NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKhd5mxa4eg6jcmyovebq1wwsk0` (`author_id`),
+  KEY `FKk5syhijoefcs34ni2jgmnb0lg` (`game_id`),
+  CONSTRAINT `FKhd5mxa4eg6jcmyovebq1wwsk0` FOREIGN KEY (`author_id`) REFERENCES `users` (`id`),
+  CONSTRAINT `FKk5syhijoefcs34ni2jgmnb0lg` FOREIGN KEY (`game_id`) REFERENCES `games` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `game_guides`
+--
+
+LOCK TABLES `game_guides` WRITE;
+/*!40000 ALTER TABLE `game_guides` DISABLE KEYS */;
+INSERT INTO `game_guides` VALUES (1,6,'一、开局优先目标\r\n先熟悉轻击、重击、闪避和定身术的衔接，不要急着追求高连段，先把容错打出来。\r\n\r\n二、资源怎么花\r\n前期优先把提升生存和稳定输出的天赋点出来，丹药和恢复类资源不要囤着不用。\r\n\r\n三、Boss 前准备\r\n进入精英怪和 Boss 战前，先确认法力、葫芦次数和技能冷却。遇到连续攻击型敌人时，以闪避反击为主，不要贪刀。\r\n\r\n四、推荐思路\r\n如果连续失败，可以先回头清理支线和小怪，把等级、材料和手感补足后再回来挑战。','https://images.unsplash.com/photo-1542751371-adc38448a05e?w=1200&h=600&fit=crop','2026-03-17 21:59:22','BEGINNER',18,397,0x01,34,'2026-03-17 21:59:22','PUBLISHED','适合第一次上手玩家的章节推进攻略，包含装备准备、资源分配和关键 Boss 前注意事项。','黑神话悟空,开荒,Boss,新手','《黑神话：悟空》第一章开荒路线与Boss准备清单','2026-03-17 22:37:20',130),(2,6,'一、属性分配\r\n前期优先生命与耐力，保证容错和翻滚次数，再根据武器补力量或灵巧。\r\n\r\n二、探索节奏\r\n不要只盯着主线 Boss，优先把周边地下墓地、教堂和营地清一遍，收益通常更高。\r\n\r\n三、武器与强化\r\n找到顺手的近战武器后尽快强化，稳定强化比频繁换武器更能提升体验。\r\n\r\n四、战斗建议\r\n面对大体型敌人时多观察收招，不要连续翻滚耗空精力，留一段体力做应急。','https://images.unsplash.com/photo-1511512578047-dfb367046420?w=1200&h=600&fit=crop','2026-03-17 21:59:22','BEGINNER',20,20,0x01,29,'2026-03-17 21:59:22','PUBLISHED','面向近战玩家的入门攻略，帮助你少走弯路地完成前期升级、武器和地图探索。','艾尔登法环,近战,加点,地图探索','《艾尔登法环》近战流前期加点与地图推进建议','2026-03-17 22:03:19',99),(3,7,'一、队伍分工\r\n建议至少保证前排承伤、稳定输出、治疗/辅助和功能位四种角色定位。\r\n\r\n二、长休与短休\r\n不要把资源全部堆到一场战斗中，学会利用短休、地形和先手布置来减少消耗。\r\n\r\n三、战斗前准备\r\n开打前先看敌人站位，能潜行、能高打低、能分批引怪就不要正面硬冲。\r\n\r\n四、剧情与探索\r\n第一章很多奖励都藏在对话、支线和环境互动里，多存档、多尝试通常会更有收获。','https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=1200&h=600&fit=crop','2026-03-17 21:59:22','INTERMEDIATE',22,412,0x00,18,'2026-03-17 21:59:22','PUBLISHED','给刚接触 CRPG 的玩家一个更稳妥的思路，重点放在角色分工、补给和战斗前准备。','博德之门3,CRPG,队伍搭配,资源管理','《博德之门3》第一章队伍搭配与资源管理思路','2026-03-17 22:40:49',76),(4,6,'一、先练什么\r\n先练稳定识别敌人的前摇，再练固定节奏弹反，不要一开始就追求极限压刀。\r\n\r\n二、危险攻击怎么判断\r\n突刺优先识别踩刀机会，横扫多跳躲，投技要拉开距离或提前绕背。\r\n\r\n三、练习方式\r\n找一个熟悉的精英怪反复练，不看输赢，只看自己是否准确做出了想要的动作。\r\n\r\n四、心态建议\r\n只狼更像节奏游戏，很多失败并不是属性不够，而是节奏识别还没建立起来。','https://images.unsplash.com/photo-1511882150382-421056c89033?w=1200&h=600&fit=crop','2026-03-17 21:59:22','ADVANCED',16,411,0x00,16,'2026-03-17 21:59:22','PUBLISHED','适合已经入门但总是被打乱节奏的玩家，重点练习弹反、识别危与处理压制战。','只狼,弹反,节奏,Boss','《只狼》弹反节奏训练法与危险攻击处理技巧','2026-03-17 21:59:22',61),(5,6,'123123123123123123123',NULL,'2026-03-17 22:10:49','BEGINNER',5,523,0x00,0,'2026-03-17 22:10:49','PUBLISHED','测试测试测试',NULL,'测试123','2026-03-17 22:10:50',1);
+/*!40000 ALTER TABLE `game_guides` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `games`
+--
+
+DROP TABLE IF EXISTS `games`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `games` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `name` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '游戏名称',
+  `description` text COLLATE utf8mb4_unicode_ci COMMENT '游戏描述',
+  `category_id` bigint NOT NULL COMMENT '分类ID',
+  `developer` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '开发商',
+  `publisher` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '发行商',
+  `release_date` date DEFAULT NULL COMMENT '发布日期',
+  `price` decimal(10,2) DEFAULT '0.00' COMMENT '价格',
+  `discount_price` decimal(10,2) DEFAULT NULL COMMENT '折扣价格',
+  `image_url` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '主图片URL',
+  `gallery` json DEFAULT NULL COMMENT '图片集合',
+  `system_requirements` text COLLATE utf8mb4_unicode_ci,
+  `tags` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `rating` decimal(3,2) DEFAULT '0.00' COMMENT '评分',
+  `rating_count` int DEFAULT '0' COMMENT '评分人数',
+  `download_count` int DEFAULT '0' COMMENT '下载次数',
+  `is_featured` tinyint(1) DEFAULT '0' COMMENT '是否推荐',
+  `status` enum('ACTIVE','INACTIVE','COMING_SOON') COLLATE utf8mb4_unicode_ci DEFAULT 'ACTIVE',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_games_name` (`name`),
+  KEY `idx_category_id` (`category_id`),
+  KEY `idx_price` (`price`),
+  KEY `idx_rating` (`rating`),
+  KEY `idx_status` (`status`),
+  FULLTEXT KEY `idx_name_desc` (`name`,`description`),
+  CONSTRAINT `games_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=591 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='游戏表';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `games`
+--
+
+LOCK TABLES `games` WRITE;
+/*!40000 ALTER TABLE `games` DISABLE KEYS */;
+INSERT INTO `games` VALUES (18,'赛博朋克2077','在反乌托邦的夜之城展开冒险，成为城市传奇。开放世界、动作冒险故事，拥有惊人的视觉效果和深度的角色定制系统。',2,NULL,NULL,'2020-12-10',298.00,NULL,'/image/ss_9beef14102f164fa1163536d0fb3a51d0a2e4a3f.1920x1080.jpg',NULL,'最低配置：Windows 10 64-bit | Intel Core i5-3570K | 8 GB RAM | GTX 780 | 70 GB\n\n 推荐配置：Windows 10 64-bit | Intel Core i7-4790 | 12 GB RAM | GTX 1060 6GB | 70 GB SSD','开放世界,剧情向,RPG,赛博科幻,第一人称',4.20,15420,45000,1,'ACTIVE','2025-10-18 06:30:20','2026-03-22 07:05:12'),(19,'巫师3：狂猎','史诗级奇幻RPG游戏。扮演猎魔人杰洛特，在广阔的奇幻世界中追寻命运之子，体验扣人心弦的剧情和精彩的战斗。',2,NULL,NULL,'2015-05-19',127.00,89.00,'/image/ss_0901e64e9d4b8ebaea8348c194e7a3644d2d832d.1920x1080.jpg',NULL,'最低配置：Windows 7/8 64-bit | Intel Core i5-2500K 3.3GHz | 6 GB RAM | GTX 660 | 50 GB\n\n 推荐配置：Windows 10 64-bit | Intel Core i7 3770 3.4 GHz | 8 GB RAM | GTX 770 | 50 GB','开放世界,剧情向,RPG,奇幻,任务驱动',4.80,28350,85000,1,'ACTIVE','2025-10-18 06:30:20','2026-03-22 06:01:02'),(20,'艾尔登法环','由宫崎英高与乔治·R·R·马丁共同打造的黑暗奇幻世界。探索广阔的开放世界，挑战强大的敌人，书写你的传奇故事。',2,NULL,NULL,'2022-02-25',298.00,NULL,'/image/ss_943bf6fe62352757d9070c1d33e50b92fe8539f1.1920x1080.jpg',NULL,'最低配置：Windows 10 | Intel Core i5-8400 | 12 GB RAM | GTX 1060 3 GB | 60 GB\n\n 推荐配置：Windows 11 | Intel Core i7-8700K | 16 GB RAM | GTX 1070 8 GB | 60 GB','开放世界,魂like,动作RPG,高难度,奇幻',4.70,42150,92000,1,'ACTIVE','2025-10-18 06:30:20','2026-03-22 06:01:09'),(22,'侠盗猎车手V','在洛圣都和布雷恩郡的广阔天地间，体验最疯狂的犯罪冒险。三位主角交织的故事，自由度极高的开放世界。',1,NULL,NULL,'2013-09-17',119.00,NULL,'/image/header_schinese.jpg',NULL,'最低配置：Windows 10 64 Bit | Intel Core 2 Quad Q6600 @ 2.40GHz | 4 GB RAM | NVIDIA 9800 GT 1GB | 110 GB\n\n 推荐配置：Windows 10 64 Bit | Intel Core i5 3470 @ 3.2GHz | 8 GB RAM | GTX 660 2GB | 110 GB','动作,开放世界,犯罪,多人,冒险',4.60,95420,125000,0,'ACTIVE','2025-10-18 06:30:20','2026-03-22 06:01:15'),(23,'我的世界','创造无限可能的沙盒游戏。建造、探索、生存，在像素化的世界中释放你的想象力。',3,NULL,NULL,'2011-11-18',165.00,NULL,'https://images.unsplash.com/photo-1587731556938-38755b4803a6?w=800&h=450&fit=crop',NULL,'最低配置：Windows 7 | Intel Core i3-3210 | 4 GB RAM | Intel HD Graphics 4000 | 1 GB\n\n 推荐配置：Windows 10 | Intel Core i5-4690 | 8 GB RAM | GeForce 700 Series | 4 GB','沙盒,创造,生存,多人,探索',4.90,128750,280000,0,'INACTIVE','2025-10-18 06:30:20','2026-03-22 05:55:12'),(26,'荒野大镖客：救赎2','史诗级西部冒险。在美国心脏地带体验亡命之徒的传奇人生，感受最真实的西部世界。',1,NULL,NULL,'2018-10-26',249.00,174.00,'/image/Red Dead Redemption 2.jpg',NULL,'最低配置：Windows 7 SP1 | Intel Core i5-2500K | 8 GB RAM | GTX 770 2GB | 150 GB\n\n 推荐配置：Windows 10 | Intel Core i7-4770K | 12 GB RAM | GTX 1060 6GB | 150 GB','开放世界,剧情向,冒险,西部,沉浸式',4.80,78650,105000,0,'ACTIVE','2025-10-18 06:30:20','2026-03-22 06:01:23'),(31,'塞尔达传说:旷野之息','在广阔的海拉鲁大陆展开冒险,体验前所未有的开放世界RPG',7,NULL,NULL,'2017-03-03',398.00,298.00,'https://via.placeholder.com/300x400?text=Zelda',NULL,'{\"os\": \"Windows 10\", \"memory\": \"8GB\", \"graphics\": \"GTX 1060\", \"processor\": \"Intel i5\"}','开放世界,冒险,RPG',4.90,50000,100000,1,'INACTIVE','2025-10-18 16:14:04','2026-03-22 05:55:22'),(35,'黑暗之魂3','系列最终章,挑战极限的动作RPG体验',7,NULL,NULL,'2016-04-12',168.00,118.00,'/image/DARK SOULS™ III.jpg',NULL,'{\"os\": \"Windows 7\", \"memory\": \"8GB\", \"graphics\": \"GTX 750\", \"processor\": \"Intel i5\"}','魂系,RPG,困难',4.65,45000,90000,0,'ACTIVE','2025-10-18 16:14:04','2026-03-22 06:02:21'),(37,'战神','北欧神话背景下,奎托斯与儿子的冒险旅程',1,NULL,NULL,'2018-04-20',298.00,198.00,'/image/God of War.jpg',NULL,'{\"os\": \"Windows 10\", \"memory\": \"8GB\", \"graphics\": \"GTX 1060\", \"processor\": \"Intel i5\"}','动作,冒险,神话',4.85,70000,130000,1,'ACTIVE','2025-10-18 16:14:04','2026-03-22 06:05:12'),(38,'鬼泣5','华丽连击动作游戏的巅峰之作',1,NULL,NULL,'2019-03-08',198.00,128.00,'/image/ss_4410bada2565843dae693b03ac3a50256ff5dd66.1920x1080.jpg',NULL,'{\"os\": \"Windows 8\", \"memory\": \"8GB\", \"graphics\": \"GTX 760\", \"processor\": \"Intel i5\"}','动作,连击,爽快',4.55,35000,70000,0,'ACTIVE','2025-10-18 16:14:04','2026-03-22 06:07:42'),(39,'怪物猎人:世界','狩猎大型怪物的动作RPG巨作',1,NULL,NULL,'2018-08-10',188.00,138.00,'/image/ss_a262c53b8629de7c6547933dc0b49d31f4e1b1f1.1920x1080.jpg',NULL,'{\"os\": \"Windows 7\", \"memory\": \"8GB\", \"graphics\": \"GTX 760\", \"processor\": \"Intel i5\"}','狩猎,动作,多人',4.50,50000,150000,1,'ACTIVE','2025-10-18 16:14:04','2026-03-22 06:08:56'),(40,'刺客信条:奥德赛','古希腊时代的开放世界冒险',1,NULL,NULL,'2018-10-05',248.00,148.00,'/image/ss_0ef33c0f230da6ebac94f5959f0e0a8bbc48cf8a.1920x1080.jpg',NULL,'{\"os\": \"Windows 7\", \"memory\": \"8GB\", \"graphics\": \"GTX 660\", \"processor\": \"Intel i5\"}','动作,开放世界,历史',4.40,42000,95000,0,'ACTIVE','2025-10-18 16:14:04','2026-03-22 06:11:05'),(42,'辐射4','核战后的波士顿废土,重建家园的RPG冒险',2,NULL,NULL,'2015-11-10',119.00,79.00,'/image/ss_6834be966451a9b0f12eb4f68bfb0853ea0b7267.1920x1080.jpg',NULL,'{\"os\": \"Windows 7\", \"memory\": \"8GB\", \"graphics\": \"GTX 550\", \"processor\": \"Intel i5\"}','末日,RPG,开放世界',4.45,48000,120000,0,'ACTIVE','2025-10-18 16:14:04','2026-03-22 06:13:02'),(44,'暗黑破坏神4','暗黑系列最新作,刷装备的终极体验',2,NULL,NULL,'2023-06-06',398.00,298.00,'/image/ss_11d4a9be127719b22681d823b83b0c6b4798bf1f.1920x1080.jpg',NULL,'{\"os\": \"Windows 10\", \"memory\": \"8GB\", \"graphics\": \"GTX 660\", \"processor\": \"Intel i5\"}','暗黑,ARPG,刷装备',4.35,38000,110000,1,'ACTIVE','2025-10-18 16:14:04','2026-03-22 06:13:45'),(48,'使命召唤:现代战争','现代军事题材的第一人称射击大作',4,NULL,NULL,'2019-10-25',398.00,298.00,'https://via.placeholder.com/300x400?text=COD',NULL,'{\"os\": \"Windows 10\", \"memory\": \"12GB\", \"graphics\": \"GTX 1660\", \"processor\": \"Intel i5\"}','FPS,军事,多人',4.45,55000,140000,1,'INACTIVE','2025-10-18 16:14:04','2026-03-22 06:15:18'),(51,'文明VI','回合制策略游戏的巅峰之作',3,NULL,NULL,'2016-10-21',199.00,99.00,'/image/ss_36c63ebeb006b246cb740fdafeb41bb20e3b330d.1920x1080.jpg',NULL,'{\"os\": \"Windows 7\", \"memory\": \"4GB\", \"graphics\": \"Intel HD 4000\", \"processor\": \"Intel i3\"}','策略,回合制,历史',4.50,42000,90000,0,'ACTIVE','2025-10-18 16:14:04','2026-03-22 06:16:02'),(53,'星际争霸2','RTS竞技游戏的标杆',3,NULL,NULL,'2010-07-27',0.00,NULL,'https://via.placeholder.com/300x400?text=SC2',NULL,'{\"os\": \"Windows 7\", \"memory\": \"2GB\", \"graphics\": \"ATI Radeon HD 4670\", \"processor\": \"Intel Core 2 Duo\"}','RTS,竞技,电竞',4.65,68000,150000,1,'INACTIVE','2025-10-18 16:14:04','2026-03-22 06:16:15'),(54,'钢铁雄心4','二战题材的大战略游戏',3,NULL,NULL,'2016-06-06',118.00,78.00,'/image/ss_242abc1c2ca21f7d8694ba8d9239d8944217b29f.1920x1080.jpg',NULL,'{\"os\": \"Windows 7\", \"memory\": \"4GB\", \"graphics\": \"ATI Radeon HD 5570\", \"processor\": \"Intel i3\"}','策略,二战,历史',4.30,28000,60000,0,'ACTIVE','2025-10-18 16:14:04','2026-03-22 06:16:56'),(55,'欧陆风云4','历史大战略游戏经典',3,NULL,NULL,'2013-08-13',118.00,59.00,'/image/ss_0f31b85193b9e40fd70f710c0ac8fa843c96b604.1920x1080.jpg',NULL,'{\"os\": \"Windows XP\", \"memory\": \"2GB\", \"graphics\": \"ATI Radeon HD 4000\", \"processor\": \"Intel Pentium IV\"}','策略,历史,模拟',4.40,32000,70000,0,'ACTIVE','2025-10-18 16:14:04','2026-03-22 06:17:40'),(56,'最后生还者','末日生存冒险杰作',11,NULL,NULL,'2013-06-14',298.00,198.00,'/image/ss_8cd55ab975b2e47f4d4d9a0da4ae6948040ef807.1920x1080.jpg',NULL,'{\"os\": \"Windows 10\", \"memory\": \"8GB\", \"graphics\": \"GTX 960\", \"processor\": \"Intel i5\"}','冒险,生存,剧情',4.90,75000,120000,1,'ACTIVE','2025-10-18 16:14:04','2026-03-22 06:18:20'),(58,'古墓丽影:崛起','劳拉的冒险考古之旅',11,NULL,NULL,'2016-01-28',138.00,88.00,'/image/ss_0602fd918166985793cbae01df4c8a944f1f76dd.1920x1080.jpg',NULL,'{\"os\": \"Windows 7\", \"memory\": \"6GB\", \"graphics\": \"GTX 650\", \"processor\": \"Intel i3\"}','冒险,动作,考古',4.45,38000,80000,0,'ACTIVE','2025-10-18 16:14:04','2026-03-22 06:19:13'),(59,'奥日与黑暗森林','唯美的横版冒险平台游戏',11,NULL,NULL,'2015-03-11',68.00,48.00,'/image/ss_2b9906b55eea920d7faa610dc652b4766227e349.1920x1080.jpg',NULL,'{\"os\": \"Windows 7\", \"memory\": \"4GB\", \"graphics\": \"GTX 950\", \"processor\": \"Intel Core 2 Duo\"}','平台,冒险,独立',4.70,42000,90000,1,'ACTIVE','2025-10-18 16:14:04','2026-03-22 06:19:53'),(60,'空洞骑士','黑暗奇幻的银河恶魔城杰作',11,NULL,NULL,'2017-02-24',48.00,28.00,'/image/ss_5384f9f8b96a0b9934b2bc35a4058376211636d2.1920x1080.jpg',NULL,'{\"os\": \"Windows 7\", \"memory\": \"4GB\", \"graphics\": \"Intel HD Graphics\", \"processor\": \"Intel Core 2 Duo\"}','银河城,冒险,独立',4.75,52000,100000,1,'ACTIVE','2025-10-18 16:14:04','2026-03-22 06:20:16'),(61,'模拟人生4','生活模拟游戏经典',12,NULL,NULL,'2014-09-02',199.00,129.00,'/image/ss_2fc938d99a1e87893852cb2d2113478190607941.1920x1080.jpg',NULL,'{\"os\": \"Windows 7\", \"memory\": \"4GB\", \"graphics\": \"GTX 650\", \"processor\": \"Intel i5\"}','模拟,生活,创造',4.35,45000,150000,0,'ACTIVE','2025-10-18 16:14:04','2026-03-22 06:20:51'),(62,'微软飞行模拟','超逼真的飞行模拟体验',12,NULL,NULL,'2020-08-18',398.00,298.00,'/image/ss_62dee3ea5e0ef5989a33b93eecab18c41d865b72.1920x1080.jpg',NULL,'{\"os\": \"Windows 10\", \"memory\": \"8GB\", \"graphics\": \"GTX 770\", \"processor\": \"Intel i5\"}','模拟,飞行,真实',4.55,32000,70000,1,'ACTIVE','2025-10-18 16:14:04','2026-03-22 06:21:21'),(63,'都市：天际线','城市建设模拟游戏',12,NULL,NULL,'2015-03-10',88.00,58.00,'/image/ss_0754001c88ad4dbfff92faf9a97e8d87cf3f8840.1920x1080.jpg',NULL,'{\"os\": \"Windows 7\", \"memory\": \"4GB\", \"graphics\": \"Intel HD 4000\", \"processor\": \"Intel i5\"}','模拟,建设,城市',4.45,38000,95000,0,'ACTIVE','2025-10-18 16:14:04','2026-03-22 06:21:58'),(64,'星露谷物语','温馨治愈的农场模拟',12,NULL,NULL,'2016-02-26',48.00,38.00,'/image/ss_b887651a93b0525739049eb4194f633de2df75be.1920x1080.jpg',NULL,'{\"os\": \"Windows Vista\", \"memory\": \"2GB\", \"graphics\": \"256 MB\", \"processor\": \"2 GHz\"}','模拟经营,农场,休闲,像素风,沙盒创造',4.80,88000,180000,1,'ACTIVE','2025-10-18 16:14:04','2026-03-22 06:22:22'),(65,'动物森友会','无人岛的悠闲生活模拟',12,NULL,NULL,'2020-03-20',298.00,NULL,'https://via.placeholder.com/300x400?text=AnimalCrossing',NULL,'{\"os\": \"Windows 10\", \"memory\": \"4GB\", \"graphics\": \"Intel HD Graphics\", \"processor\": \"Intel i3\"}','模拟,休闲,社交',4.65,65000,200000,1,'INACTIVE','2025-10-18 16:14:04','2026-03-22 06:22:36'),(66,'FIFA 24','足球模拟游戏最新作',5,NULL,NULL,'2023-09-29',398.00,298.00,'https://via.placeholder.com/300x400?text=FIFA24',NULL,'{\"os\": \"Windows 10\", \"memory\": \"8GB\", \"graphics\": \"GTX 1050\", \"processor\": \"Intel i5\"}','足球,体育,竞技',4.25,42000,120000,1,'INACTIVE','2025-10-18 16:14:04','2026-03-22 06:22:56'),(67,'NBA 2K24','篮球模拟游戏系列新作',5,NULL,NULL,'2023-09-08',298.00,198.00,'https://via.placeholder.com/300x400?text=NBA2K24',NULL,'{\"os\": \"Windows 7\", \"memory\": \"4GB\", \"graphics\": \"GTX 450\", \"processor\": \"Intel i3\"}','篮球,体育,NBA',4.15,35000,90000,0,'INACTIVE','2025-10-18 16:14:04','2026-03-22 06:23:13'),(68,'F1 23','一级方程式赛车官方游戏',5,NULL,NULL,'2023-06-16',368.00,268.00,'https://via.placeholder.com/300x400?text=F123',NULL,'{\"os\": \"Windows 10\", \"memory\": \"8GB\", \"graphics\": \"GTX 1050\", \"processor\": \"Intel i3\"}','赛车,F1,模拟',4.35,28000,65000,0,'INACTIVE','2025-10-18 16:14:04','2026-03-22 06:23:20'),(69,'WWE 2K23','职业摔角娱乐模拟',5,NULL,NULL,'2023-03-17',268.00,168.00,'https://via.placeholder.com/300x400?text=WWE2K23',NULL,'{\"os\": \"Windows 10\", \"memory\": \"8GB\", \"graphics\": \"GTX 1060\", \"processor\": \"Intel i5\"}','摔角,体育,WWE',3.95,22000,50000,0,'INACTIVE','2025-10-18 16:14:04','2026-03-22 06:23:27'),(70,'实况足球2024','足球模拟竞品之作',5,NULL,NULL,'2023-09-21',0.00,NULL,'https://via.placeholder.com/300x400?text=eFootball',NULL,'{\"os\": \"Windows 7\", \"memory\": \"4GB\", \"graphics\": \"GTX 670\", \"processor\": \"Intel i5\"}','足球,免费,竞技',3.90,38000,150000,0,'INACTIVE','2025-10-18 16:14:04','2026-03-22 06:23:33'),(72,'尘埃拉力赛2.0','真实的拉力赛车体验',14,NULL,NULL,'2019-02-26',168.00,118.00,'https://via.placeholder.com/300x400?text=Dirt',NULL,'{\"os\": \"Windows 7\", \"memory\": \"8GB\", \"graphics\": \"AMD Radeon HD 7750\", \"processor\": \"AMD FX-4300\"}','拉力,赛车,真实',4.30,28000,60000,0,'INACTIVE','2025-10-18 16:14:04','2026-03-22 06:23:38'),(73,'极品飞车:热度','街头赛车文化的体现',14,NULL,NULL,'2019-11-08',198.00,128.00,'/image/ss_4127c58a6a10124b4ba28375ec937a977aba37fc.1920x1080.jpg',NULL,'{\"os\": \"Windows 10\", \"memory\": \"8GB\", \"graphics\": \"GTX 1050\", \"processor\": \"Intel i5\"}','街头,赛车,改装',4.15,32000,75001,0,'ACTIVE','2025-10-18 16:14:04','2026-03-22 06:24:03'),(74,'神力科莎:竞技版','硬核赛车模拟',14,NULL,NULL,'2018-09-12',168.00,98.00,'https://via.placeholder.com/300x400?text=ACC',NULL,'{\"os\": \"Windows 7\", \"memory\": \"8GB\", \"graphics\": \"GTX 970\", \"processor\": \"Intel i5\"}','模拟,赛车,GT3',4.40,22000,45001,0,'INACTIVE','2025-10-18 16:14:04','2026-03-22 06:24:12'),(75,'马力欧赛车8','欢乐的卡丁车竞速',14,NULL,NULL,'2014-05-29',298.00,NULL,'https://via.placeholder.com/300x400?text=MK8',NULL,'{\"os\": \"Windows 10\", \"memory\": \"4GB\", \"graphics\": \"Intel HD Graphics\", \"processor\": \"Intel i3\"}','卡丁车,休闲,多人',4.55,68000,180000,1,'INACTIVE','2025-10-18 16:14:04','2026-03-22 06:24:18'),(76,'街霸6','格斗游戏新标杆',15,NULL,NULL,'2023-06-02',298.00,228.00,'/image/ss_387137f8cccb048c35a8685634372e97785d40aa.1920x1080.jpg',NULL,'{\"os\": \"Windows 10\", \"memory\": \"8GB\", \"graphics\": \"GTX 1060\", \"processor\": \"Intel i5\"}','格斗,竞技,电竞',4.50,38000,80000,1,'ACTIVE','2025-10-18 16:14:04','2026-03-22 06:24:47'),(77,'铁拳8','3D格斗游戏经典续作',15,NULL,NULL,'2024-01-26',398.00,298.00,'https://via.placeholder.com/300x400?text=Tekken8',NULL,'{\"os\": \"Windows 10\", \"memory\": \"8GB\", \"graphics\": \"RTX 2060\", \"processor\": \"Intel i7\"}','格斗,3D,竞技',4.40,32000,70000,1,'INACTIVE','2025-10-18 16:14:04','2026-03-22 06:24:55'),(78,'罪恶装备:奋战','硬核2D格斗游戏',15,NULL,NULL,'2021-06-11',268.00,188.00,'https://via.placeholder.com/300x400?text=GGST',NULL,'{\"os\": \"Windows 8\", \"memory\": \"4GB\", \"graphics\": \"GTX 660\", \"processor\": \"Intel i5\"}','格斗,2D,硬核',4.45,28000,60000,0,'INACTIVE','2025-10-18 16:14:04','2026-03-22 06:25:02'),(79,'真人快打11','血腥暴力的格斗盛宴',15,NULL,NULL,'2019-04-23',248.00,148.00,'/image/ss_e5cd8debd74027dbfafd9729fc32986a63393333.1920x1080.jpg',NULL,'{\"os\": \"Windows 7\", \"memory\": \"8GB\", \"graphics\": \"GTX 670\", \"processor\": \"Intel i5\"}','格斗,暴力,Fatality',4.25,35000,75000,0,'ACTIVE','2025-10-18 16:14:04','2026-03-22 06:25:31'),(80,'拳皇15','SNK经典格斗系列',15,NULL,NULL,'2022-02-17',268.00,168.00,'/image/ss_a78f803bb251e541225b0d82b8c7ce30fc823bdd.1920x1080.jpg',NULL,'{\"os\": \"Windows 7\", \"memory\": \"6GB\", \"graphics\": \"GTX 1050\", \"processor\": \"Intel i5\"}','格斗,SNK,经典',4.15,22000,50000,0,'ACTIVE','2025-10-18 16:14:04','2026-03-22 06:25:57'),(83,'泰拉瑞亚','2D沙盒冒险游戏',16,NULL,NULL,'2011-05-16',38.00,28.00,'/image/ss_8c03886f214d2108cafca13845533eaa3d87d83f.1920x1080.jpg',NULL,'{\"os\": \"Windows XP\", \"memory\": \"2GB\", \"graphics\": \"128 MB\", \"processor\": \"2.0 GHz\"}','沙盒,冒险,像素',4.70,120000,280000,1,'ACTIVE','2025-10-18 16:14:04','2026-03-22 06:26:23'),(84,'胡闹厨房2','合作料理混乱派对',16,NULL,NULL,'2018-08-07',98.00,68.00,'/image/ss_773917e64738bc879685cff49b8ac6eb4f15ab93.1920x1080.jpg',NULL,'{\"os\": \"Windows 7\", \"memory\": \"4GB\", \"graphics\": \"GTX 650\", \"processor\": \"Intel i3\"}','合作,休闲,派对',4.45,48000,110000,0,'ACTIVE','2025-10-18 16:14:04','2026-03-22 06:26:56'),(396,'对马岛之魂：导演剪辑版','《对马岛之魂：导演剪辑版》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 动作游戏 / 开放世界 / 剧情向，适合用于商城页面、搜索、推荐和分类筛选演示。',1,NULL,NULL,'2024-05-16',398.00,NULL,'/image/ss_bd593bab36968778b95ed4a1a12ec82d2350d351.1920x1080.jpg',NULL,'推荐配置：Win10 / i7 / 16GB / RTX 3070 / 100GB','开放世界,武士,剧情,动作,日本',4.83,90500,506000,1,'ACTIVE','2026-03-16 13:55:56','2026-03-22 06:27:42'),(397,'黑神话：悟空','《黑神话：悟空》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 动作游戏 / 魂like / 剧情向，适合用于商城页面、搜索、推荐和分类筛选演示。',1,NULL,NULL,'2024-08-20',268.00,NULL,'/image/ss_86c4b7462bba219a0d0b89931a35812b9f188976.1920x1080.jpg',NULL,'推荐配置：Win10 / i5 / 16GB / RTX 2060 / 80GB','动作,神话,剧情,魂like,单人',4.68,107500,590000,1,'ACTIVE','2026-03-16 13:55:56','2026-03-22 06:28:36'),(398,'霍格沃茨之遗','《霍格沃茨之遗》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 角色扮演 / 开放世界 / 剧情向，适合用于商城页面、搜索、推荐和分类筛选演示。',2,NULL,NULL,'2023-02-10',298.00,NULL,'/image/ss_94058497bf0f8fabdde17ee8d59bece609a60663.1920x1080.jpg',NULL,'推荐配置：Win10 / i5 / 16GB / RTX 2060 / 80GB','RPG,开放世界,魔法,剧情,单人',4.73,116000,632000,1,'ACTIVE','2026-03-16 13:55:56','2026-03-22 06:29:04'),(399,'地平线：零之曙光 完整版','《地平线：零之曙光 完整版》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 动作游戏 / 开放世界 / 剧情向，适合用于商城页面、搜索、推荐和分类筛选演示。',1,NULL,NULL,'2020-08-07',248.00,NULL,'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i5 / 16GB / GTX 1660 / 60GB','开放世界,动作,剧情,科幻,探索',4.78,124500,674000,1,'INACTIVE','2026-03-16 13:55:56','2026-03-22 06:29:13'),(400,'地平线：西之绝境 完整版','《地平线：西之绝境 完整版》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 动作游戏 / 开放世界 / 剧情向，适合用于商城页面、搜索、推荐和分类筛选演示。',1,NULL,NULL,'2024-03-21',345.00,293.25,'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i5 / 16GB / RTX 2060 / 80GB','开放世界,动作,剧情,科幻,冒险',4.83,133000,716000,1,'INACTIVE','2026-03-16 13:55:56','2026-03-22 06:29:20'),(401,'战神：诸神黄昏','《战神：诸神黄昏》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 动作游戏 / 剧情向 / 冒险游戏，适合用于商城页面、搜索、推荐和分类筛选演示。',1,NULL,NULL,'2024-09-19',398.00,NULL,'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i7 / 16GB / RTX 3070 / 100GB','动作,剧情,神话,冒险,单人',4.68,150000,800000,1,'INACTIVE','2026-03-16 13:55:56','2026-03-22 06:29:25'),(402,'漫威蜘蛛侠：重制版','《漫威蜘蛛侠：重制版》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 动作游戏 / 开放世界 / 剧情向，适合用于商城页面、搜索、推荐和分类筛选演示。',1,NULL,NULL,'2022-08-12',249.00,NULL,'/image/ss_dfba6f2477bfa42be69ddfdffbd421d3943d20bf.1920x1080.jpg',NULL,'推荐配置：Win10 / i5 / 16GB / GTX 1660 / 60GB','动作,开放世界,超级英雄,剧情,单人',4.73,158500,842000,1,'ACTIVE','2026-03-16 13:55:56','2026-03-22 06:30:10'),(403,'漫威蜘蛛侠：迈尔斯·莫拉莱斯','《漫威蜘蛛侠：迈尔斯·莫拉莱斯》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 动作游戏 / 开放世界 / 剧情向，适合用于商城页面、搜索、推荐和分类筛选演示。',1,NULL,NULL,'2022-11-18',279.00,237.15,'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i5 / 16GB / RTX 2060 / 80GB','动作,开放世界,超级英雄,剧情,单人',4.78,167000,884000,1,'INACTIVE','2026-03-16 13:55:56','2026-03-22 06:30:17'),(404,'漫威蜘蛛侠2','《漫威蜘蛛侠2》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 动作游戏 / 开放世界 / 剧情向，适合用于商城页面、搜索、推荐和分类筛选演示。',1,NULL,NULL,'2025-01-30',398.00,NULL,'/image/ss_b4be948946130b7e140be82f24f1f9ccefae9117.1920x1080.jpg',NULL,'推荐配置：Win10 / i7 / 16GB / RTX 3070 / 100GB','动作,开放世界,超级英雄,剧情,单人',4.83,175500,926000,1,'ACTIVE','2026-03-16 13:55:56','2026-03-22 06:30:49'),(405,'死亡搁浅：导演剪辑版','《死亡搁浅：导演剪辑版》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 冒险游戏 / 剧情向 / 开放世界，适合用于商城页面、搜索、推荐和分类筛选演示。',11,NULL,NULL,'2022-03-30',198.00,NULL,'/image/ss_f64a1140651ff5af30eb63bb6e5b41753d00a98e.1920x1080.jpg',NULL,'推荐配置：Win10 / i5 / 16GB / GTX 1660 / 60GB','剧情,开放世界,冒险,科幻,探索',4.88,184000,968000,1,'ACTIVE','2026-03-16 13:55:56','2026-03-22 06:31:26'),(406,'往日不再','《往日不再》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 动作游戏 / 开放世界 / 剧情向，适合用于商城页面、搜索、推荐和分类筛选演示。',1,NULL,NULL,'2021-05-18',198.00,NULL,'/image/ss_8d958e566d5315463d099b21eae729d0f462caad.1920x1080.jpg',NULL,'推荐配置：Win10 / i5 / 16GB / GTX 1660 / 60GB','动作,开放世界,剧情,末日,单人',4.68,192500,1010000,1,'ACTIVE','2026-03-16 13:55:56','2026-03-22 06:31:52'),(407,'最后生还者：第一部','《最后生还者：第一部》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 冒险游戏 / 剧情向 / 动作游戏，适合用于商城页面、搜索、推荐和分类筛选演示。',11,NULL,NULL,'2023-03-28',398.00,338.30,'https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i7 / 16GB / RTX 3070 / 100GB','剧情,冒险,动作,末日,单人',4.73,201000,1052000,1,'INACTIVE','2026-03-16 13:55:56','2026-03-22 06:32:00'),(408,'神秘海域：盗贼传奇合辑','《神秘海域：盗贼传奇合辑》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 冒险游戏 / 剧情向 / 动作游戏，适合用于商城页面、搜索、推荐和分类筛选演示。',11,NULL,NULL,'2022-10-19',249.00,NULL,'/image/ss_a1816dd536122dd740043c2b9440136503904215.1920x1080.jpg',NULL,'推荐配置：Win10 / i5 / 16GB / GTX 1660 / 60GB','剧情,冒险,动作,寻宝,单人',4.78,209500,1094000,1,'ACTIVE','2026-03-16 13:55:56','2026-03-22 06:32:29'),(409,'星球大战 绝地：陨落的武士团','《星球大战 绝地：陨落的武士团》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 动作游戏 / 剧情向 / 冒险游戏，适合用于商城页面、搜索、推荐和分类筛选演示。',1,NULL,NULL,'2019-11-15',198.00,NULL,'/image/ss_763dcc7434f072d6fdbb9037b4d37f4474e29d9b.1920x1080.jpg',NULL,'推荐配置：Win10 / i5 / 16GB / GTX 1660 / 60GB','动作,剧情,星战,冒险,单人',4.83,218000,1136000,1,'ACTIVE','2026-03-16 13:55:56','2026-03-22 06:33:04'),(410,'星球大战 绝地：幸存者','《星球大战 绝地：幸存者》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 动作游戏 / 剧情向 / 冒险游戏，适合用于商城页面、搜索、推荐和分类筛选演示。',1,NULL,NULL,'2023-04-28',298.00,NULL,'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i5 / 16GB / RTX 2060 / 80GB','动作,剧情,星战,冒险,单人',4.88,226500,1178000,1,'INACTIVE','2026-03-16 13:55:56','2026-03-22 06:33:14'),(411,'只狼：影逝二度 年度版','《只狼：影逝二度 年度版》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 动作游戏 / 魂like / 剧情向，适合用于商城页面、搜索、推荐和分类筛选演示。',1,NULL,NULL,'2019-03-22',268.00,227.80,'/image/ss_2685dd844a2a523b6c7ec207d46a538db6a908cd.1920x1080.jpg',NULL,'推荐配置：Win10 / i5 / 16GB / RTX 2060 / 80GB','动作,魂like,忍者,剧情,高难度',4.68,235000,1220000,1,'ACTIVE','2026-03-16 13:55:56','2026-03-22 06:59:04'),(412,'博德之门3','《博德之门3》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 角色扮演 / 剧情向 / 回合策略，适合用于商城页面、搜索、推荐和分类筛选演示。',2,NULL,NULL,'2023-08-03',298.00,NULL,'/image/ss_cf936d31061b58e98e0c646aee00e6030c410cda.1920x1080.jpg',NULL,'推荐配置：Win10 / i5 / 16GB / RTX 2060 / 80GB','RPG,剧情,回合制,CRPG,单人',4.71,52000,292000,1,'ACTIVE','2026-03-16 13:55:56','2026-03-22 06:34:40'),(413,'神界：原罪2 决定版','《神界：原罪2 决定版》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 角色扮演 / 回合策略 / 剧情向，适合用于商城页面、搜索、推荐和分类筛选演示。',2,NULL,NULL,'2017-09-14',133.00,NULL,'/image/ss_34a428cdd26113e8645b77331d9fc82fcc50a4a2.1920x1080.jpg',NULL,'推荐配置：Win10 / i5 / 8GB / GTX 1060 / 35GB','RPG,回合制,剧情,CRPG,单人',4.81,66000,356000,1,'ACTIVE','2026-03-16 13:55:56','2026-03-22 06:35:05'),(414,'极乐迪斯科：最终剪辑版','《极乐迪斯科：最终剪辑版》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 角色扮演 / 剧情向 / 冒险游戏，适合用于商城页面、搜索、推荐和分类筛选演示。',2,NULL,NULL,'2019-10-15',116.00,104.40,'/image/ss_b3694e99ffdb686d1bbbbe16a540d3d2ccd509c4.1920x1080.jpg',NULL,'推荐配置：Win10 / i5 / 8GB / GTX 1060 / 35GB','RPG,剧情,文字,侦探,单人',4.86,73000,388000,1,'ACTIVE','2026-03-16 13:55:56','2026-03-22 06:35:41'),(415,'战锤40K：行商浪人','《战锤40K：行商浪人》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 角色扮演 / 回合策略 / 剧情向，适合用于商城页面、搜索、推荐和分类筛选演示。',2,NULL,NULL,'2023-12-07',198.00,158.40,'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i5 / 16GB / GTX 1660 / 60GB','RPG,回合制,剧情,战锤,单人',4.66,80000,420000,0,'INACTIVE','2026-03-16 13:55:56','2026-03-22 06:36:09'),(416,'开拓者：正义之怒 增强版','《开拓者：正义之怒 增强版》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 角色扮演 / 剧情向 / 回合策略，适合用于商城页面、搜索、推荐和分类筛选演示。',2,NULL,NULL,'2021-09-02',188.00,NULL,'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i5 / 16GB / GTX 1660 / 60GB','RPG,剧情,回合制,奇幻,单人',4.71,87000,452000,0,'INACTIVE','2026-03-16 13:55:56','2026-03-22 06:36:17'),(417,'女神异闻录5：皇家版','《女神异闻录5：皇家版》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 角色扮演 / 剧情向 / 回合策略，适合用于商城页面、搜索、推荐和分类筛选演示。',2,NULL,NULL,'2022-10-21',329.00,NULL,'/image/ss_63d2164bf39a43905e9602381f43a9ad4ab46dea.1920x1080.jpg',NULL,'推荐配置：Win10 / i5 / 16GB / RTX 2060 / 80GB','JRPG,剧情,回合制,校园,单人',4.76,94000,484000,0,'ACTIVE','2026-03-16 13:55:56','2026-03-22 06:36:49'),(418,'女神异闻录3 Reload','《女神异闻录3 Reload》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 角色扮演 / 剧情向 / 回合策略，适合用于商城页面、搜索、推荐和分类筛选演示。',2,NULL,NULL,'2024-02-01',349.00,NULL,'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i5 / 16GB / RTX 2060 / 80GB','JRPG,剧情,回合制,校园,单人',4.81,101000,516000,0,'INACTIVE','2026-03-16 13:55:56','2026-03-22 06:37:39'),(419,'暗喻幻想：ReFantazio','《暗喻幻想：ReFantazio》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 角色扮演 / 剧情向 / 回合策略，适合用于商城页面、搜索、推荐和分类筛选演示。',2,NULL,NULL,'2024-10-11',398.00,NULL,'/image/ss_17221b17662b373d5c727eb842a44285cffb351d.1920x1080.jpg',NULL,'推荐配置：Win10 / i7 / 16GB / RTX 3070 / 100GB','JRPG,剧情,回合制,奇幻,单人',4.86,108000,548000,0,'ACTIVE','2026-03-16 13:55:56','2026-03-22 06:37:20'),(420,'人中之龙8','《人中之龙8》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 角色扮演 / 剧情向 / 冒险游戏，适合用于商城页面、搜索、推荐和分类筛选演示。',2,NULL,NULL,'2024-01-26',349.00,279.20,'/image/ss_9399932597a94ea89ecce4feec9a5fd94cbf91da.1920x1080.jpg',NULL,'推荐配置：Win10 / i5 / 16GB / RTX 2060 / 80GB','RPG,剧情,都市,冒险,单人',4.66,115000,580000,1,'ACTIVE','2026-03-16 13:55:56','2026-03-22 06:38:05'),(421,'人中之龙7：光与暗的去向 国际版','《人中之龙7：光与暗的去向 国际版》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 角色扮演 / 剧情向 / 冒险游戏，适合用于商城页面、搜索、推荐和分类筛选演示。',2,NULL,NULL,'2020-11-10',189.00,NULL,'/image/ss_3672df00523861cd37b0f969d80604003ba14fd4.1920x1080.jpg',NULL,'推荐配置：Win10 / i5 / 16GB / GTX 1660 / 60GB','RPG,剧情,都市,冒险,单人',4.71,122000,612000,0,'ACTIVE','2026-03-16 13:55:56','2026-03-22 06:38:38'),(422,'尼尔：机械纪元','《尼尔：机械纪元》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 角色扮演 / 动作游戏 / 剧情向，适合用于商城页面、搜索、推荐和分类筛选演示。',2,NULL,NULL,'2017-03-17',274.00,NULL,'/image/ss_8b29f7e1ce9a8b9313dc3eb50dbe76a4cf94eef9.1920x1080.jpg',NULL,'推荐配置：Win10 / i5 / 16GB / RTX 2060 / 80GB','动作RPG,剧情,科幻,单人,日式',4.76,129000,644000,0,'ACTIVE','2026-03-16 13:55:56','2026-03-22 06:39:02'),(423,'尼尔：人工生命 ver.1.22474487139...','《尼尔：人工生命 ver.1.22474487139...》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 角色扮演 / 动作游戏 / 剧情向，适合用于商城页面、搜索、推荐和分类筛选演示。',2,NULL,NULL,'2021-04-23',359.00,NULL,'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i7 / 16GB / RTX 3070 / 100GB','动作RPG,剧情,奇幻,单人,日式',4.81,136000,676000,0,'INACTIVE','2026-03-16 13:55:56','2026-03-22 06:39:08'),(424,'最终幻想7：重制版 INTERGRADE','《最终幻想7：重制版 INTERGRADE》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 角色扮演 / 剧情向 / 动作游戏，适合用于商城页面、搜索、推荐和分类筛选演示。',2,NULL,NULL,'2022-06-17',446.00,NULL,'/image/ss_20a352a2c20dd4bfb08fa131dc4c2e763510f584.1920x1080.jpg',NULL,'推荐配置：Win10 / i7 / 16GB / RTX 3070 / 100GB','JRPG,剧情,动作,单人,经典重制',4.86,143000,708000,0,'INACTIVE','2026-03-16 13:55:56','2026-03-22 07:04:43'),(425,'最终幻想16','《最终幻想16》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 角色扮演 / 动作游戏 / 剧情向，适合用于商城页面、搜索、推荐和分类筛选演示。',2,NULL,NULL,'2024-09-17',398.00,318.40,'/image/ss_7620e893321e1661bdf821617f349196c2b0019f.1920x1080.jpg',NULL,'推荐配置：Win10 / i7 / 16GB / RTX 3070 / 100GB','JRPG,动作,剧情,奇幻,单人',4.66,150000,740000,0,'ACTIVE','2026-03-16 13:55:56','2026-03-22 06:40:04'),(426,'最终幻想15 Windows版','《最终幻想15 Windows版》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 角色扮演 / 开放世界 / 动作游戏，适合用于商城页面、搜索、推荐和分类筛选演示。',2,NULL,NULL,'2018-03-07',230.00,NULL,'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i5 / 16GB / GTX 1660 / 60GB','JRPG,开放世界,动作,剧情,单人',4.71,157000,772000,0,'INACTIVE','2026-03-16 13:55:56','2026-03-22 06:40:09'),(427,'勇者斗恶龙11S：寻觅逝去的时光 决定版','《勇者斗恶龙11S：寻觅逝去的时光 决定版》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 角色扮演 / 剧情向 / 回合策略，适合用于商城页面、搜索、推荐和分类筛选演示。',2,NULL,NULL,'2020-12-04',349.00,NULL,'/image/ss_dbc2a77c05f0bf8d17661b6bdf54f88e14fbfaeb.1920x1080.jpg',NULL,'推荐配置：Win10 / i5 / 16GB / RTX 2060 / 80GB','JRPG,回合制,剧情,奇幻,单人',4.76,164000,804000,0,'ACTIVE','2026-03-16 13:55:56','2026-03-22 06:40:36'),(428,'歧路旅人II','《歧路旅人II》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 角色扮演 / 剧情向 / 回合策略，适合用于商城页面、搜索、推荐和分类筛选演示。',2,NULL,NULL,'2023-02-24',379.00,NULL,'/image/ss_063d6228ccd9256814aec0cd46ebb4c093b56fea.1920x1080.jpg',NULL,'推荐配置：Win10 / i7 / 16GB / RTX 3070 / 100GB','JRPG,回合制,剧情,像素,单人',4.81,171000,836000,0,'ACTIVE','2026-03-16 13:55:56','2026-03-22 06:41:00'),(429,'破晓传说','《破晓传说》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 角色扮演 / 动作游戏 / 剧情向，适合用于商城页面、搜索、推荐和分类筛选演示。',2,NULL,NULL,'2021-09-10',328.00,NULL,'/image/ss_ff3e713e134572734fdc55adcb6043e2652f0506.1920x1080.jpg',NULL,'推荐配置：Win10 / i5 / 16GB / RTX 2060 / 80GB','JRPG,动作,剧情,奇幻,单人',4.86,178000,868000,0,'ACTIVE','2026-03-16 13:55:56','2026-03-22 06:41:32'),(430,'龙之信条2','《龙之信条2》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 角色扮演 / 开放世界 / 动作游戏，适合用于商城页面、搜索、推荐和分类筛选演示。',2,NULL,NULL,'2024-03-22',348.00,278.40,'/image/ss_8979e7af203f7405845f76ffa73749d924540e97.1920x1080.jpg',NULL,'推荐配置：Win10 / i5 / 16GB / RTX 2060 / 80GB','动作RPG,开放世界,奇幻,单人,冒险',4.66,185000,900000,1,'ACTIVE','2026-03-16 13:55:56','2026-03-22 06:42:05'),(431,'文明VII','《文明VII》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 策略游戏 / 回合策略，适合用于商城页面、搜索、推荐和分类筛选演示。',3,NULL,NULL,'2025-02-10',398.00,NULL,'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i7 / 16GB / RTX 3070 / 100GB','策略,回合制,文明发展,历史,单人',4.70,43000,228000,0,'INACTIVE','2026-03-16 13:55:56','2026-03-22 06:42:12'),(432,'奇迹时代4','《奇迹时代4》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 策略游戏 / 回合策略 / 角色扮演，适合用于商城页面、搜索、推荐和分类筛选演示。',3,'Triumph Studios','Paradox Interactive','2023-05-02',198.00,NULL,'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i5 / 16GB / GTX 1660 / 60GB','策略,回合制,奇幻,4X,单人',4.75,48500,252000,0,'ACTIVE','2026-03-16 13:55:56','2026-03-16 13:55:56'),(433,'群星','《群星》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 策略游戏 / 沙盒创造 / 模拟经营，适合用于商城页面、搜索、推荐和分类筛选演示。',3,'Paradox Development Studio','Paradox Interactive','2016-05-09',188.00,NULL,'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i5 / 16GB / GTX 1660 / 60GB','策略,太空,经营,4X,单人',4.80,54000,276000,0,'ACTIVE','2026-03-16 13:55:56','2026-03-16 13:55:56'),(434,'十字军之王3','《十字军之王3》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 策略游戏 / 模拟经营，适合用于商城页面、搜索、推荐和分类筛选演示。',3,'Paradox Development Studio','Paradox Interactive','2020-09-01',198.00,158.40,'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i5 / 16GB / GTX 1660 / 60GB','策略,中世纪,经营,历史,单人',4.60,59500,300000,0,'ACTIVE','2026-03-16 13:55:56','2026-03-16 13:55:56'),(435,'全面战争：战锤3','《全面战争：战锤3》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 策略游戏 / 回合策略，适合用于商城页面、搜索、推荐和分类筛选演示。',3,'Creative Assembly','SEGA','2022-02-16',268.00,NULL,'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i5 / 16GB / RTX 2060 / 80GB','策略,回合制,战争,奇幻,单人',4.75,76000,372000,0,'ACTIVE','2026-03-16 13:55:56','2026-03-16 13:55:56'),(436,'全面战争：三国','《全面战争：三国》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 策略游戏 / 回合策略，适合用于商城页面、搜索、推荐和分类筛选演示。',3,'Creative Assembly','SEGA','2019-05-23',268.00,NULL,'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i5 / 16GB / RTX 2060 / 80GB','策略,回合制,三国,战争,单人',4.80,81500,396000,0,'ACTIVE','2026-03-16 13:55:56','2026-03-16 13:55:56'),(437,'幽浮2','《幽浮2》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 策略游戏 / 回合策略 / 射击游戏，适合用于商城页面、搜索、推荐和分类筛选演示。',3,'Firaxis Games','2K','2016-02-05',190.00,152.00,'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i5 / 16GB / GTX 1660 / 60GB','策略,回合制,战术,科幻,单人',4.60,87000,420000,1,'ACTIVE','2026-03-16 13:55:56','2026-03-16 13:55:56'),(438,'环世界','《环世界》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 策略游戏 / 模拟经营 / 沙盒创造，适合用于商城页面、搜索、推荐和分类筛选演示。',3,'Ludeon Studios','Ludeon Studios','2018-10-17',128.00,NULL,'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i5 / 8GB / GTX 1060 / 35GB','模拟经营,沙盒,殖民地,策略,单人',4.65,92500,444000,0,'ACTIVE','2026-03-16 13:55:56','2026-03-16 13:55:56'),(439,'异星工厂','《异星工厂》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 模拟经营 / 沙盒创造 / 策略游戏，适合用于商城页面、搜索、推荐和分类筛选演示。',22,'Wube Software LTD.','Wube Software LTD.','2020-08-14',130.00,NULL,'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i5 / 8GB / GTX 1060 / 35GB','模拟经营,工厂,自动化,沙盒,单人',4.70,98000,468000,0,'ACTIVE','2026-03-16 13:55:56','2026-03-16 13:55:56'),(440,'戴森球计划','《戴森球计划》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 模拟经营 / 沙盒创造 / 策略游戏，适合用于商城页面、搜索、推荐和分类筛选演示。',22,'Youthcat Studio','Gamera Games','2021-01-21',108.00,NULL,'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i5 / 8GB / GTX 1060 / 35GB','模拟经营,工厂,太空,自动化,单人',4.75,103500,492000,0,'ACTIVE','2026-03-16 13:55:56','2026-03-16 13:55:56'),(441,'风暴之城','《风暴之城》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 模拟经营 / 策略游戏 / 沙盒创造，适合用于商城页面、搜索、推荐和分类筛选演示。',22,'Eremite Games','Hooded Horse','2023-12-08',128.00,NULL,'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i5 / 8GB / GTX 1060 / 35GB','模拟经营,策略,建造,奇幻,单人',4.80,109000,516000,0,'ACTIVE','2026-03-16 13:55:56','2026-03-16 13:55:56'),(442,'冰汽时代','《冰汽时代》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 模拟经营 / 策略游戏 / 生存建造，适合用于商城页面、搜索、推荐和分类筛选演示。',22,'11 bit studios','11 bit studios','2018-04-24',118.00,94.40,'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i5 / 8GB / GTX 1060 / 35GB','模拟经营,策略,生存,末日,单人',4.60,114500,540000,0,'ACTIVE','2026-03-16 13:55:56','2026-03-16 13:55:56'),(443,'冰汽时代2','《冰汽时代2》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 模拟经营 / 策略游戏 / 生存建造，适合用于商城页面、搜索、推荐和分类筛选演示。',22,'11 bit studios','11 bit studios','2024-09-20',168.00,NULL,'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i5 / 16GB / GTX 1660 / 60GB','模拟经营,策略,生存,末日,单人',4.65,120000,564000,0,'ACTIVE','2026-03-16 13:55:56','2026-03-16 13:55:56'),(444,'纪元1800','《纪元1800》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 模拟经营 / 策略游戏 / 沙盒创造，适合用于商城页面、搜索、推荐和分类筛选演示。',22,'Ubisoft Mainz','Ubisoft','2019-04-16',198.00,NULL,'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i5 / 16GB / GTX 1660 / 60GB','模拟经营,建造,工业,贸易,单人',4.70,125500,588000,0,'ACTIVE','2026-03-16 13:55:56','2026-03-16 13:55:56'),(445,'庄园领主','《庄园领主》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 模拟经营 / 策略游戏 / 沙盒创造，适合用于商城页面、搜索、推荐和分类筛选演示。',22,'Slavic Magic','Hooded Horse','2024-04-26',168.00,NULL,'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i5 / 16GB / GTX 1660 / 60GB','模拟经营,中世纪,建造,策略,单人',4.75,131000,612000,0,'ACTIVE','2026-03-16 13:55:56','2026-03-16 13:55:56'),(446,'都市：天际线2','《都市：天际线2》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 模拟经营 / 沙盒创造 / 策略游戏，适合用于商城页面、搜索、推荐和分类筛选演示。',22,'Colossal Order Ltd.','Paradox Interactive','2023-10-24',218.00,174.40,'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i5 / 16GB / GTX 1660 / 60GB','模拟经营,城市建设,沙盒,策略,单人',4.60,142000,660000,1,'ACTIVE','2026-03-16 13:55:56','2026-03-16 13:55:56'),(447,'无人深空','《无人深空》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 冒险游戏 / 开放世界 / 沙盒创造，适合用于商城页面、搜索、推荐和分类筛选演示。',11,'Hello Games','Hello Games','2016-08-12',198.00,NULL,'https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i5 / 16GB / GTX 1660 / 60GB','开放世界,探索,太空,生存,单人',4.64,26200,136000,0,'ACTIVE','2026-03-16 13:55:56','2026-03-16 13:55:56'),(448,'深海迷航','《深海迷航》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 冒险游戏 / 生存建造 / 开放世界，适合用于商城页面、搜索、推荐和分类筛选演示。',11,'Unknown Worlds Entertainment','Unknown Worlds Entertainment','2018-01-23',108.00,NULL,'https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i5 / 8GB / GTX 1060 / 35GB','生存,海洋,探索,建造,单人',4.70,30400,152000,0,'ACTIVE','2026-03-16 13:55:56','2026-03-16 13:55:56'),(449,'深海迷航：零度之下','《深海迷航：零度之下》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 冒险游戏 / 生存建造 / 开放世界，适合用于商城页面、搜索、推荐和分类筛选演示。',11,'Unknown Worlds Entertainment','Unknown Worlds Entertainment','2021-05-14',108.00,97.20,'https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i5 / 8GB / GTX 1060 / 35GB','生存,海洋,探索,建造,单人',4.76,34600,168000,0,'ACTIVE','2026-03-16 13:55:56','2026-03-16 13:55:56'),(450,'潜水员戴夫','《潜水员戴夫》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 冒险游戏 / 模拟经营 / 休闲游戏，适合用于商城页面、搜索、推荐和分类筛选演示。',11,'MINTROCKET','MINTROCKET','2023-06-28',80.00,NULL,'https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i3 / 8GB / 核显可运行 / 10GB','休闲,经营,海洋,探索,单人',4.82,38800,184000,0,'ACTIVE','2026-03-16 13:55:56','2026-03-16 13:55:56'),(451,'渔帆暗涌','《渔帆暗涌》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 冒险游戏 / 解谜探索 / 休闲游戏，适合用于商城页面、搜索、推荐和分类筛选演示。',11,'Black Salt Games','Team17','2023-03-30',110.00,NULL,'https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i5 / 8GB / GTX 1060 / 35GB','冒险,探索,克苏鲁,钓鱼,单人',4.58,43000,200000,0,'ACTIVE','2026-03-16 13:55:56','2026-03-16 13:55:56'),(452,'超自然车旅','《超自然车旅》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 冒险游戏 / 生存建造 / 解谜探索，适合用于商城页面、搜索、推荐和分类筛选演示。',11,'Ironwood Studios','Kepler Interactive','2024-02-22',128.00,NULL,'https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i5 / 8GB / GTX 1060 / 35GB','冒险,驾驶,生存,探索,单人',4.64,47200,216000,0,'ACTIVE','2026-03-16 13:55:56','2026-03-16 13:55:56'),(453,'死亡回归','《死亡回归》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 动作游戏 / Roguelike肉鸽 / 射击游戏，适合用于商城页面、搜索、推荐和分类筛选演示。',1,'Housemarque','PlayStation Publishing LLC','2023-02-15',249.00,NULL,'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i5 / 16GB / GTX 1660 / 60GB','动作,肉鸽,射击,科幻,单人',4.70,51400,232000,0,'ACTIVE','2026-03-16 13:55:56','2026-03-16 13:55:56'),(454,'异星探险家','《异星探险家》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 冒险游戏 / 沙盒创造 / 生存建造，适合用于商城页面、搜索、推荐和分类筛选演示。',11,'System Era Softworks','System Era Softworks','2019-02-06',108.00,NULL,'https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i5 / 8GB / GTX 1060 / 35GB','沙盒,太空,建造,探索,单人',4.76,55600,248000,0,'ACTIVE','2026-03-16 13:55:56','2026-03-16 13:55:56'),(455,'木筏求生','《木筏求生》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 冒险游戏 / 生存建造 / 沙盒创造，适合用于商城页面、搜索、推荐和分类筛选演示。',11,'Redbeet Interactive','Axolot Games','2022-06-20',68.00,61.20,'https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i3 / 8GB / 核显可运行 / 10GB','生存,建造,海洋,探索,单人',4.82,59800,264000,0,'ACTIVE','2026-03-16 13:55:56','2026-03-16 13:55:56'),(456,'荒岛求生','《荒岛求生》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 冒险游戏 / 生存建造 / 沙盒创造，适合用于商城页面、搜索、推荐和分类筛选演示。',11,'Beam Team Games','Beam Team Publishing','2020-08-10',76.00,NULL,'https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i3 / 8GB / 核显可运行 / 10GB','生存,建造,海岛,探索,单人',4.58,64000,280000,1,'ACTIVE','2026-03-16 13:55:56','2026-03-16 13:55:56'),(457,'哈迪斯','《哈迪斯》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 Roguelike肉鸽 / 动作游戏 / 角色扮演，适合用于商城页面、搜索、推荐和分类筛选演示。',28,'Supergiant Games','Supergiant Games','2020-09-17',92.00,NULL,'https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i5 / 8GB / GTX 1060 / 35GB','肉鸽,动作,RPG,神话,单人',4.64,68200,296000,0,'ACTIVE','2026-03-16 13:55:56','2026-03-16 13:55:56'),(458,'哈迪斯II','《哈迪斯II》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 Roguelike肉鸽 / 动作游戏 / 角色扮演，适合用于商城页面、搜索、推荐和分类筛选演示。',28,'Supergiant Games','Supergiant Games','2025-09-25',108.00,97.20,'https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i5 / 8GB / GTX 1060 / 35GB','肉鸽,动作,RPG,神话,单人',4.70,72400,312000,0,'ACTIVE','2026-03-16 13:55:56','2026-03-16 13:55:56'),(459,'小丑牌','《小丑牌》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 卡牌构筑 / Roguelike肉鸽 / 策略游戏，适合用于商城页面、搜索、推荐和分类筛选演示。',29,'LocalThunk','Playstack','2024-02-20',58.00,NULL,'https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i3 / 8GB / 核显可运行 / 10GB','卡牌,肉鸽,策略,扑克,单人',4.76,76600,328000,0,'ACTIVE','2026-03-16 13:55:56','2026-03-16 13:55:56'),(460,'杀戮尖塔','《杀戮尖塔》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 卡牌构筑 / Roguelike肉鸽 / 策略游戏，适合用于商城页面、搜索、推荐和分类筛选演示。',29,'Mega Crit Games','Mega Crit Games','2019-01-23',80.00,NULL,'https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i3 / 8GB / 核显可运行 / 10GB','卡牌,肉鸽,策略,构筑,单人',4.82,80800,344000,0,'ACTIVE','2026-03-16 13:55:56','2026-03-16 13:55:56'),(461,'吸血鬼幸存者','《吸血鬼幸存者》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 Roguelike肉鸽 / 动作游戏 / 休闲游戏，适合用于商城页面、搜索、推荐和分类筛选演示。',28,'poncle','poncle','2022-10-21',25.00,22.50,'https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i3 / 8GB / 核显可运行 / 10GB','肉鸽,动作,休闲,割草,单人',4.58,85000,360000,0,'ACTIVE','2026-03-16 13:55:56','2026-03-16 13:55:56'),(462,'死亡细胞','《死亡细胞》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 Roguelike肉鸽 / 动作游戏 / 平台跳跃，适合用于商城页面、搜索、推荐和分类筛选演示。',28,'Motion Twin','Motion Twin','2018-08-07',80.00,NULL,'https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i3 / 8GB / 核显可运行 / 10GB','肉鸽,动作,平台跳跃,单人,像素',4.64,89200,376000,0,'ACTIVE','2026-03-16 13:55:56','2026-03-16 13:55:56'),(463,'咩咩启示录','《咩咩启示录》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 Roguelike肉鸽 / 模拟经营 / 动作游戏，适合用于商城页面、搜索、推荐和分类筛选演示。',28,'Massive Monster','Devolver Digital','2022-08-11',92.00,NULL,'https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i5 / 8GB / GTX 1060 / 35GB','肉鸽,经营,动作,黑暗,单人',4.70,93400,392000,0,'ACTIVE','2026-03-16 13:55:56','2026-03-16 13:55:56'),(464,'土豆兄弟','《土豆兄弟》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 Roguelike肉鸽 / 动作游戏 / 休闲游戏，适合用于商城页面、搜索、推荐和分类筛选演示。',28,'Blobfish','Blobfish','2023-06-23',22.00,19.80,'https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i3 / 8GB / 核显可运行 / 10GB','肉鸽,动作,休闲,割草,单人',4.76,97600,408000,0,'ACTIVE','2026-03-16 13:55:56','2026-03-16 13:55:56'),(465,'挺进地牢','《挺进地牢》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 Roguelike肉鸽 / 射击游戏 / 动作游戏，适合用于商城页面、搜索、推荐和分类筛选演示。',28,'Dodge Roll','Devolver Digital','2016-04-05',58.00,NULL,'https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i3 / 8GB / 核显可运行 / 10GB','肉鸽,射击,动作,地牢,单人',4.82,101800,424000,0,'ACTIVE','2026-03-16 13:55:56','2026-03-16 13:55:56'),(466,'以撒的结合：重生','《以撒的结合：重生》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 Roguelike肉鸽 / 动作游戏 / 休闲游戏，适合用于商城页面、搜索、推荐和分类筛选演示。',28,'Nicalis, Inc.','Nicalis, Inc.','2014-11-04',50.00,NULL,'https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i3 / 8GB / 核显可运行 / 10GB','肉鸽,动作,休闲,地牢,单人',4.58,106000,440000,1,'ACTIVE','2026-03-16 13:55:56','2026-03-16 13:55:56'),(467,'空洞骑士：丝之歌','《空洞骑士：丝之歌》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 平台跳跃 / 动作游戏 / 解谜探索，适合用于商城页面、搜索、推荐和分类筛选演示。',34,'Team Cherry','Team Cherry','2025-09-04',98.00,NULL,'https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i5 / 8GB / GTX 1060 / 35GB','平台跳跃,动作,探索,银河恶魔城,单人',4.68,22000,112000,0,'ACTIVE','2026-03-16 13:55:56','2026-03-16 13:55:56'),(468,'奥日与黑暗森林：终极版','《奥日与黑暗森林：终极版》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 平台跳跃 / 冒险游戏 / 解谜探索，适合用于商城页面、搜索、推荐和分类筛选演示。',34,NULL,NULL,'2016-04-27',68.00,NULL,'/image/ss_2b9906b55eea920d7faa610dc652b4766227e349.1920x1080.jpg',NULL,'推荐配置：Win10 / i3 / 8GB / 核显可运行 / 10GB','平台跳跃,冒险,探索,剧情,单人',4.74,25000,123000,0,'ACTIVE','2026-03-16 13:55:56','2026-03-22 07:17:07'),(469,'奥日与萤火意志','《奥日与萤火意志》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 平台跳跃 / 冒险游戏 / 解谜探索，适合用于商城页面、搜索、推荐和分类筛选演示。',34,NULL,NULL,'2020-03-11',90.00,81.00,'/image/ss_0cf0ec6681ae5771173790dbc99ddb3bf3b886ad.1920x1080.jpg',NULL,'推荐配置：Win10 / i5 / 8GB / GTX 1060 / 35GB','平台跳跃,冒险,探索,剧情,单人',4.80,28000,134000,0,'ACTIVE','2026-03-16 13:55:56','2026-03-22 07:17:29'),(470,'蔚蓝','《蔚蓝》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 平台跳跃 / 休闲游戏，适合用于商城页面、搜索、推荐和分类筛选演示。',34,NULL,NULL,'2018-01-25',76.00,NULL,'/image/ss_03bfe6bd5ddac7f747c8d2aa1a4f82cfd53c6dcb.1920x1080.jpg',NULL,'推荐配置：Win10 / i3 / 8GB / 核显可运行 / 10GB','平台跳跃,独立,挑战,剧情,单人',4.56,31000,145000,0,'ACTIVE','2026-03-16 13:55:56','2026-03-22 07:16:39'),(471,'茶杯头','《茶杯头》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 平台跳跃 / 动作游戏 / 休闲游戏，适合用于商城页面、搜索、推荐和分类筛选演示。',34,'Studio MDHR Entertainment Inc.','Studio MDHR Entertainment Inc.','2017-09-29',78.00,NULL,'https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i3 / 8GB / 核显可运行 / 10GB','平台跳跃,动作,卡通,高难度,单人',4.62,34000,156000,0,'ACTIVE','2026-03-16 13:55:56','2026-03-16 13:55:56'),(472,'动物井','《动物井》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 解谜探索 / 平台跳跃 / 冒险游戏，适合用于商城页面、搜索、推荐和分类筛选演示。',27,'Shared Memory','Bigmode','2024-05-09',76.00,68.40,'https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i3 / 8GB / 核显可运行 / 10GB','解谜,平台跳跃,探索,独立,单人',4.68,37000,167000,0,'ACTIVE','2026-03-16 13:55:56','2026-03-16 13:55:56'),(473,'渎神2','《渎神2》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 平台跳跃 / 魂like / 动作游戏，适合用于商城页面、搜索、推荐和分类筛选演示。',34,'The Game Kitchen','Team17','2023-08-24',110.00,NULL,'https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i5 / 8GB / GTX 1060 / 35GB','平台跳跃,动作,魂like,黑暗奇幻,单人',4.74,40000,178000,0,'ACTIVE','2026-03-16 13:55:56','2026-03-16 13:55:56'),(474,'九日','《九日》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 平台跳跃 / 动作游戏 / 魂like，适合用于商城页面、搜索、推荐和分类筛选演示。',34,'Red Candle Games','Red Candle Games','2024-05-29',128.00,NULL,'https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i5 / 8GB / GTX 1060 / 35GB','平台跳跃,动作,魂like,科幻,单人',4.80,43000,189000,0,'ACTIVE','2026-03-16 13:55:56','2026-03-16 13:55:56'),(475,'突尼克','《突尼克》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 冒险游戏 / 解谜探索 / 动作游戏，适合用于商城页面、搜索、推荐和分类筛选演示。',11,'Andrew Shouldice','Finji','2022-03-16',110.00,99.00,'https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i5 / 8GB / GTX 1060 / 35GB','冒险,解谜,动作,探索,单人',4.56,46000,200000,1,'ACTIVE','2026-03-16 13:55:56','2026-03-16 13:55:56'),(476,'生化危机4 重制版','《生化危机4 重制版》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 恐怖惊悚 / 动作游戏 / 剧情向，适合用于商城页面、搜索、推荐和分类筛选演示。',26,'CAPCOM Co., Ltd.','CAPCOM Co., Ltd.','2023-03-24',198.00,NULL,'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i5 / 16GB / GTX 1660 / 60GB','恐怖,动作,剧情,生存,单人',4.62,49000,211000,0,'INACTIVE','2026-03-16 13:55:56','2026-03-22 07:03:56'),(477,'生化危机8：村庄','《生化危机8：村庄》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 恐怖惊悚 / 动作游戏 / 剧情向，适合用于商城页面、搜索、推荐和分类筛选演示。',26,'CAPCOM Co., Ltd.','CAPCOM Co., Ltd.','2021-05-07',198.00,NULL,'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i5 / 16GB / GTX 1660 / 60GB','恐怖,动作,剧情,生存,单人',4.68,52000,222000,0,'ACTIVE','2026-03-16 13:55:56','2026-03-16 13:55:56'),(478,'生化危机2 重制版','《生化危机2 重制版》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 恐怖惊悚 / 动作游戏 / 剧情向，适合用于商城页面、搜索、推荐和分类筛选演示。',26,'CAPCOM Co., Ltd.','CAPCOM Co., Ltd.','2019-01-25',148.00,NULL,'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i5 / 8GB / GTX 1060 / 35GB','恐怖,动作,剧情,生存,单人',4.74,55000,233000,0,'ACTIVE','2026-03-16 13:55:56','2026-03-16 13:55:56'),(479,'寂静岭2','《寂静岭2》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 恐怖惊悚 / 解谜探索 / 剧情向，适合用于商城页面、搜索、推荐和分类筛选演示。',26,'Bloober Team SA','KONAMI','2024-10-08',298.00,NULL,'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i5 / 16GB / RTX 2060 / 80GB','恐怖,解谜,剧情,心理惊悚,单人',4.80,58000,244000,0,'ACTIVE','2026-03-16 13:55:56','2026-03-16 13:55:56'),(480,'迷失','《迷失》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 冒险游戏 / 解谜探索 / 剧情向，适合用于商城页面、搜索、推荐和分类筛选演示。',11,'BlueTwelve Studio','Annapurna Interactive','2022-07-19',110.00,NULL,'https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i5 / 8GB / GTX 1060 / 35GB','冒险,解谜,剧情,科幻,单人',4.56,61000,255000,0,'ACTIVE','2026-03-16 13:55:56','2026-03-16 13:55:56'),(481,'底特律：化身为人','《底特律：化身为人》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 剧情向 / 冒险游戏 / 视觉小说，适合用于商城页面、搜索、推荐和分类筛选演示。',20,'Quantic Dream','Quantic Dream','2020-06-18',128.00,NULL,'https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i5 / 8GB / GTX 1060 / 35GB','剧情,互动电影,科幻,选择,单人',4.62,64000,266000,0,'ACTIVE','2026-03-16 13:55:56','2026-03-16 13:55:56'),(482,'看火人','《看火人》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 冒险游戏 / 剧情向 / 解谜探索，适合用于商城页面、搜索、推荐和分类筛选演示。',11,'Campo Santo','Panic','2016-02-09',76.00,NULL,'https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i3 / 8GB / 核显可运行 / 10GB','冒险,剧情,探索,叙事,单人',4.68,67000,277000,0,'ACTIVE','2026-03-16 13:55:56','2026-03-16 13:55:56'),(483,'星际拓荒','《星际拓荒》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 冒险游戏 / 解谜探索 / 剧情向，适合用于商城页面、搜索、推荐和分类筛选演示。',11,'Mobius Digital','Annapurna Interactive','2020-06-18',92.00,NULL,'https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i5 / 8GB / GTX 1060 / 35GB','冒险,解谜,探索,太空,单人',4.74,70000,288000,0,'ACTIVE','2026-03-16 13:55:56','2026-03-16 13:55:56'),(484,'活体脑细胞','《活体脑细胞》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 恐怖惊悚 / 解谜探索 / 剧情向，适合用于商城页面、搜索、推荐和分类筛选演示。',26,'Frictional Games','Frictional Games','2015-09-22',90.00,81.00,'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i5 / 8GB / GTX 1060 / 35GB','恐怖,解谜,剧情,科幻,单人',4.80,73000,299000,0,'ACTIVE','2026-03-16 13:55:56','2026-03-16 13:55:56'),(485,'瘟疫传说：安魂曲','《瘟疫传说：安魂曲》是 Steam 上真实存在的热门单机游戏样本，按公开商店信息整理，主打 冒险游戏 / 剧情向 / 动作游戏，适合用于商城页面、搜索、推荐和分类筛选演示。',11,'Asobo Studio','Focus Entertainment','2022-10-18',188.00,NULL,'https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i5 / 16GB / GTX 1660 / 60GB','冒险,剧情,动作,潜行,单人',4.56,76000,310000,1,'ACTIVE','2026-03-16 13:55:56','2026-03-16 13:55:56'),(523,'战地6','《战地6》是EA DICE开发的最新一代战地系列射击游戏，以现代战争为背景。游戏提供大规模多人对战、破坏环境系统和多样化的兵种装备。2025年成为美国年度最畅销游戏，首月销量突破700万份。',4,NULL,NULL,'2025-10-15',398.00,298.00,'/image/ss_3b2c8c145592156f89cbbfd2dbd176b14f077169.1920x1080.jpg',NULL,'推荐配置：Win10 64位 / i7-10700 / 16GB / RTX 3060 / 100GB','射击,多人,战争,战术,竞技,3A,现代战争',8.50,420000,15000000,1,'ACTIVE','2026-03-16 14:01:57','2026-03-22 06:43:50'),(524,'艾尔登法环：黑夜君临','《艾尔登法环：黑夜君临》是FromSoftware开发的黑暗奇幻动作RPG，为艾尔登法环系列的最新作品。游戏延续了高难度战斗和深度探索的核心玩法，加入了全新的黑夜机制和多结局剧情。2025年5月登顶Steam全球畅销榜。',1,NULL,NULL,'2025-05-30',398.00,NULL,'/image/ss_b3ed8ab522f5965e46bc7c090cad9d018f937ae2.1920x1080.jpg',NULL,'推荐配置：Win10 64位 / i7-8700K / 16GB / RTX 3070 / 80GB','魂系,动作,开放世界,高难度,黑暗奇幻,多人合作',9.40,380000,12000000,1,'ACTIVE','2026-03-16 14:01:57','2026-03-22 07:07:29'),(525,'怪物猎人：荒野','《怪物猎人：荒野》是Capcom开发的最新一代怪物猎人系列作品。游戏采用开放世界设计，拥有更广阔的狩猎场、更智能的怪物AI和更丰富的武器系统。支持4人联机合作狩猎，是2025年最受期待的动作游戏之一。',1,NULL,NULL,'2025-02-28',368.00,NULL,'/image/ss_9245c1ede8c3fc2cd65e4890a74a01ef50b726da.1920x1080.jpg',NULL,'推荐配置：Win10 64位 / i5-10400 / 16GB / RTX 3060 / 75GB','动作,狩猎,开放世界,合作,装备收集,共斗',9.20,520000,18000000,1,'ACTIVE','2026-03-16 14:01:57','2026-03-22 07:06:51'),(526,'刺客信条：影','《刺客信条：影》是育碧开发的刺客信条系列最新作，背景设定在日本战国时代。玩家可以扮演忍者直江和武士弥助两个角色，体验不同的战斗风格和剧情线。游戏大幅强化了潜行和跑酷系统，被玩家誉为\"最刺客的刺客信条\"。',1,NULL,NULL,'2025-03-20',348.00,298.00,'/image/ss_dbadf23ede7af4684012bab610ffb52f33fdb9e2.1920x1080.jpg',NULL,'推荐配置：Win10 64位 / i7-10700 / 16GB / RTX 3070 / 100GB','动作,潜行,开放世界,历史,忍者,日本,3A',8.80,290000,8500000,1,'ACTIVE','2026-03-16 14:01:57','2026-03-22 07:05:54'),(527,'赛博朋克2077：往日之影','《赛博朋克2077：往日之影》是CDPR推出的资料片，大幅扩展了夜之城的故事。新区域\"狗镇\"带来全新剧情线、载具和技能树。配合2.0版本更新，游戏在2024年强势回归，成为Steam热销榜常客。',2,'CD Projekt Red','CD Projekt','2023-09-26',298.00,149.00,'https://images.unsplash.com/photo-1535378437327-b71494669e9d?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 64位 / i7-12700 / 16GB / RTX 3080 / 90GB','赛博朋克,开放世界,剧情,科幻,角色扮演,3A',9.30,680000,25000000,1,'INACTIVE','2026-03-16 14:01:57','2026-03-22 07:05:06'),(528,'最终幻想7：重生','《最终幻想7：重生》是Square Enix开发的FF7重制三部曲第二部。游戏延续了克劳德一行人的冒险，开放世界设计更加成熟，战斗系统融合了即时动作和策略指令。2024年PS5独占发售，PC版备受期待。',2,NULL,NULL,'2024-02-29',446.00,NULL,'/image/ss_20a352a2c20dd4bfb08fa131dc4c2e763510f584.1920x1080.jpg',NULL,'推荐配置：Win10 64位 / i7-10700 / 16GB / RTX 3070 / 100GB','JRPG,动作,剧情,重制,经典,3A,最终幻想',9.30,320000,8000000,1,'ACTIVE','2026-03-16 14:01:57','2026-03-22 07:04:40'),(529,'生化危机4：重制版','《生化危机4：重制版》是Capcom对2005年经典作品的完全重制。游戏在保留原作精髓的基础上，全面革新了画面、操作和关卡设计。里昂的西班牙营救之旅再次成为恐怖动作游戏的标杆。',26,NULL,NULL,'2023-03-24',298.00,149.00,'/image/ss_59d1b19964cc532213df92c8287b75a0bffeb33c.1920x1080.jpg',NULL,'推荐配置：Win10 64位 / i5-7500 / 8GB / GTX 1050 Ti / 60GB','恐怖,动作,射击,重制,生存,3A,经典',9.70,480000,12000000,1,'ACTIVE','2026-03-16 14:01:57','2026-03-22 07:04:04'),(530,'星空','《星空》是Bethesda开发25年的太空题材RPG巨作。游戏拥有超过1000个可探索星球，玩家可以自由建造飞船、建立前哨站，体验太空探险的乐趣。尽管发售初期争议不断，但后续更新使其成为2024年热门游戏。',2,NULL,NULL,'2023-09-06',298.00,149.00,'/image/ss_68f15d580bf91971f637be5e464bc803482d78f7.1920x1080.jpg',NULL,'推荐配置：Win10 64位 / i7-6800K / 16GB / RTX 2080 / 125GB','太空,科幻,开放世界,RPG,探索,3A,B社',7.80,380000,10000000,0,'ACTIVE','2026-03-16 14:01:57','2026-03-22 07:02:59'),(531,'使命召唤：黑色行动6','《使命召唤：黑色行动6》是Treyarch开发的COD系列最新作，背景设定在1990年代初的海湾战争时期。战役模式回归经典线性设计，多人模式引入全向移动系统，僵尸模式也有全新体验。',4,NULL,NULL,'2024-10-25',488.00,366.00,'/image/ss_cd0ca0a56afef1c9247b27b5a4c6a2f6c9983123.1920x1080.jpg',NULL,'推荐配置：Win10 64位 / i5-6600K / 12GB / GTX 1060 / 100GB','射击,多人,战争,动作,竞技,3A,COD',7.50,450000,20000000,1,'ACTIVE','2026-03-16 14:01:57','2026-03-22 07:02:18'),(532,'死亡搁浅2：冥滩之上','《死亡搁浅2：冥滩之上》是小岛秀夫工作室的续作。山姆的新冒险将跨越墨西哥到澳大利亚，面对新的BT威胁和人类连接的挑战。游戏在环境互动、战斗系统和叙事方式上都有大幅进化。',1,NULL,NULL,'2025-06-26',398.00,NULL,'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 64位 / i7-10700 / 16GB / RTX 3070 / 80GB','动作,剧情,科幻,送货,小岛秀夫,3A,独特',9.10,180000,5000000,1,'INACTIVE','2026-03-16 14:01:57','2026-03-22 07:00:27'),(533,'上古卷轴5：天际','《上古卷轴5：天际》是Bethesda开发的开放世界RPG传奇。玩家扮演龙裔在诺德大陆冒险，对抗远古巨龙奥杜因。庞大的MOD社区让游戏生命力延续十余年，是自由度最高的RPG之一。',2,NULL,NULL,'2011-11-11',128.00,32.00,'/image/ss_73c1a0bb7e1720c8a1847186c3ddd837d3ca7a8d.1920x1080.jpg',NULL,'推荐配置：Win10 64位 / i5-750 / 4GB / GTX 260 / 12GB','开放世界,奇幻,角色扮演,MOD,龙,经典,B社',9.70,2000000,60000000,1,'ACTIVE','2026-03-16 14:01:57','2026-03-22 07:00:04'),(534,'只狼：影逝二度','《只狼：影逝二度》是FromSoftware开发的忍者题材动作游戏，2019年TGA年度游戏。游戏强调精准的格挡和反击，独特的\"架势\"系统带来快节奏的刀剑对决。日本战国时代的黑暗奇幻故事令人沉浸。',1,NULL,NULL,'2019-03-22',268.00,134.00,'https://images.unsplash.com/photo-1514539079130-25950c84965d?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 64位 / i3-2100 / 4GB / GTX 760 / 25GB','动作,忍者,高难度,魂系,潜行,3A,年度游戏',9.50,520000,15000000,1,'INACTIVE','2026-03-16 14:01:57','2026-03-22 06:59:09'),(535,'血源诅咒','《血源诅咒》是FromSoftware开发的PS独占魂系游戏。维多利亚时代的哥特恐怖风格、快节奏的攻击性战斗和克苏鲁式的恐怖氛围，使其成为许多玩家心中最好的魂系游戏。',1,NULL,NULL,'2015-03-24',298.00,NULL,'https://images.unsplash.com/photo-1509248961158-e54f6934749c?w=800&h=450&fit=crop',NULL,'推荐配置：PS5独占 / 需要PS Plus会员','魂系,恐怖,动作,维多利亚,克苏鲁,3A,独占',9.70,380000,8000000,1,'INACTIVE','2026-03-16 14:01:57','2026-03-22 06:58:19'),(536,'仁王2','《仁王2》是Team Ninja开发的动作RPG，背景设定在日本战国时代。游戏融合了魂系的高难度和刷刷刷的装备系统，独特的\"妖化\"系统和丰富的武器流派带来极高的可玩性。',1,NULL,NULL,'2020-03-12',249.00,62.00,'/image/ss_bb996dea7ada75409e8c328b4f60e1f262e165d9.1920x1080.jpg',NULL,'推荐配置：Win10 64位 / i5-4460 / 6GB / GTX 1060 / 80GB','动作,日本战国,魂系,装备,妖怪,3A',9.00,280000,6000000,0,'ACTIVE','2026-03-16 14:01:57','2026-03-22 06:57:50'),(537,'卧龙：苍天陨落','《卧龙：苍天陨落》是Team Ninja开发的三国题材动作游戏。游戏以东汉末年为背景，玩家将扮演无名义勇兵对抗妖魔化的三国武将。独特的\"化解\"系统和气势机制带来流畅的战斗体验。',1,NULL,NULL,'2023-03-03',298.00,149.00,'/image/ss_db17363dfa15e14909f975ff768c666e2fe98f63.1920x1080.jpg',NULL,'推荐配置：Win10 64位 / i5-8400 / 8GB / GTX 1650 / 60GB','动作,三国,魂系,武术,剧情,3A,TeamNinja',8.30,220000,5000000,0,'ACTIVE','2026-03-16 14:01:57','2026-03-22 06:57:07'),(538,'匹诺曹的谎言','《匹诺曹的谎言》是韩国Neowiz开发的魂系动作游戏，以黑暗童话《匹诺曹》为灵感。游戏拥有独特的武器组装系统和谎言机制，蒸汽朋克风格的克拉特城令人印象深刻。',1,NULL,NULL,'2023-09-19',298.00,149.00,'/image/ss_26772232e759f37d0841d054cf30604fe4bba434.1920x1080.jpg',NULL,'推荐配置：Win10 64位 / i3-6300 / 8GB / GTX 960 / 50GB','魂系,动作,黑暗童话,蒸汽朋克,3A,韩国',8.60,180000,4000000,0,'ACTIVE','2026-03-16 14:01:57','2026-03-22 06:56:33'),(539,'堕落之主','《堕落之主》是Hexworks开发的魂系动作游戏，2014年《堕落之王》的重启之作。游戏拥有独特的双世界机制，玩家可以在生者和死者两个世界间切换，解决谜题和战斗。',1,NULL,NULL,'2023-10-13',298.00,149.00,'/image/ss_741bdea1df8f5b7e694cd9cf1a055f61da23aa7a.1920x1080.jpg',NULL,'推荐配置：Win10 64位 / i5-8400 / 12GB / GTX 1060 / 45GB','魂系,动作,黑暗奇幻,双世界,3A,高难度',7.50,150000,3500000,0,'ACTIVE','2026-03-16 14:01:57','2026-03-22 06:55:37'),(540,'装甲核心6：境界天火','《装甲核心6：境界天火》是FromSoftware开发的机甲动作游戏。玩家可以自定义组装机甲，在高速度的三维空间中战斗。虽然不同于魂系列，但保留了FromSoftware标志性的高难度和深度。',1,NULL,NULL,'2023-08-25',298.00,198.00,'/image/ss_549f55589c10866bc31243d277324e31ad155b29.1920x1080.jpg',NULL,'推荐配置：Win10 64位 / i5-8400 / 12GB / GTX 1060 / 60GB','机甲,动作,科幻,组装,高速战斗,3A,FS社',9.00,240000,6000000,0,'ACTIVE','2026-03-16 14:01:57','2026-03-22 06:55:01'),(541,'毁灭战士：黑暗时代','《毁灭战士：黑暗时代》是id Software开发的DOOM系列最新作，背景设定在中世纪。玩家将使用盾锯、连枷等中世纪武器对抗地狱军团，保留了系列标志性的高速战斗和暴力美学。',4,NULL,NULL,'2025-05-15',298.00,NULL,'/image/ss_ba66d42e3d1ea78e5b085682484210b390eb9ccc.1920x1080.jpg',NULL,'推荐配置：Win10 64位 / i7-10700 / 16GB / RTX 3060 / 80GB','射击,动作,中世纪,暴力,快节奏,3A,DOOM',8.80,120000,3000000,1,'ACTIVE','2026-03-16 14:01:57','2026-03-22 06:54:24'),(542,'严阵以待','《严阵以待》是Void Interactive开发的硬核战术射击游戏。玩家扮演SWAT队员执行各种高危任务，强调真实的战术配合、武器操作和CQB战术。游戏在Steam获得极高评价，是硬核射击玩家的最爱。',4,NULL,NULL,'2023-12-13',128.00,96.00,'/image/ss_bbcb0ea9c2d360a3492af71ce3a4f07df2eb5b6e.1920x1080.jpg',NULL,'推荐配置：Win10 64位 / i5-2500K / 8GB / GTX 960 / 50GB','射击,战术,硬核,警察,CQB,模拟,多人',9.20,280000,8000000,0,'ACTIVE','2026-03-16 14:01:57','2026-03-22 06:53:07'),(543,'逃离塔科夫','《逃离塔科夫》是Battlestate Games开发的硬核生存射击游戏。游戏以俄罗斯虚构城市塔科夫为背景，融合了RPG和FPS元素，拥有极其复杂的武器改装系统和真实的生存机制。',4,NULL,NULL,'2017-07-27',368.00,NULL,'/image/ss_c394a10373a4e013e7664f0a0d23f710ef5c610a.1920x1080.jpg',NULL,'推荐配置：Win10 64位 / i5-2500 / 8GB / GTX 1060 / 35GB','射击,生存,硬核,战术,装备,多人,俄罗斯',8.50,350000,10000000,0,'ACTIVE','2026-03-16 14:01:57','2026-03-22 06:52:26'),(544,'绝地潜兵2','《绝地潜兵2》是Arrowhead Studios开发的合作射击游戏，是2015年《绝地潜兵》的续作。玩家扮演超级地球的精英士兵，对抗虫族和机器人军团。游戏强调友军伤害和战术配合，2024年成为现象级爆款。',4,NULL,NULL,'2024-02-08',198.00,138.00,'/image/ss_0c79f56fc7be1bd0102f2ca1c92c8f0900daf4fb.1920x1080.jpg',NULL,'推荐配置：Win10 64位 / i7-9700K / 16GB / RTX 2060 / 100GB','射击,合作,科幻,多人,战术,3A,爆款',8.00,520000,12000000,1,'ACTIVE','2026-03-16 14:01:57','2026-03-22 06:51:36'),(545,'泰坦陨落2','《泰坦陨落2》是Respawn Entertainment开发的科幻射击神作。玩家扮演铁驭驾驶泰坦机甲，拥有FPS史上最优秀的单人战役之一。虽然发售时销量不佳，但凭借口碑成为经典，现在拥有庞大的忠实玩家群。',4,NULL,NULL,'2016-10-28',158.00,25.00,'/image/ss_d5c13576c0ab4e6ca93b51aa39aa74271672e75f.1920x1080.jpg',NULL,'推荐配置：Win10 64位 / i3-6300t / 8GB / GTX 660 / 45GB','射击,机甲,科幻,剧情,多人,3A,神作',9.60,480000,15000000,1,'ACTIVE','2026-03-16 14:01:57','2026-03-22 06:50:47'),(546,'无主之地3','《无主之地3》是Gearbox开发的刷宝射击游戏。游戏拥有数十亿把随机生成的武器、四个独特的猎人职业和荒诞幽默的剧情。合作模式支持四人联机，是和朋友一起刷装备的最佳选择。',4,NULL,NULL,'2019-09-13',199.00,29.00,'/image/ss_9868ee40f39749a4c8222502cf86525ee32c1bef.1920x1080.jpg',NULL,'推荐配置：Win10 64位 / i5-3570 / 6GB / GTX 680 / 75GB','射击,刷宝,RPG,合作,幽默,3A,多人',8.80,420000,15000000,0,'ACTIVE','2026-03-16 14:01:57','2026-03-22 06:50:12'),(547,'彩虹六号：围攻','《彩虹六号：围攻》是育碧开发的硬核战术射击游戏。游戏强调环境破坏、战术配合和干员技能搭配，拥有庞大的电竞赛事和持续的内容更新，是运营最成功的多人射击游戏之一。',4,NULL,NULL,'2015-12-01',88.00,22.00,'/image/ss_2a3e21824e76d17fac4f917bd90234c73a02c930.1920x1080.jpg',NULL,'推荐配置：Win10 64位 / i3-560 / 6GB / GTX 460 / 61GB','射击,战术,电竞,多人,硬核,3A,运营',8.70,680000,80000000,0,'ACTIVE','2026-03-16 14:01:57','2026-03-22 06:49:33'),(548,'CS2','《反恐精英2》是Valve开发的经典竞技射击游戏CS:GO的续作。采用全新Source 2引擎，改进的烟雾系统和Sub-tick技术带来更精准的射击体验。作为全球玩家最多的竞技FPS，拥有庞大的电竞生态。',4,'Valve','Valve','2023-09-27',0.00,NULL,'https://images.unsplash.com/photo-1542751110-97427bbecf20?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 64位 / i5-750 / 8GB / GTX 1050 / 85GB','射击,竞技,电竞,多人,硬核,免费,V社',8.50,1200000,40000000,0,'INACTIVE','2026-03-16 14:01:57','2026-03-16 16:00:55'),(549,'Apex英雄','《Apex英雄》是Respawn开发的大逃杀射击游戏，设定在泰坦陨落宇宙。游戏拥有独特的英雄技能系统、流畅的移动机制和快节奏的战斗。免费游玩模式使其成为Steam上最受欢迎的大逃杀游戏之一。',4,'Respawn Entertainment','EA','2019-02-04',0.00,NULL,'https://images.unsplash.com/photo-1542751110-97427bbecf20?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 64位 / i3-6300 / 6GB / GT 640 / 56GB','射击,大逃杀,英雄技能,多人,免费,竞技',8.60,890000,25000000,0,'INACTIVE','2026-03-16 14:01:57','2026-03-16 16:00:52'),(550,'瓦罗兰特','《瓦罗兰特》是拳头游戏开发的5v5战术射击游戏。游戏融合了CS:GO的精准射击和英雄技能，强调团队配合和战术执行。全球电竞赛事火热，是近年来最成功的竞技射击新IP。',4,'Riot Games','Riot Games','2020-06-02',0.00,NULL,'https://images.unsplash.com/photo-1542751110-97427bbecf20?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 64位 / i3-4150 / 4GB / GT 730 / 26GB','射击,战术,电竞,英雄技能,多人,免费,拳头',8.30,750000,20000000,0,'INACTIVE','2026-03-16 14:01:57','2026-03-16 16:00:44'),(551,'城市：天际线2','《城市：天际线2》是Colossal Order开发的城市建设模拟游戏续作。游戏大幅改进了经济系统和市民AI，拥有更真实的交通模拟和更细致的城市管理。是城市规划爱好者的终极沙盒。',22,NULL,NULL,'2023-10-24',218.00,109.00,'/image/ss_ce1621944da65d271f6954266bd0c8a7f452fdfd.1920x1080.jpg',NULL,'推荐配置：Win10 64位 / i7-9700K / 16GB / RTX 3080 / 60GB','模拟,城市建设,策略,沙盒,经营,交通,3A',7.80,150000,4000000,0,'ACTIVE','2026-03-16 14:01:57','2026-03-22 06:48:37'),(552,'逃生2','《逃生2》是Red Barrels开发的第一人称恐怖游戏续作。玩家扮演记者布莱克·兰格曼，在亚利桑那州的邪教村落调查孕妇谋杀案。游戏延续了前作的摄像机夜视机制和心理恐怖氛围。',26,NULL,NULL,'2017-04-25',88.00,22.00,'/image/ss_0b3a895b08f4a77e89cb970911c0b0fd213afa4e.1920x1080.jpg',NULL,'推荐配置：Win10 64位 / i3-530 / 4GB / GTX 260 / 30GB','恐怖,生存,第一人称,心理恐怖,独立,剧情',8.50,280000,8000000,0,'ACTIVE','2026-03-16 14:01:57','2026-03-22 06:48:04'),(553,'恐鬼症','《恐鬼症》是Kinetic Games开发的合作恐怖游戏。玩家组成捉鬼小队，使用各种设备调查闹鬼地点，识别鬼魂类型。简单的玩法和极佳的直播效果使其成为2020年现象级独立游戏。',26,NULL,NULL,'2020-09-18',76.00,50.00,'/image/ss_ec30a770064ea10c2bcfb1b3002a3dbd086be516.1920x1080.jpg',NULL,'推荐配置：Win10 64位 / i5-4590 / 8GB / GTX 970 / 16GB','恐怖,合作,多人,捉鬼,独立,VR支持,直播',9.10,420000,20000000,0,'ACTIVE','2026-03-16 14:01:57','2026-03-22 06:44:28'),(554,'森林之子','《森林之子》是Endnight Games开发的生存恐怖游戏续作。玩家被困在充满变异食人族的孤岛上，需要建造基地、制作武器、探索洞穴。相比前作拥有更大的地图、更智能的AI和更丰富的建造系统。',26,NULL,NULL,'2023-02-23',108.00,75.00,'/image/ss_b55ee5728556d1b52135af967ff5f6c58f64daf6.1920x1080.jpg',NULL,'推荐配置：Win10 64位 / i5-8400 / 12GB / GTX 1060 / 20GB','恐怖,生存,建造,开放世界,合作,独立,森林',8.70,380000,12000000,0,'ACTIVE','2026-03-16 14:01:57','2026-03-22 07:29:41'),(555,'绿色地狱','《绿色地狱》是Creepy Jar开发的亚马逊雨林生存游戏。玩家需要在危险的雨林环境中寻找食物、治疗疾病、建造庇护所。真实的生存机制和独特的身体检查系统带来硬核的生存体验。',21,NULL,NULL,'2019-09-05',80.00,32.00,'/image/ss_5acf01bcbf6f17e2fbeb9378f9e604f03d60e81b.1920x1080.jpg',NULL,'推荐配置：Win10 / i3-4170 / 8GB / GTX 760 / 8GB','生存,模拟,雨林,硬核,建造,合作,独立',8.80,220000,6000000,0,'ACTIVE','2026-03-16 14:01:57','2026-03-22 07:28:58'),(556,'漫漫长夜','《漫漫长夜》是Hinterland Studios开发的极地生存游戏。玩家在加拿大北部荒野面对严寒和野生动物，探索废弃设施，揭开神秘大停电的真相。独特的画风和叙事风格带来沉浸式的孤独体验。',21,'Hinterland Studios','Hinterland Studios','2017-08-01',108.00,32.00,'https://images.unsplash.com/photo-1517299321609-52687d1bc55a?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i5-2400 / 4GB / GTX 660 / 7GB','生存,冒险,极地,剧情,探索,独立,氛围',9.00,180000,5000000,0,'ACTIVE','2026-03-16 14:01:57','2026-03-16 14:01:57'),(557,'腐蚀','《腐蚀》是Facepunch Studios开发的多人生存游戏。玩家在一个充满敌意的世界中收集资源、建造基地、与其他玩家竞争或合作。残酷的自由PVP机制和深度的建造系统使其成为生存游戏的常青树。',21,NULL,NULL,'2018-02-08',136.00,68.00,'/image/ss_271feae67943bdc141c1249aba116349397e9ba9.1920x1080.jpg',NULL,'推荐配置：Win10 64位 / i7-4790K / 10GB / GTX 980 / 20GB','生存,多人,PVP,建造,沙盒,硬核,长期运营',8.30,520000,25000000,0,'ACTIVE','2026-03-16 14:01:57','2026-03-22 07:27:56'),(558,'方舟：生存进化','《方舟：生存进化》是Studio Wildcard开发的恐龙题材生存游戏。玩家在一个充满恐龙和远古生物的岛屿上生存、驯服生物、建造部落。独特的驯服系统和庞大的生物图鉴带来独特的生存体验。',21,NULL,NULL,'2017-08-29',90.00,22.00,'/image/ss_2fd997a2f7151cb2187043a1f41589cc6a9ebf3a.1920x1080.jpg',NULL,'推荐配置：Win10 64位 / i5-2400 / 8GB / GTX 670 / 60GB','生存,恐龙,多人,驯服,建造,开放世界,3A',8.00,380000,20000000,0,'ACTIVE','2026-03-16 14:01:57','2026-03-22 07:08:04'),(559,'饥荒','《饥荒》是Klei Entertainment开发的生存冒险游戏。玩家扮演被传送到异世界的科学家威尔逊，需要收集资源、对抗怪物、维持理智。独特的哥特画风和Roguelike机制带来极高的重玩价值。',21,NULL,NULL,'2013-04-23',24.00,6.00,'/image/ss_d053a7220a03ab689da9312c6d15fe8211401f55.1920x1080.jpg',NULL,'推荐配置：Win10 / 1GB内存 / 256MB显存 / 500MB','生存,冒险,独立,手绘,Roguelike,经典,Klei',9.50,580000,25000000,1,'ACTIVE','2026-03-16 14:01:57','2026-03-22 07:08:53'),(560,'缺氧','《缺氧》是Klei Entertainment开发的太空殖民地模拟游戏。玩家管理一群复制人，在地下小行星建立基地，维持氧气、食物和能源供应。复杂的物理和化学模拟系统极具深度。',22,NULL,NULL,'2019-07-30',58.00,23.00,'/image/ss_78d1c92edeecc7b17cafa9248867fe7d4390a0a0.1920x1080.jpg',NULL,'推荐配置：Win10 / 2GB内存 / Intel HD 4600 / 2GB','模拟,生存,太空,策略,物理,独立,Klei',9.60,320000,10000000,1,'ACTIVE','2026-03-16 14:01:57','2026-03-22 07:09:59'),(561,'饿殍：明末千里行','《饿殍：明末千里行》是零创游戏开发的明末题材AVG游戏。玩家扮演盗匪良，运送四名女孩从华州城至洛阳城，途中需查明真相并做出选择。游戏以98万销量成为2024年国产单机销量亚军。',2,'零创游戏','零创游戏','2024-04-23',30.00,24.00,'https://images.unsplash.com/photo-1542259681-d309e31ba4f9?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i3 / 4GB / 核显 / 2GB','剧情,AVG,国产,明末,历史,文字,独立',9.20,180000,980000,0,'INACTIVE','2026-03-16 14:01:57','2026-03-22 07:10:17'),(562,'山河旅探','《山河旅探》是奥秘之家开发的清末民初侦探推理游戏。玩家扮演侦探沈仲平，调查一系列离奇案件。游戏融合了中国传统侦探文化和近代科学推理，获得2024TapTap最佳叙事和最佳独立游戏奖。',27,'奥秘之家','奥秘之家','2024-01-31',58.00,46.00,'https://images.unsplash.com/photo-1542259681-d309e31ba4f9?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i3 / 4GB / GTX 750 / 4GB','解谜,推理,国产,清末,剧情,独立,侦探',9.40,120000,550000,0,'INACTIVE','2026-03-16 14:01:57','2026-03-22 07:10:51'),(563,'灵魂面甲','《灵魂面甲》是营火工作室开发的SOC游戏，灵犀互娱发行。游戏以原始部落为背景，玩家需要生存、建造、战斗，并招募族人建立部落。上线首月登顶Steam全球热销榜，是出海成功的国产单机代表。',21,NULL,NULL,'2024-05-01',108.00,86.00,'/image/ss_7ef7045926393971406f85db88bdb0cc2dd91b65.1920x1080.jpg',NULL,'推荐配置：Win10 64位 / i5-8400 / 16GB / GTX 1060 / 30GB','生存,动作,建造,国产,多人,部落,开放世界',8.50,95000,550000,0,'ACTIVE','2026-03-16 14:01:57','2026-03-22 07:11:36'),(564,'中国式网游','《中国式网游》是WiseGame发行的独立游戏，以国产网游为原型，缝合了\"氪金\"、\"战力榜\"、\"自动寻路\"等刻板印象，达到喜剧和讽刺效果。游戏以51万销量位列2024年国产单机第五。',22,'WiseGame','WiseGame','2024-07-19',32.00,25.00,'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i3 / 4GB / 核显 / 2GB','模拟,经营,国产,网游,讽刺,独立,休闲',8.80,150000,510000,0,'INACTIVE','2026-03-16 14:01:57','2026-03-22 07:11:48'),(565,'来自星尘','《来自星尘》是鹰角网络开发的首款买断制游戏，采用回合制战斗系统。玩家扮演调查员，探索异星文明。尽管是纯手游，但累计销量估计超过100万套，是鹰角试水买断制的成功尝试。',2,'鹰角网络','鹰角网络','2024-02-27',68.00,NULL,'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&h=450&fit=crop',NULL,'推荐配置：Android 8.0 / iOS 12 / 4GB RAM / 8GB','RPG,回合制,国产,科幻,鹰角,手游,剧情',7.80,200000,1000000,0,'INACTIVE','2026-03-16 14:01:57','2026-03-22 07:12:11'),(566,'古剑奇谭3','《古剑奇谭3》是烛龙开发的国产RPG，古剑系列第三部正传。游戏采用即时战斗系统，以中国古代神话为背景，讲述了人族传承的故事。被誉为国产单机RPG的里程碑之作。',2,NULL,NULL,'2018-11-23',99.00,39.00,'/image/ss_611937d87d07ffdd3a9ff42f75f1bab8a73f2ac8.1920x1080.jpg',NULL,'推荐配置：Win7 64位 / i5-4590 / 8GB / GTX 750 Ti / 40GB','RPG,国产,动作,神话,剧情,即时战斗,经典',9.10,280000,2000000,1,'ACTIVE','2026-03-16 14:01:57','2026-03-22 07:13:02'),(567,'仙剑奇侠传7','《仙剑奇侠传7》是软星开发的仙剑系列最新作，首次采用虚幻4引擎和即时战斗系统。游戏讲述了月清疏和修吾的仙侠故事，延续了系列经典的三界世界观和感人剧情。',2,NULL,NULL,'2021-10-15',128.00,64.00,'/image/ss_3276a816b6f7b84be322c953d69b74e6eb42d7aa.1920x1080.jpg',NULL,'推荐配置：Win10 64位 / i7-9700K / 16GB / RTX 2060 / 85GB','RPG,国产,仙侠,动作,剧情,虚幻4,经典IP',8.00,220000,1500000,0,'ACTIVE','2026-03-16 14:01:57','2026-03-22 07:01:37'),(568,'太吾绘卷','《太吾绘卷》是螺舟工作室开发的武侠模拟游戏。玩家扮演太吾氏传人，在随机生成的江湖中修炼武功、经营门派、对抗相枢。独特的武侠系统和极高的自由度使其成为2018年现象级国产独立游戏。',2,NULL,NULL,'2018-09-21',68.00,48.00,'https://images.unsplash.com/photo-1542259681-d309e31ba4f9?w=800&h=450&fit=crop',NULL,'推荐配置：Win7 / i3 / 4GB / 核显 / 6GB','武侠,国产,独立,策略,Roguelike,经营,神作',9.30,350000,3500000,1,'INACTIVE','2026-03-16 14:01:57','2026-03-22 07:00:44'),(569,'鬼谷八荒','《鬼谷八荒》是鬼谷工作室开发的修仙模拟游戏。玩家从凡人开始修炼，经历筑基、金丹、元婴等境界，探索随机生成的八荒世界。独特的修仙系统和丰富的奇遇事件，2021年Steam国产游戏销量冠军。',2,NULL,NULL,'2021-01-27',68.00,48.00,'https://images.unsplash.com/photo-1542259681-d309e31ba4f9?w=800&h=450&fit=crop',NULL,'推荐配置：Win7 / i3 / 4GB / 核显 / 6GB','修仙,国产,独立,Roguelike,沙盒,销量冠军',8.50,420000,5000000,1,'INACTIVE','2026-03-16 14:01:57','2026-03-22 07:15:07'),(570,'逸剑风云决','《逸剑风云决》是侠萌游戏开发的像素武侠RPG。游戏采用HD-2D画风，结合回合制和即时战斗，讲述了少年宇文逸的江湖冒险。致敬经典武侠游戏，拥有丰富的支线剧情和多结局。',2,NULL,NULL,'2023-09-15',78.00,62.00,'/image/ss_09275e36dc30a1c04de9fe3f01ac08aabb5eafe1.1920x1080.jpg',NULL,'推荐配置：Win7 / i3 / 4GB / GTX 750 / 4GB','武侠,国产,像素,回合制,剧情,独立,HD-2D',9.00,95000,800000,0,'ACTIVE','2026-03-16 14:01:57','2026-03-22 07:13:31'),(571,'传说之下','《传说之下》是Toby Fox开发的独立RPG。玩家掉入地下怪物世界，可以选择战斗或仁慈。打破第四面墙的叙事、难忘的角色和原创音乐使其成为 cult classic，影响了整整一代独立游戏。',2,'Toby Fox','Toby Fox','2015-09-15',36.00,12.00,'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=800&h=450&fit=crop',NULL,'推荐配置：Win7 / 2GB内存 / 核显 / 200MB','RPG,独立,剧情,像素,音乐,神作,meta',9.90,720000,20000000,1,'ACTIVE','2026-03-16 14:01:57','2026-03-16 14:01:57'),(572,'陷阵之志','《陷阵之志》是Subset Games开发的策略游戏。玩家控制机甲小队，抵御外星虫族入侵，保护城市建筑。极简的规则和极高的策略深度，每一回合都像解谜，是策略游戏的杰作。',3,'Subset Games','Subset Games','2018-02-27',58.00,29.00,'https://images.unsplash.com/photo-1519074069444-1ba4fff66d16?w=800&h=450&fit=crop',NULL,'推荐配置：Win7 / 2GB内存 / 核显 / 400MB','策略,回合制,Roguelike,机甲,独立,像素,神作',9.60,280000,6000000,1,'ACTIVE','2026-03-16 14:01:57','2026-03-16 14:01:57'),(573,'FTL：超越光速','《FTL：超越光速》是Subset Games开发的太空飞船模拟游戏。玩家指挥飞船，穿越星系，逃离叛军追击。紧张的时间管理和随机事件，每一次航行都是独特的冒险，是太空Roguelike的开山之作。',3,'Subset Games','Subset Games','2012-09-14',36.00,12.00,'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&h=450&fit=crop',NULL,'推荐配置：Win7 / 1GB内存 / 核显 / 250MB','策略,Roguelike,太空,模拟,独立,像素,经典',9.40,320000,8000000,0,'ACTIVE','2026-03-16 14:01:57','2026-03-16 14:01:57'),(574,'极限竞速：地平线5','《极限竞速：地平线5》是Playground Games开发的开放世界赛车游戏，背景设定在墨西哥。游戏拥有系列最大的地图、最丰富的车辆选择和最逼真的天气系统。是开放世界赛车游戏的巅峰之作。',24,NULL,NULL,'2021-11-09',248.00,124.00,'/image/ss_b65236b365315ebb6da6114ce42cd74b59cab3c8.1920x1080.jpg',NULL,'推荐配置：Win10 64位 / i5-8400 / 8GB / GTX 1070 / 110GB','竞速,开放世界,赛车,墨西哥,多人,3A,微软',9.50,380000,15000000,1,'ACTIVE','2026-03-16 14:01:57','2026-03-22 07:15:46'),(575,'F1 24','《F1 24》是Codemasters开发的官方F1赛车模拟游戏。游戏拥有2024赛季全部车队、车手和赛道，全新的车辆物理和生涯模式。是F1粉丝和赛车模拟爱好者的必玩之作。',24,'Codemasters','EA Sports','2024-05-31',298.00,149.00,'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 64位 / i5-9600K / 16GB / GTX 1660 Ti / 100GB','竞速,F1,模拟,体育,赛车,3A,官方授权',8.20,85000,2000000,0,'INACTIVE','2026-03-16 14:01:57','2026-03-22 07:13:48'),(576,'神力科莎：竞速','《神力科莎：竞速》是Kunos Simulazioni开发的硬核赛车模拟游戏，宝珀GT系列赛官方游戏。游戏拥有极致真实的车辆物理和激光扫描赛道，是GT赛车模拟的标杆之作。',24,NULL,NULL,'2019-05-29',168.00,42.00,'/image/ss_ae39ccca56617ec8e3cf9495e84bee15c9a2dce1.1920x1080.jpg',NULL,'推荐配置：Win10 64位 / i5-2500K / 6GB / GTX 970 / 50GB','竞速,模拟,GT赛车,硬核,官方,3A,物理',9.00,120000,4000000,0,'ACTIVE','2026-03-16 14:01:57','2026-03-22 07:14:20'),(577,'NBA 2K25','《NBA 2K25》是2K开发的篮球模拟游戏最新作。游戏拥有最真实的球员建模、动作捕捉和篮球物理。全新的ProPLAY技术和丰富的游戏模式，是篮球游戏的唯一选择。',25,'Visual Concepts','2K','2024-09-06',298.00,149.00,'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 64位 / i5-4430 / 8GB / GTX 770 / 150GB','体育,篮球,NBA,模拟,多人,3A,年货',7.50,180000,8000000,0,'ACTIVE','2026-03-16 14:01:57','2026-03-16 14:01:57'),(578,'EA Sports FC 25','《EA Sports FC 25》是EA开发的足球模拟游戏，FIFA系列的继任者。游戏拥有真实的球员动作、战术系统和授权联赛。全新的HyperMotion技术和5v5 Rush模式带来全新体验。',25,'EA Vancouver','EA Sports','2024-09-27',248.00,124.00,'https://images.unsplash.com/photo-1522778119026-d647f0565c6a?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 64位 / i5-6600K / 8GB / GTX 1050 Ti / 100GB','体育,足球,模拟,多人,3A,年货,EA',7.80,220000,12000000,0,'ACTIVE','2026-03-16 14:01:57','2026-03-16 14:01:57'),(579,'美国职棒大联盟24','《美国职棒大联盟24》是Sony San Diego开发的棒球模拟游戏。游戏拥有最真实的棒球物理、球员数据和球场还原。故事模式\"Road to the Show\"让玩家从菜鸟成长为巨星。',25,NULL,NULL,'2024-03-19',398.00,199.00,'https://images.unsplash.com/photo-1544298621-6e7a3f47e4a9?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 64位 / i5-8600K / 8GB / GTX 960 / 80GB','体育,棒球,MLB,模拟,剧情,3A,Sony',8.50,95000,3000000,0,'INACTIVE','2026-03-16 14:01:57','2026-03-22 07:18:04'),(580,'GT赛车7','《GT赛车7》是Polyphony Digital开发的赛车模拟游戏，GT系列25周年纪念作。游戏回归经典模式，拥有最丰富的车辆调校和驾驶学院。是PlayStation平台最硬核的赛车游戏。',24,NULL,NULL,'2022-03-04',398.00,199.00,'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 64位 / i5-8600K / 16GB / GTX 1050 Ti / 110GB','竞速,模拟,GT,硬核,车辆收集,3A,PlayStation',8.80,180000,6000000,1,'INACTIVE','2026-03-16 14:01:57','2026-03-22 07:18:27'),(581,'节奏光剑','《节奏光剑》是Beat Games开发的VR音乐节奏游戏。玩家使用光剑切割飞来的方块，跟随音乐节奏。极佳的VR体验和丰富的曲库，是VR平台的杀手级应用和最受欢迎VR游戏。',32,NULL,NULL,'2019-05-21',90.00,58.00,'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / i5-4590 / 8GB / GTX 970 / 2GB','音乐,节奏,VR,光剑,运动,独立,杀手级应用',9.60,420000,10000000,1,'INACTIVE','2026-03-16 14:01:57','2026-03-22 07:19:39'),(582,'DJMAX RESPECT V','《DJMAX RESPECT V》是NEOWIZ开发的经典音游DJMAX的PC版。游戏拥有丰富的曲库、多种难度和模式，支持键盘和控制器操作。是PC平台最硬核的音乐游戏之一。',32,'NEOWIZ','NEOWIZ','2020-03-12',138.00,69.00,'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&h=450&fit=crop',NULL,'推荐配置：Win7 / i3 / 4GB / 核显 / 10GB','音乐,节奏,街机,硬核,下落式,韩国,经典',9.20,95000,2500000,0,'ACTIVE','2026-03-16 14:01:57','2026-03-16 14:01:57'),(583,'冰与火之歌','《冰与火之歌》是7th Beat Games开发的节奏平台游戏。玩家控制双球跟随音乐节奏在轨道上移动，一键操作但难度极高。极简的设计和精准的节奏感，是独立音游的杰作。',32,'7th Beat Games','7th Beat Games','2018-02-25',22.00,11.00,'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&h=450&fit=crop',NULL,'推荐配置：Win7 / 1GB内存 / 核显 / 500MB','音乐,节奏,平台,困难,独立,极简,一键',9.50,180000,5000000,1,'ACTIVE','2026-03-16 14:01:57','2026-03-16 14:01:57'),(584,'传送门2','《传送门2》是Valve开发的解谜游戏神作。玩家使用传送门枪在测试室中解谜，同时体验黑色幽默的剧情。单人模式和合作模式都拥有顶级的关卡设计，被誉为史上最完美的游戏之一。',27,NULL,NULL,'2011-04-19',42.00,4.00,'/image/ss_6a4f5afdaa98402de9cf0b59fed27bab3256a6f4.1920x1080.jpg',NULL,'推荐配置：Win7 / 3GB内存 / 核显 / 8GB','解谜,传送门,剧情,合作,V社,神作,经典',9.90,850000,30000000,1,'ACTIVE','2026-03-16 14:01:57','2026-03-22 07:30:43'),(585,'见证者','《见证者》是Thekla Inc开发的开放世界解谜游戏。玩家在一个充满谜题的神秘岛屿上探索，通过画线解谜逐渐揭开真相。游戏没有文字教学，完全通过环境引导玩家，是解谜设计的教科书。',27,'Thekla Inc','Thekla Inc','2016-01-26',112.00,28.00,'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=800&h=450&fit=crop',NULL,'推荐配置：Win7 / 4GB内存 / GTX 780 / 5GB','解谜,开放世界,探索,哲学,独立,环境叙事',9.40,180000,4000000,1,'ACTIVE','2026-03-16 14:01:57','2026-03-16 14:01:57'),(586,' Baba是你','《Baba是你》是Hempuli Oy开发的推箱子解谜游戏。玩家通过推动规则方块改变游戏逻辑，\"Baba是你\"、\"墙是停\"等规则可以被改写。极简的画面和颠覆性的玩法，是近年来最具创意的解谜游戏。',27,NULL,NULL,'2019-03-13',58.00,29.00,'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=800&h=450&fit=crop',NULL,'推荐配置：Win7 / 1GB内存 / 核显 / 200MB','解谜,推箱子,逻辑,独立,像素,创意,困难',9.60,220000,6000000,1,'INACTIVE','2026-03-16 14:01:57','2026-03-22 07:19:03'),(587,'俄罗斯方块效应：连接','《俄罗斯方块效应：连接》是Enhance开发的俄罗斯方块进化版。游戏在经典玩法基础上加入华丽的视觉效果和音乐同步，支持多人对战和合作模式。是史上最完美的俄罗斯方块游戏。',16,'Enhance','Enhance','2021-08-18',118.00,59.00,'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=800&h=450&fit=crop',NULL,'推荐配置：Win7 / 4GB内存 / 核显 / 2GB','休闲,俄罗斯方块,音乐,多人,独立,经典,完美',9.50,95000,3000000,0,'ACTIVE','2026-03-16 14:01:57','2026-03-16 14:01:57'),(588,'双人成行','《双人成行》是Hazelight Studios开发的双人合作冒险游戏。一对即将离婚的夫妻被变成玩偶，必须合作冒险修复关系。创新的合作机制和感人的故事，获得2021年TGA年度游戏。',1,NULL,NULL,'2021-03-26',198.00,59.00,'/image/ss_3e59753eefaba9a7704a18e902b48e8d38e95e0b.1920x1080.jpg',NULL,'推荐配置：Win8 / 8GB内存 / GTX 660 / 50GB','合作,双人,冒险,剧情,创新,3A,年度游戏',9.80,520000,20000000,1,'ACTIVE','2026-03-16 14:01:57','2026-03-22 06:43:12'),(589,'人类一败涂地','《人类一败涂地》是No Brakes Games开发的物理模拟解谜游戏。玩家控制软绵绵的角色，在梦境中解谜。滑稽的物理效果和开放的解法，配合多人模式带来无尽的欢乐。',16,NULL,NULL,'2016-07-22',58.00,17.00,'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=800&h=450&fit=crop',NULL,'推荐配置：Win7 / 4GB内存 / GTX 460 / 2GB','物理,解谜,多人,休闲,搞笑,独立,软体',9.10,680000,25000000,1,'INACTIVE','2026-03-16 14:01:57','2026-03-22 06:42:30'),(590,'糖豆人：终极淘汰赛','《糖豆人：终极淘汰赛》是Mediatonic开发的派对大逃杀游戏。60名玩家控制糖豆人，在各种综艺关卡中竞争，最后一人获胜。可爱的画风和简单的操作，2020年现象级爆款，现已转为免费游戏。',16,NULL,NULL,'2020-08-04',0.00,NULL,'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=800&h=450&fit=crop',NULL,'推荐配置：Win10 / 8GB内存 / GTX 660 / 2GB','休闲,派对,大逃杀,多人,免费,糖豆人,综艺',8.50,850000,50000000,0,'INACTIVE','2026-03-16 14:01:57','2026-03-22 06:42:25');
+/*!40000 ALTER TABLE `games` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `order_items`
+--
+
+DROP TABLE IF EXISTS `order_items`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `order_items` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `order_id` bigint NOT NULL COMMENT '订单ID',
+  `product_id` bigint DEFAULT NULL,
+  `product_name` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `product_image` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '商品图片(快照)',
+  `unit_price` decimal(10,2) NOT NULL COMMENT '单价',
+  `quantity` int NOT NULL COMMENT '数量',
+  `total_price` decimal(10,2) DEFAULT '0.00',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `game_id` bigint NOT NULL,
+  `game_image_url` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `game_name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `subtotal` decimal(10,2) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_order_id` (`order_id`),
+  KEY `idx_product_id` (`product_id`),
+  KEY `idx_order_items_order_id` (`order_id`),
+  KEY `idx_order_items_game_id` (`game_id`),
+  CONSTRAINT `order_items_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='订单项表';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `order_items`
+--
+
+LOCK TABLES `order_items` WRITE;
+/*!40000 ALTER TABLE `order_items` DISABLE KEYS */;
+INSERT INTO `order_items` VALUES (1,1,1,'赛博朋克2077 标准版','/images/cyberpunk2077.jpg',298.00,1,298.00,'2025-10-16 13:24:04',0,NULL,'',0.00),(2,2,2,'巫师3：狂猎 年度版','/images/witcher3_goty.jpg',199.00,1,199.00,'2025-10-16 13:24:04',0,NULL,'',0.00),(3,3,7,'巫师3 杰洛特雕像','/images/geralt_statue.jpg',599.00,1,599.00,'2025-10-16 13:24:04',0,NULL,'',0.00),(4,3,9,'游戏鼠标垫','/images/mouse_pad.jpg',99.00,1,99.00,'2025-10-16 13:24:04',0,NULL,'',0.00);
+/*!40000 ALTER TABLE `order_items` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `orders`
+--
+
+DROP TABLE IF EXISTS `orders`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `orders` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `order_number` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `user_id` bigint NOT NULL COMMENT '用户ID',
+  `total_amount` decimal(10,2) NOT NULL COMMENT '订单总金额',
+  `discount_amount` decimal(10,2) DEFAULT '0.00' COMMENT '折扣金额',
+  `final_amount` decimal(10,2) DEFAULT '0.00',
+  `payment_method` enum('MOCK','FREE','CREDIT_CARD','PAYPAL','ALIPAY','WECHAT') COLLATE utf8mb4_unicode_ci DEFAULT 'MOCK',
+  `payment_status` enum('PENDING','PAID','FAILED','REFUNDED') COLLATE utf8mb4_unicode_ci DEFAULT 'PENDING',
+  `order_status` enum('PENDING','CONFIRMED','PROCESSING','SHIPPED','DELIVERED','CANCELLED') COLLATE utf8mb4_unicode_ci DEFAULT 'PENDING',
+  `shipping_address` json DEFAULT NULL COMMENT '收货地址',
+  `notes` text COLLATE utf8mb4_unicode_ci COMMENT '订单备注',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `paid_at` timestamp NULL DEFAULT NULL COMMENT '支付时间',
+  `shipped_at` timestamp NULL DEFAULT NULL COMMENT '发货时间',
+  `delivered_at` timestamp NULL DEFAULT NULL COMMENT '收货时间',
+  `order_no` varchar(40) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `payable_amount` decimal(10,2) NOT NULL,
+  `points_earned` int NOT NULL,
+  `status` enum('PENDING','PAID','CANCELLED') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `coupon_discount_amount` decimal(10,2) NOT NULL,
+  `coupon_name` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `points_discount_amount` decimal(10,2) NOT NULL,
+  `points_used` int NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `order_number` (`order_number`),
+  KEY `idx_user_id` (`user_id`),
+  KEY `idx_order_number` (`order_number`),
+  KEY `idx_payment_status` (`payment_status`),
+  KEY `idx_order_status` (`order_status`),
+  KEY `idx_created_at` (`created_at`),
+  KEY `idx_orders_user_id` (`user_id`),
+  KEY `idx_orders_status` (`status`),
+  KEY `idx_orders_created_at` (`created_at`),
+  CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='订单表';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `orders`
+--
+
+LOCK TABLES `orders` WRITE;
+/*!40000 ALTER TABLE `orders` DISABLE KEYS */;
+INSERT INTO `orders` VALUES (1,'ORD20231016001',3,298.00,0.00,298.00,'ALIPAY','PAID','DELIVERED',NULL,NULL,'2025-10-16 13:24:04','2025-10-16 13:24:04','2023-10-15 06:30:00',NULL,NULL,'',0.00,0,'PENDING',0.00,NULL,0.00,0),(2,'ORD20231016002',4,199.00,19.90,179.10,'WECHAT','PAID','DELIVERED',NULL,NULL,'2025-10-16 13:24:04','2025-10-16 13:24:04','2023-10-15 08:45:00',NULL,NULL,'',0.00,0,'PENDING',0.00,NULL,0.00,0),(3,'ORD20231016003',5,698.00,50.00,648.00,'CREDIT_CARD','PAID','SHIPPED',NULL,NULL,'2025-10-16 13:24:04','2025-10-16 13:24:04','2023-10-16 01:20:00',NULL,NULL,'',0.00,0,'PENDING',0.00,NULL,0.00,0);
+/*!40000 ALTER TABLE `orders` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `point_transactions`
+--
+
+DROP TABLE IF EXISTS `point_transactions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `point_transactions` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `balance_after` int NOT NULL,
+  `change_amount` int NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `description` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `order_id` bigint DEFAULT NULL,
+  `type` enum('EARN','SPEND','ADJUST') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `user_id` bigint NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_point_transactions_user_id` (`user_id`),
+  KEY `idx_point_transactions_order_id` (`order_id`),
+  KEY `idx_point_transactions_created_at` (`created_at`),
+  CONSTRAINT `fk_point_transactions_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `point_transactions`
+--
+
+LOCK TABLES `point_transactions` WRITE;
+/*!40000 ALTER TABLE `point_transactions` DISABLE KEYS */;
+INSERT INTO `point_transactions` VALUES (1,128,128,'2026-03-14 22:01:20.603280','订单 GS20260314220120943 支付完成，获得积分',4,'EARN',9),(2,324,196,'2026-03-15 17:22:19.678719','订单 GS20260315172219989 支付完成，获得积分',5,'EARN',9),(3,30,30,'2026-03-17 22:37:58.265340','每日签到奖励',NULL,'EARN',6),(4,20,-10,'2026-03-17 22:38:27.220011','打赏攻略《《博德之门3》第一章队伍搭配与资源管理思路》',NULL,'SPEND',6),(5,10,10,'2026-03-17 22:38:27.221023','收到来自 admin 的打赏：攻略《《博德之门3》第一章队伍搭配与资源管理思路》',NULL,'EARN',7),(6,10,-10,'2026-03-17 22:39:00.709244','打赏攻略《《博德之门3》第一章队伍搭配与资源管理思路》',NULL,'SPEND',6),(7,20,10,'2026-03-17 22:39:00.709244','收到来自 admin 的打赏：攻略《《博德之门3》第一章队伍搭配与资源管理思路》',NULL,'EARN',7),(8,9,-1,'2026-03-17 22:40:55.501084','打赏攻略《《博德之门3》第一章队伍搭配与资源管理思路》',NULL,'SPEND',6),(9,21,1,'2026-03-17 22:40:55.503151','收到来自 admin 的打赏：攻略《《博德之门3》第一章队伍搭配与资源管理思路》',NULL,'EARN',7),(10,39,30,'2026-03-22 15:32:02.624585','每日签到奖励',NULL,'EARN',6);
+/*!40000 ALTER TABLE `point_transactions` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `posts`
+--
+
+DROP TABLE IF EXISTS `posts`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `posts` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `title` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '标题',
+  `content` text COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '内容',
+  `images` text COLLATE utf8mb4_unicode_ci COMMENT '帖子图片列表(JSON)',
+  `user_id` bigint NOT NULL COMMENT '作者ID',
+  `game_id` bigint DEFAULT NULL COMMENT '关联游戏ID',
+  `category` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '分类',
+  `tags` json DEFAULT NULL COMMENT '标签',
+  `view_count` int DEFAULT '0' COMMENT '浏览次数',
+  `like_count` int DEFAULT '0' COMMENT '点赞数',
+  `comment_count` int DEFAULT '0' COMMENT '评论数',
+  `is_pinned` tinyint(1) DEFAULT '0' COMMENT '是否置顶',
+  `is_featured` tinyint(1) DEFAULT '0' COMMENT '是否精华',
+  `status` enum('PUBLISHED','DRAFT','DELETED') COLLATE utf8mb4_unicode_ci DEFAULT 'PUBLISHED',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `last_comment_at` timestamp NULL DEFAULT NULL COMMENT '最后评论时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_user_id` (`user_id`),
+  KEY `idx_category` (`category`),
+  KEY `idx_status` (`status`),
+  KEY `idx_created_at` (`created_at`),
+  KEY `idx_game_id` (`game_id`),
+  KEY `idx_last_comment_at` (`last_comment_at`),
+  FULLTEXT KEY `idx_title_content` (`title`,`content`),
+  CONSTRAINT `fk_posts_game` FOREIGN KEY (`game_id`) REFERENCES `games` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `posts_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=105 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='帖子表';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `posts`
+--
+
+LOCK TABLES `posts` WRITE;
+/*!40000 ALTER TABLE `posts` DISABLE KEYS */;
+INSERT INTO `posts` VALUES (1,'赛博朋克2077 游戏体验分享','经过几十小时的游戏体验，我想分享一下对这款游戏的看法...',NULL,3,NULL,'游戏评测',NULL,1266,89,2,0,0,'PUBLISHED','2025-10-16 13:24:03','2026-03-15 12:12:08','2025-10-16 13:24:03'),(2,'巫师3 全成就攻略指南','这是一份详细的巫师3全成就获取攻略，希望对大家有帮助...',NULL,4,NULL,'攻略指南',NULL,2345,156,2,0,0,'PUBLISHED','2025-10-16 13:24:03','2026-03-15 12:12:08','2025-10-16 13:24:03'),(3,'新手玩家如何选择适合的游戏','作为一个游戏老玩家，我想给新手朋友们一些建议...',NULL,5,NULL,'新手指南',NULL,892,67,1,0,0,'PUBLISHED','2025-10-16 13:24:03','2026-03-15 12:12:08','2025-10-16 13:24:03'),(4,'2023年最值得期待的游戏','盘点一下今年最值得期待的几款游戏大作...',NULL,3,NULL,'游戏资讯',NULL,1560,112,1,0,0,'PUBLISHED','2025-10-16 13:24:03','2026-03-15 12:12:08','2025-10-16 13:24:03'),(5,'【世界观杂谈】设定考据开荒路线怎么安排更顺？','这类帖子更适合讨论题材设定、背景世界和风格灵感来源。\n\n讨论主题：设定考据。\n我想重点聊聊前期路线推进时，哪些任务、资源和功能应该优先处理。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,2,NULL,'世界观杂谈',NULL,207,21,0,0,0,'PUBLISHED','2025-12-26 11:27:54','2026-03-15 12:12:08',NULL),(6,'【MOD分享】东方幻想乡：纪元裂隙开荒路线怎么安排更顺？','这类帖子适合交流 MOD、创意工坊和扩展玩法搭配。\n\n讨论主题：东方幻想乡：纪元裂隙。\n我想重点聊聊前期路线推进时，哪些任务、资源和功能应该优先处理。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,7,NULL,'MOD分享',NULL,190,14,0,0,0,'PUBLISHED','2025-12-16 11:27:54','2026-03-16 12:42:51',NULL),(7,'【成就挑战】海洋群岛：天穹旅团开荒路线怎么安排更顺？','这类帖子适合整理成就路线、全收集规划和极限挑战心得。\n\n讨论主题：海洋群岛：天穹旅团。\n我想重点聊聊前期路线推进时，哪些任务、资源和功能应该优先处理。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,6,NULL,'成就挑战',NULL,173,7,0,0,1,'PUBLISHED','2025-12-06 11:27:54','2026-03-16 12:42:51',NULL),(8,'【DLC评测】未来竞技城：暗影回响开荒路线怎么安排更顺？','这类帖子适合讨论 DLC、季票和额外内容是否值得投入。\n\n讨论主题：未来竞技城：暗影回响。\n我想重点聊聊前期路线推进时，哪些任务、资源和功能应该优先处理。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,2,NULL,'DLC评测',NULL,156,58,0,0,0,'PUBLISHED','2025-11-26 11:27:54','2026-03-16 12:42:51',NULL),(9,'【折扣情报】购买建议开荒路线怎么安排更顺？','这类帖子更偏向价格讨论、版本选择和活动入手时机。\n\n讨论主题：购买建议。\n我想重点聊聊前期路线推进时，哪些任务、资源和功能应该优先处理。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,7,NULL,'折扣情报',NULL,139,51,0,0,0,'PUBLISHED','2025-11-16 11:27:54','2026-03-15 12:12:08',NULL),(10,'【联机组队】蒸汽群岛：失落档案开荒路线怎么安排更顺？','这类帖子适合寻找队友、讨论联机配合与语音沟通节奏。\n\n讨论主题：蒸汽群岛：失落档案。\n我想重点聊聊前期路线推进时，哪些任务、资源和功能应该优先处理。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,6,NULL,'联机组队',NULL,122,44,0,0,0,'PUBLISHED','2025-11-06 11:27:54','2026-03-16 12:42:51',NULL),(11,'【剧情讨论】末日废土：风暴协议开荒路线怎么安排更顺？','这类帖子适合讨论人物关系、叙事伏笔以及结局理解。\n\n讨论主题：末日废土：风暴协议。\n我想重点聊聊前期路线推进时，哪些任务、资源和功能应该优先处理。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,2,NULL,'剧情讨论',NULL,105,37,0,0,0,'PUBLISHED','2025-10-27 11:27:54','2026-03-16 12:42:51',NULL),(12,'【配置优化】星际边境：边境传说开荒路线怎么安排更顺？','这类帖子聚焦于硬件配置、画面选项和稳定帧率的平衡方案。\n\n讨论主题：星际边境：边境传说。\n我想重点聊聊前期路线推进时，哪些任务、资源和功能应该优先处理。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,7,NULL,'配置优化',NULL,88,30,0,0,0,'PUBLISHED','2025-10-17 11:27:54','2026-03-16 12:42:51',NULL),(13,'【新手求助】中世纪王国：远征计划开荒路线怎么安排更顺？','这类帖子更适合收集新手常见疑问，帮助刚接触游戏的玩家快速上手。\n\n讨论主题：中世纪王国：远征计划。\n我想重点聊聊前期路线推进时，哪些任务、资源和功能应该优先处理。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,6,NULL,'新手求助',NULL,71,23,0,0,0,'PUBLISHED','2025-10-07 11:27:54','2026-03-16 12:42:51',NULL),(14,'【攻略交流】赛博都市：星火联盟开荒路线怎么安排更顺？','这类帖子更偏向实战经验分享，适合整理流程、路线和资源分配建议。\n\n讨论主题：赛博都市：星火联盟。\n我想重点聊聊前期路线推进时，哪些任务、资源和功能应该优先处理。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,2,NULL,'攻略交流',NULL,55,16,0,1,0,'PUBLISHED','2025-09-27 11:27:54','2026-03-16 12:42:51',NULL),(15,'【世界观杂谈】设定考据流派搭配有没有更稳的思路？','这类帖子更适合讨论题材设定、背景世界和风格灵感来源。\n\n讨论主题：设定考据。\n如果从长期养成角度看，哪些流派组合更容易兼顾体验和效率。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,6,NULL,'世界观杂谈',NULL,218,26,0,0,0,'PUBLISHED','2025-12-27 11:27:54','2026-03-15 12:12:08',NULL),(16,'【MOD分享】机械星域：终局信标流派搭配有没有更稳的思路？','这类帖子适合交流 MOD、创意工坊和扩展玩法搭配。\n\n讨论主题：机械星域：终局信标。\n如果从长期养成角度看，哪些流派组合更容易兼顾体验和效率。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,2,NULL,'MOD分享',NULL,201,19,0,0,0,'PUBLISHED','2025-12-17 11:27:54','2026-03-16 12:42:51',NULL),(17,'【成就挑战】东方幻想乡：纪元裂隙流派搭配有没有更稳的思路？','这类帖子适合整理成就路线、全收集规划和极限挑战心得。\n\n讨论主题：东方幻想乡：纪元裂隙。\n如果从长期养成角度看，哪些流派组合更容易兼顾体验和效率。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,7,NULL,'成就挑战',NULL,184,12,0,0,0,'PUBLISHED','2025-12-07 11:27:54','2026-03-16 12:42:51',NULL),(18,'【DLC评测】海洋群岛：天穹旅团流派搭配有没有更稳的思路？','这类帖子适合讨论 DLC、季票和额外内容是否值得投入。\n\n讨论主题：海洋群岛：天穹旅团。\n如果从长期养成角度看，哪些流派组合更容易兼顾体验和效率。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,6,NULL,'DLC评测',NULL,167,5,0,0,1,'PUBLISHED','2025-11-27 11:27:54','2026-03-16 12:42:51',NULL),(19,'【折扣情报】购买建议流派搭配有没有更稳的思路？','这类帖子更偏向价格讨论、版本选择和活动入手时机。\n\n讨论主题：购买建议。\n如果从长期养成角度看，哪些流派组合更容易兼顾体验和效率。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,2,NULL,'折扣情报',NULL,150,56,0,0,0,'PUBLISHED','2025-11-17 11:27:54','2026-03-15 12:12:08',NULL),(20,'【联机组队】神话大陆：黎明防线流派搭配有没有更稳的思路？','这类帖子适合寻找队友、讨论联机配合与语音沟通节奏。\n\n讨论主题：神话大陆：黎明防线。\n如果从长期养成角度看，哪些流派组合更容易兼顾体验和效率。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,7,NULL,'联机组队',NULL,133,49,0,0,0,'PUBLISHED','2025-11-07 11:27:54','2026-03-16 12:42:51',NULL),(21,'【剧情讨论】蒸汽群岛：失落档案流派搭配有没有更稳的思路？','这类帖子适合讨论人物关系、叙事伏笔以及结局理解。\n\n讨论主题：蒸汽群岛：失落档案。\n如果从长期养成角度看，哪些流派组合更容易兼顾体验和效率。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,6,NULL,'剧情讨论',NULL,116,42,0,0,0,'PUBLISHED','2025-10-28 11:27:54','2026-03-16 12:42:51',NULL),(22,'【配置优化】末日废土：风暴协议流派搭配有没有更稳的思路？','这类帖子聚焦于硬件配置、画面选项和稳定帧率的平衡方案。\n\n讨论主题：末日废土：风暴协议。\n如果从长期养成角度看，哪些流派组合更容易兼顾体验和效率。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,2,NULL,'配置优化',NULL,99,35,0,0,0,'PUBLISHED','2025-10-18 11:27:54','2026-03-16 12:42:51',NULL),(23,'【新手求助】星际边境：边境传说流派搭配有没有更稳的思路？','这类帖子更适合收集新手常见疑问，帮助刚接触游戏的玩家快速上手。\n\n讨论主题：星际边境：边境传说。\n如果从长期养成角度看，哪些流派组合更容易兼顾体验和效率。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,7,NULL,'新手求助',NULL,82,28,0,0,0,'PUBLISHED','2025-10-08 11:27:54','2026-03-16 12:42:51',NULL),(24,'【攻略交流】中世纪王国：远征计划流派搭配有没有更稳的思路？','这类帖子更偏向实战经验分享，适合整理流程、路线和资源分配建议。\n\n讨论主题：中世纪王国：远征计划。\n如果从长期养成角度看，哪些流派组合更容易兼顾体验和效率。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,6,NULL,'攻略交流',NULL,70,21,0,1,0,'PUBLISHED','2025-09-28 11:27:54','2026-03-22 07:50:15',NULL),(25,'【世界观杂谈】设定考据新手第一周最容易踩哪些坑？','这类帖子更适合讨论题材设定、背景世界和风格灵感来源。\n\n讨论主题：设定考据。\n想把容易忽略的机制、资源误区和节奏问题提前整理出来。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,7,NULL,'世界观杂谈',NULL,229,31,0,0,0,'PUBLISHED','2025-12-28 11:27:54','2026-03-15 12:12:08',NULL),(26,'【MOD分享】赛博都市：终局信标新手第一周最容易踩哪些坑？','这类帖子适合交流 MOD、创意工坊和扩展玩法搭配。\n\n讨论主题：赛博都市：终局信标。\n想把容易忽略的机制、资源误区和节奏问题提前整理出来。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,6,NULL,'MOD分享',NULL,213,24,0,0,0,'PUBLISHED','2025-12-18 11:27:54','2026-03-16 12:42:51',NULL),(27,'【成就挑战】机械星域：终局信标新手第一周最容易踩哪些坑？','这类帖子适合整理成就路线、全收集规划和极限挑战心得。\n\n讨论主题：机械星域：终局信标。\n想把容易忽略的机制、资源误区和节奏问题提前整理出来。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,2,NULL,'成就挑战',NULL,195,17,0,0,0,'PUBLISHED','2025-12-08 11:27:54','2026-03-16 12:42:51',NULL),(28,'【DLC评测】东方幻想乡：纪元裂隙新手第一周最容易踩哪些坑？','这类帖子适合讨论 DLC、季票和额外内容是否值得投入。\n\n讨论主题：东方幻想乡：纪元裂隙。\n想把容易忽略的机制、资源误区和节奏问题提前整理出来。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,7,NULL,'DLC评测',NULL,178,10,0,0,0,'PUBLISHED','2025-11-28 11:27:54','2026-03-16 12:42:51',NULL),(29,'【折扣情报】购买建议新手第一周最容易踩哪些坑？','这类帖子更偏向价格讨论、版本选择和活动入手时机。\n\n讨论主题：购买建议。\n想把容易忽略的机制、资源误区和节奏问题提前整理出来。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,6,NULL,'折扣情报',NULL,161,61,0,0,1,'PUBLISHED','2025-11-18 11:27:54','2026-03-15 12:12:08',NULL),(30,'【联机组队】未来竞技城：暗影回响新手第一周最容易踩哪些坑？','这类帖子适合寻找队友、讨论联机配合与语音沟通节奏。\n\n讨论主题：未来竞技城：暗影回响。\n想把容易忽略的机制、资源误区和节奏问题提前整理出来。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,2,NULL,'联机组队',NULL,144,54,0,0,0,'PUBLISHED','2025-11-08 11:27:54','2026-03-16 12:42:51',NULL),(31,'【剧情讨论】神话大陆：黎明防线新手第一周最容易踩哪些坑？','这类帖子适合讨论人物关系、叙事伏笔以及结局理解。\n\n讨论主题：神话大陆：黎明防线。\n想把容易忽略的机制、资源误区和节奏问题提前整理出来。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,7,NULL,'剧情讨论',NULL,127,47,0,0,0,'PUBLISHED','2025-10-29 11:27:54','2026-03-16 12:42:51',NULL),(32,'【配置优化】蒸汽群岛：失落档案新手第一周最容易踩哪些坑？','这类帖子聚焦于硬件配置、画面选项和稳定帧率的平衡方案。\n\n讨论主题：蒸汽群岛：失落档案。\n想把容易忽略的机制、资源误区和节奏问题提前整理出来。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,6,NULL,'配置优化',NULL,110,40,0,0,0,'PUBLISHED','2025-10-19 11:27:54','2026-03-16 12:42:51',NULL),(33,'【新手求助】末日废土：风暴协议新手第一周最容易踩哪些坑？','这类帖子更适合收集新手常见疑问，帮助刚接触游戏的玩家快速上手。\n\n讨论主题：末日废土：风暴协议。\n想把容易忽略的机制、资源误区和节奏问题提前整理出来。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,2,NULL,'新手求助',NULL,93,33,0,0,0,'PUBLISHED','2025-10-09 11:27:54','2026-03-16 12:42:51',NULL),(34,'【攻略交流】星际边境：边境传说新手第一周最容易踩哪些坑？','这类帖子更偏向实战经验分享，适合整理流程、路线和资源分配建议。\n\n讨论主题：星际边境：边境传说。\n想把容易忽略的机制、资源误区和节奏问题提前整理出来。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,7,NULL,'攻略交流',NULL,76,26,0,0,0,'PUBLISHED','2025-09-29 11:27:54','2026-03-16 12:42:51',NULL),(35,'【世界观杂谈】设定考据画面设置和帧率应该怎么平衡？','这类帖子更适合讨论题材设定、背景世界和风格灵感来源。\n\n讨论主题：设定考据。\n更关心实际体验层面的设置思路，而不是单纯追求参数最大化。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,2,NULL,'世界观杂谈',NULL,240,36,0,0,0,'PUBLISHED','2025-12-29 11:27:54','2026-03-15 12:12:08',NULL),(36,'【MOD分享】中世纪王国：星火联盟画面设置和帧率应该怎么平衡？','这类帖子适合交流 MOD、创意工坊和扩展玩法搭配。\n\n讨论主题：中世纪王国：星火联盟。\n更关心实际体验层面的设置思路，而不是单纯追求参数最大化。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,7,NULL,'MOD分享',NULL,224,29,0,0,0,'PUBLISHED','2025-12-19 11:27:54','2026-03-16 12:42:51',NULL),(37,'【成就挑战】赛博都市：终局信标画面设置和帧率应该怎么平衡？','这类帖子适合整理成就路线、全收集规划和极限挑战心得。\n\n讨论主题：赛博都市：终局信标。\n更关心实际体验层面的设置思路，而不是单纯追求参数最大化。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,6,NULL,'成就挑战',NULL,206,22,0,0,0,'PUBLISHED','2025-12-09 11:27:54','2026-03-16 12:42:51',NULL),(38,'【DLC评测】机械星域：终局信标画面设置和帧率应该怎么平衡？','这类帖子适合讨论 DLC、季票和额外内容是否值得投入。\n\n讨论主题：机械星域：终局信标。\n更关心实际体验层面的设置思路，而不是单纯追求参数最大化。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,2,NULL,'DLC评测',NULL,189,15,0,0,0,'PUBLISHED','2025-11-29 11:27:54','2026-03-16 12:42:51',NULL),(39,'【折扣情报】购买建议画面设置和帧率应该怎么平衡？','这类帖子更偏向价格讨论、版本选择和活动入手时机。\n\n讨论主题：购买建议。\n更关心实际体验层面的设置思路，而不是单纯追求参数最大化。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,7,NULL,'折扣情报',NULL,172,8,0,0,0,'PUBLISHED','2025-11-19 11:27:54','2026-03-15 12:12:08',NULL),(40,'【联机组队】海洋群岛：天穹旅团画面设置和帧率应该怎么平衡？','这类帖子适合寻找队友、讨论联机配合与语音沟通节奏。\n\n讨论主题：海洋群岛：天穹旅团。\n更关心实际体验层面的设置思路，而不是单纯追求参数最大化。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,6,NULL,'联机组队',NULL,155,59,0,0,1,'PUBLISHED','2025-11-09 11:27:54','2026-03-16 12:42:51',NULL),(41,'【剧情讨论】未来竞技城：暗影回响画面设置和帧率应该怎么平衡？','这类帖子适合讨论人物关系、叙事伏笔以及结局理解。\n\n讨论主题：未来竞技城：暗影回响。\n更关心实际体验层面的设置思路，而不是单纯追求参数最大化。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,2,NULL,'剧情讨论',NULL,138,52,0,0,0,'PUBLISHED','2025-10-30 11:27:54','2026-03-16 12:42:51',NULL),(42,'【配置优化】神话大陆：黎明防线画面设置和帧率应该怎么平衡？','这类帖子聚焦于硬件配置、画面选项和稳定帧率的平衡方案。\n\n讨论主题：神话大陆：黎明防线。\n更关心实际体验层面的设置思路，而不是单纯追求参数最大化。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,7,NULL,'配置优化',NULL,121,45,0,0,0,'PUBLISHED','2025-10-20 11:27:54','2026-03-16 12:42:51',NULL),(43,'【新手求助】蒸汽群岛：失落档案画面设置和帧率应该怎么平衡？','这类帖子更适合收集新手常见疑问，帮助刚接触游戏的玩家快速上手。\n\n讨论主题：蒸汽群岛：失落档案。\n更关心实际体验层面的设置思路，而不是单纯追求参数最大化。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,6,NULL,'新手求助',NULL,104,38,0,0,0,'PUBLISHED','2025-10-10 11:27:54','2026-03-16 12:42:51',NULL),(44,'【攻略交流】末日废土：风暴协议画面设置和帧率应该怎么平衡？','这类帖子更偏向实战经验分享，适合整理流程、路线和资源分配建议。\n\n讨论主题：末日废土：风暴协议。\n更关心实际体验层面的设置思路，而不是单纯追求参数最大化。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,2,NULL,'攻略交流',NULL,87,31,0,0,0,'PUBLISHED','2025-09-30 11:27:54','2026-03-16 12:42:51',NULL),(45,'【世界观杂谈】设定考据隐藏内容有哪些值得专门去找？','这类帖子更适合讨论题材设定、背景世界和风格灵感来源。\n\n讨论主题：设定考据。\n想优先讨论不容易发现、但很值得体验的支线与隐藏内容。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,6,NULL,'世界观杂谈',NULL,251,41,0,0,0,'PUBLISHED','2025-12-30 11:27:54','2026-03-15 12:12:08',NULL),(46,'【MOD分享】星际边境：远征计划隐藏内容有哪些值得专门去找？','这类帖子适合交流 MOD、创意工坊和扩展玩法搭配。\n\n讨论主题：星际边境：远征计划。\n想优先讨论不容易发现、但很值得体验的支线与隐藏内容。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,2,NULL,'MOD分享',NULL,234,34,0,0,0,'PUBLISHED','2025-12-20 11:27:54','2026-03-16 12:42:51',NULL),(47,'【成就挑战】中世纪王国：星火联盟隐藏内容有哪些值得专门去找？','这类帖子适合整理成就路线、全收集规划和极限挑战心得。\n\n讨论主题：中世纪王国：星火联盟。\n想优先讨论不容易发现、但很值得体验的支线与隐藏内容。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,7,NULL,'成就挑战',NULL,217,27,0,0,0,'PUBLISHED','2025-12-10 11:27:54','2026-03-16 12:42:51',NULL),(48,'【DLC评测】赛博都市：终局信标隐藏内容有哪些值得专门去找？','这类帖子适合讨论 DLC、季票和额外内容是否值得投入。\n\n讨论主题：赛博都市：终局信标。\n想优先讨论不容易发现、但很值得体验的支线与隐藏内容。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,6,NULL,'DLC评测',NULL,200,20,0,0,0,'PUBLISHED','2025-11-30 11:27:54','2026-03-16 12:42:51',NULL),(49,'【折扣情报】购买建议隐藏内容有哪些值得专门去找？','这类帖子更偏向价格讨论、版本选择和活动入手时机。\n\n讨论主题：购买建议。\n想优先讨论不容易发现、但很值得体验的支线与隐藏内容。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,2,NULL,'折扣情报',NULL,183,13,0,0,0,'PUBLISHED','2025-11-20 11:27:54','2026-03-15 12:12:08',NULL),(50,'【联机组队】东方幻想乡：纪元裂隙隐藏内容有哪些值得专门去找？','这类帖子适合寻找队友、讨论联机配合与语音沟通节奏。\n\n讨论主题：东方幻想乡：纪元裂隙。\n想优先讨论不容易发现、但很值得体验的支线与隐藏内容。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,7,NULL,'联机组队',NULL,166,6,0,0,0,'PUBLISHED','2025-11-10 11:27:54','2026-03-16 12:42:51',NULL),(51,'【剧情讨论】海洋群岛：天穹旅团隐藏内容有哪些值得专门去找？','这类帖子适合讨论人物关系、叙事伏笔以及结局理解。\n\n讨论主题：海洋群岛：天穹旅团。\n想优先讨论不容易发现、但很值得体验的支线与隐藏内容。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,6,NULL,'剧情讨论',NULL,149,57,0,0,1,'PUBLISHED','2025-10-31 11:27:54','2026-03-16 12:42:51',NULL),(52,'【配置优化】未来竞技城：暗影回响隐藏内容有哪些值得专门去找？','这类帖子聚焦于硬件配置、画面选项和稳定帧率的平衡方案。\n\n讨论主题：未来竞技城：暗影回响。\n想优先讨论不容易发现、但很值得体验的支线与隐藏内容。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,2,NULL,'配置优化',NULL,132,50,0,0,0,'PUBLISHED','2025-10-21 11:27:54','2026-03-16 12:42:51',NULL),(53,'【新手求助】神话大陆：黎明防线隐藏内容有哪些值得专门去找？','这类帖子更适合收集新手常见疑问，帮助刚接触游戏的玩家快速上手。\n\n讨论主题：神话大陆：黎明防线。\n想优先讨论不容易发现、但很值得体验的支线与隐藏内容。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,7,NULL,'新手求助',NULL,115,43,0,0,0,'PUBLISHED','2025-10-11 11:27:54','2026-03-16 12:42:51',NULL),(54,'【攻略交流】蒸汽群岛：失落档案隐藏内容有哪些值得专门去找？','这类帖子更偏向实战经验分享，适合整理流程、路线和资源分配建议。\n\n讨论主题：蒸汽群岛：失落档案。\n想优先讨论不容易发现、但很值得体验的支线与隐藏内容。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,6,NULL,'攻略交流',NULL,98,36,0,0,0,'PUBLISHED','2025-10-01 11:27:54','2026-03-16 12:42:51',NULL),(55,'【世界观杂谈】设定考据地图探索时哪些区域最容易错过？','这类帖子更适合讨论题材设定、背景世界和风格灵感来源。\n\n讨论主题：设定考据。\n希望大家补充那些容易被跳过但回报很高的探索点位。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,7,NULL,'世界观杂谈',NULL,263,46,0,0,0,'PUBLISHED','2025-12-31 11:27:54','2026-03-16 12:21:27',NULL),(56,'【MOD分享】末日废土：边境传说地图探索时哪些区域最容易错过？','这类帖子适合交流 MOD、创意工坊和扩展玩法搭配。\n\n讨论主题：末日废土：边境传说。\n希望大家补充那些容易被跳过但回报很高的探索点位。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,6,NULL,'MOD分享',NULL,245,39,0,0,0,'PUBLISHED','2025-12-21 11:27:54','2026-03-16 12:42:51',NULL),(57,'【成就挑战】星际边境：远征计划地图探索时哪些区域最容易错过？','这类帖子适合整理成就路线、全收集规划和极限挑战心得。\n\n讨论主题：星际边境：远征计划。\n希望大家补充那些容易被跳过但回报很高的探索点位。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,2,NULL,'成就挑战',NULL,228,32,0,0,0,'PUBLISHED','2025-12-11 11:27:54','2026-03-16 12:42:51',NULL),(58,'【DLC评测】中世纪王国：星火联盟地图探索时哪些区域最容易错过？','这类帖子适合讨论 DLC、季票和额外内容是否值得投入。\n\n讨论主题：中世纪王国：星火联盟。\n希望大家补充那些容易被跳过但回报很高的探索点位。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,7,NULL,'DLC评测',NULL,211,25,0,0,0,'PUBLISHED','2025-12-01 11:27:54','2026-03-16 12:42:51',NULL),(59,'【折扣情报】购买建议地图探索时哪些区域最容易错过？','这类帖子更偏向价格讨论、版本选择和活动入手时机。\n\n讨论主题：购买建议。\n希望大家补充那些容易被跳过但回报很高的探索点位。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,6,NULL,'折扣情报',NULL,194,18,0,0,0,'PUBLISHED','2025-11-21 11:27:54','2026-03-15 12:12:08',NULL),(60,'【联机组队】机械星域：终局信标地图探索时哪些区域最容易错过？','这类帖子适合寻找队友、讨论联机配合与语音沟通节奏。\n\n讨论主题：机械星域：终局信标。\n希望大家补充那些容易被跳过但回报很高的探索点位。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,2,NULL,'联机组队',NULL,177,11,0,0,0,'PUBLISHED','2025-11-11 11:27:54','2026-03-16 12:42:51',NULL),(61,'【剧情讨论】东方幻想乡：纪元裂隙地图探索时哪些区域最容易错过？','这类帖子适合讨论人物关系、叙事伏笔以及结局理解。\n\n讨论主题：东方幻想乡：纪元裂隙。\n希望大家补充那些容易被跳过但回报很高的探索点位。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,7,NULL,'剧情讨论',NULL,160,4,0,0,0,'PUBLISHED','2025-11-01 11:27:54','2026-03-16 12:42:51',NULL),(62,'【配置优化】海洋群岛：天穹旅团地图探索时哪些区域最容易错过？','这类帖子聚焦于硬件配置、画面选项和稳定帧率的平衡方案。\n\n讨论主题：海洋群岛：天穹旅团。\n希望大家补充那些容易被跳过但回报很高的探索点位。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,6,NULL,'配置优化',NULL,143,55,0,0,1,'PUBLISHED','2025-10-22 11:27:54','2026-03-16 12:42:51',NULL),(63,'【新手求助】未来竞技城：暗影回响地图探索时哪些区域最容易错过？','这类帖子更适合收集新手常见疑问，帮助刚接触游戏的玩家快速上手。\n\n讨论主题：未来竞技城：暗影回响。\n希望大家补充那些容易被跳过但回报很高的探索点位。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,2,NULL,'新手求助',NULL,126,48,0,0,0,'PUBLISHED','2025-10-12 11:27:54','2026-03-16 12:42:51',NULL),(64,'【攻略交流】神话大陆：黎明防线地图探索时哪些区域最容易错过？','这类帖子更偏向实战经验分享，适合整理流程、路线和资源分配建议。\n\n讨论主题：神话大陆：黎明防线。\n希望大家补充那些容易被跳过但回报很高的探索点位。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,7,NULL,'攻略交流',NULL,109,41,0,0,0,'PUBLISHED','2025-10-02 11:27:54','2026-03-16 12:42:51',NULL),(65,'【世界观杂谈】设定考据版本更新后体验变化大吗？','这类帖子更适合讨论题材设定、背景世界和风格灵感来源。\n\n讨论主题：设定考据。\n如果你最近重新回坑，想看看这段时间版本改动带来了哪些真实变化。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,2,NULL,'世界观杂谈',NULL,273,51,0,0,0,'PUBLISHED','2026-01-01 11:27:54','2026-03-15 12:12:08',NULL),(66,'【MOD分享】蒸汽群岛：风暴协议版本更新后体验变化大吗？','这类帖子适合交流 MOD、创意工坊和扩展玩法搭配。\n\n讨论主题：蒸汽群岛：风暴协议。\n如果你最近重新回坑，想看看这段时间版本改动带来了哪些真实变化。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,7,NULL,'MOD分享',NULL,256,44,0,0,0,'PUBLISHED','2025-12-22 11:27:54','2026-03-16 12:42:51',NULL),(67,'【成就挑战】末日废土：边境传说版本更新后体验变化大吗？','这类帖子适合整理成就路线、全收集规划和极限挑战心得。\n\n讨论主题：末日废土：边境传说。\n如果你最近重新回坑，想看看这段时间版本改动带来了哪些真实变化。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,6,NULL,'成就挑战',NULL,239,37,0,0,0,'PUBLISHED','2025-12-12 11:27:54','2026-03-16 12:42:51',NULL),(68,'【DLC评测】星际边境：远征计划版本更新后体验变化大吗？','这类帖子适合讨论 DLC、季票和额外内容是否值得投入。\n\n讨论主题：星际边境：远征计划。\n如果你最近重新回坑，想看看这段时间版本改动带来了哪些真实变化。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,2,NULL,'DLC评测',NULL,222,30,0,0,0,'PUBLISHED','2025-12-02 11:27:54','2026-03-16 12:42:51',NULL),(69,'【折扣情报】购买建议版本更新后体验变化大吗？','这类帖子更偏向价格讨论、版本选择和活动入手时机。\n\n讨论主题：购买建议。\n如果你最近重新回坑，想看看这段时间版本改动带来了哪些真实变化。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,7,NULL,'折扣情报',NULL,205,23,0,0,0,'PUBLISHED','2025-11-22 11:27:54','2026-03-15 12:12:08',NULL),(70,'【联机组队】赛博都市：终局信标版本更新后体验变化大吗？','这类帖子适合寻找队友、讨论联机配合与语音沟通节奏。\n\n讨论主题：赛博都市：终局信标。\n如果你最近重新回坑，想看看这段时间版本改动带来了哪些真实变化。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,6,NULL,'联机组队',NULL,188,16,0,0,0,'PUBLISHED','2025-11-12 11:27:54','2026-03-16 12:42:51',NULL),(71,'【剧情讨论】机械星域：终局信标版本更新后体验变化大吗？','这类帖子适合讨论人物关系、叙事伏笔以及结局理解。\n\n讨论主题：机械星域：终局信标。\n如果你最近重新回坑，想看看这段时间版本改动带来了哪些真实变化。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,2,NULL,'剧情讨论',NULL,171,9,0,0,0,'PUBLISHED','2025-11-02 11:27:54','2026-03-16 12:42:51',NULL),(72,'【配置优化】东方幻想乡：纪元裂隙版本更新后体验变化大吗？','这类帖子聚焦于硬件配置、画面选项和稳定帧率的平衡方案。\n\n讨论主题：东方幻想乡：纪元裂隙。\n如果你最近重新回坑，想看看这段时间版本改动带来了哪些真实变化。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,7,NULL,'配置优化',NULL,154,60,0,0,0,'PUBLISHED','2025-10-23 11:27:54','2026-03-16 12:42:51',NULL),(73,'【新手求助】海洋群岛：天穹旅团版本更新后体验变化大吗？','这类帖子更适合收集新手常见疑问，帮助刚接触游戏的玩家快速上手。\n\n讨论主题：海洋群岛：天穹旅团。\n如果你最近重新回坑，想看看这段时间版本改动带来了哪些真实变化。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,6,NULL,'新手求助',NULL,137,53,0,0,1,'PUBLISHED','2025-10-13 11:27:54','2026-03-16 12:42:51',NULL),(74,'【攻略交流】未来竞技城：暗影回响版本更新后体验变化大吗？','这类帖子更偏向实战经验分享，适合整理流程、路线和资源分配建议。\n\n讨论主题：未来竞技城：暗影回响。\n如果你最近重新回坑，想看看这段时间版本改动带来了哪些真实变化。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,2,NULL,'攻略交流',NULL,120,46,0,0,0,'PUBLISHED','2025-10-03 11:27:54','2026-03-16 12:42:51',NULL),(75,'【世界观杂谈】设定考据中后期节奏会不会突然掉下来？','这类帖子更适合讨论题材设定、背景世界和风格灵感来源。\n\n讨论主题：设定考据。\n我比较关注中后期的重复度、成长反馈和内容密度变化。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,6,NULL,'世界观杂谈',NULL,284,56,0,0,1,'PUBLISHED','2026-01-02 11:27:54','2026-03-15 12:12:08',NULL),(76,'【MOD分享】神话大陆：失落档案中后期节奏会不会突然掉下来？','这类帖子适合交流 MOD、创意工坊和扩展玩法搭配。\n\n讨论主题：神话大陆：失落档案。\n我比较关注中后期的重复度、成长反馈和内容密度变化。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,2,NULL,'MOD分享',NULL,267,49,0,0,0,'PUBLISHED','2025-12-23 11:27:54','2026-03-16 12:42:51',NULL),(77,'【成就挑战】蒸汽群岛：风暴协议中后期节奏会不会突然掉下来？','这类帖子适合整理成就路线、全收集规划和极限挑战心得。\n\n讨论主题：蒸汽群岛：风暴协议。\n我比较关注中后期的重复度、成长反馈和内容密度变化。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,7,NULL,'成就挑战',NULL,250,42,0,0,0,'PUBLISHED','2025-12-13 11:27:54','2026-03-16 12:42:51',NULL),(78,'【DLC评测】末日废土：边境传说中后期节奏会不会突然掉下来？','这类帖子适合讨论 DLC、季票和额外内容是否值得投入。\n\n讨论主题：末日废土：边境传说。\n我比较关注中后期的重复度、成长反馈和内容密度变化。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,6,NULL,'DLC评测',NULL,233,35,0,0,0,'PUBLISHED','2025-12-03 11:27:54','2026-03-16 12:42:51',NULL),(79,'【折扣情报】购买建议中后期节奏会不会突然掉下来？','这类帖子更偏向价格讨论、版本选择和活动入手时机。\n\n讨论主题：购买建议。\n我比较关注中后期的重复度、成长反馈和内容密度变化。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,2,NULL,'折扣情报',NULL,216,28,0,0,0,'PUBLISHED','2025-11-23 11:27:54','2026-03-15 12:12:08',NULL),(80,'【联机组队】中世纪王国：星火联盟中后期节奏会不会突然掉下来？','这类帖子适合寻找队友、讨论联机配合与语音沟通节奏。\n\n讨论主题：中世纪王国：星火联盟。\n我比较关注中后期的重复度、成长反馈和内容密度变化。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,7,NULL,'联机组队',NULL,199,21,0,0,0,'PUBLISHED','2025-11-13 11:27:54','2026-03-16 12:42:51',NULL),(81,'【剧情讨论】赛博都市：终局信标中后期节奏会不会突然掉下来？','这类帖子适合讨论人物关系、叙事伏笔以及结局理解。\n\n讨论主题：赛博都市：终局信标。\n我比较关注中后期的重复度、成长反馈和内容密度变化。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,6,NULL,'剧情讨论',NULL,182,14,0,0,0,'PUBLISHED','2025-11-03 11:27:54','2026-03-16 12:42:51',NULL),(82,'【配置优化】机械星域：终局信标中后期节奏会不会突然掉下来？','这类帖子聚焦于硬件配置、画面选项和稳定帧率的平衡方案。\n\n讨论主题：机械星域：终局信标。\n我比较关注中后期的重复度、成长反馈和内容密度变化。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,2,NULL,'配置优化',NULL,165,7,0,0,0,'PUBLISHED','2025-10-24 11:27:54','2026-03-16 12:42:51',NULL),(83,'【新手求助】东方幻想乡：纪元裂隙中后期节奏会不会突然掉下来？','这类帖子更适合收集新手常见疑问，帮助刚接触游戏的玩家快速上手。\n\n讨论主题：东方幻想乡：纪元裂隙。\n我比较关注中后期的重复度、成长反馈和内容密度变化。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,7,NULL,'新手求助',NULL,148,58,0,0,0,'PUBLISHED','2025-10-14 11:27:54','2026-03-16 12:42:51',NULL),(84,'【攻略交流】海洋群岛：天穹旅团中后期节奏会不会突然掉下来？','这类帖子更偏向实战经验分享，适合整理流程、路线和资源分配建议。\n\n讨论主题：海洋群岛：天穹旅团。\n我比较关注中后期的重复度、成长反馈和内容密度变化。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,6,NULL,'攻略交流',NULL,131,51,0,0,1,'PUBLISHED','2025-10-04 11:27:54','2026-03-16 12:42:51',NULL),(85,'【世界观杂谈】设定考据单人玩还是联机玩更有意思？','这类帖子更适合讨论题材设定、背景世界和风格灵感来源。\n\n讨论主题：设定考据。\n如果同一个内容既能单人也能多人，想比较两种节奏的差别。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,7,NULL,'世界观杂谈',NULL,35,61,0,0,0,'PUBLISHED','2026-01-03 11:27:54','2026-03-15 12:12:08',NULL),(86,'【MOD分享】未来竞技城：黎明防线单人玩还是联机玩更有意思？','这类帖子适合交流 MOD、创意工坊和扩展玩法搭配。\n\n讨论主题：未来竞技城：黎明防线。\n如果同一个内容既能单人也能多人，想比较两种节奏的差别。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,6,NULL,'MOD分享',NULL,279,54,0,0,1,'PUBLISHED','2025-12-24 11:27:54','2026-03-16 12:42:51',NULL),(87,'【成就挑战】神话大陆：失落档案单人玩还是联机玩更有意思？','这类帖子适合整理成就路线、全收集规划和极限挑战心得。\n\n讨论主题：神话大陆：失落档案。\n如果同一个内容既能单人也能多人，想比较两种节奏的差别。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,2,NULL,'成就挑战',NULL,261,47,0,0,0,'PUBLISHED','2025-12-14 11:27:54','2026-03-16 12:42:51',NULL),(88,'【DLC评测】蒸汽群岛：风暴协议单人玩还是联机玩更有意思？','这类帖子适合讨论 DLC、季票和额外内容是否值得投入。\n\n讨论主题：蒸汽群岛：风暴协议。\n如果同一个内容既能单人也能多人，想比较两种节奏的差别。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,7,NULL,'DLC评测',NULL,244,40,0,0,0,'PUBLISHED','2025-12-04 11:27:54','2026-03-16 12:42:51',NULL),(89,'【折扣情报】购买建议单人玩还是联机玩更有意思？','这类帖子更偏向价格讨论、版本选择和活动入手时机。\n\n讨论主题：购买建议。\n如果同一个内容既能单人也能多人，想比较两种节奏的差别。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,6,NULL,'折扣情报',NULL,227,33,0,0,0,'PUBLISHED','2025-11-24 11:27:54','2026-03-15 12:12:08',NULL),(90,'【联机组队】星际边境：远征计划单人玩还是联机玩更有意思？','这类帖子适合寻找队友、讨论联机配合与语音沟通节奏。\n\n讨论主题：星际边境：远征计划。\n如果同一个内容既能单人也能多人，想比较两种节奏的差别。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,2,NULL,'联机组队',NULL,210,26,0,0,0,'PUBLISHED','2025-11-14 11:27:54','2026-03-16 12:42:51',NULL),(91,'【剧情讨论】中世纪王国：星火联盟单人玩还是联机玩更有意思？','这类帖子适合讨论人物关系、叙事伏笔以及结局理解。\n\n讨论主题：中世纪王国：星火联盟。\n如果同一个内容既能单人也能多人，想比较两种节奏的差别。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,7,NULL,'剧情讨论',NULL,193,19,0,0,0,'PUBLISHED','2025-11-04 11:27:54','2026-03-16 12:42:51',NULL),(92,'【配置优化】赛博都市：终局信标单人玩还是联机玩更有意思？','这类帖子聚焦于硬件配置、画面选项和稳定帧率的平衡方案。\n\n讨论主题：赛博都市：终局信标。\n如果同一个内容既能单人也能多人，想比较两种节奏的差别。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,6,NULL,'配置优化',NULL,176,12,0,0,0,'PUBLISHED','2025-10-25 11:27:54','2026-03-16 12:42:51',NULL),(93,'【新手求助】机械星域：终局信标单人玩还是联机玩更有意思？','这类帖子更适合收集新手常见疑问，帮助刚接触游戏的玩家快速上手。\n\n讨论主题：机械星域：终局信标。\n如果同一个内容既能单人也能多人，想比较两种节奏的差别。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,2,NULL,'新手求助',NULL,159,5,0,0,0,'PUBLISHED','2025-10-15 11:27:54','2026-03-16 12:42:51',NULL),(94,'【攻略交流】东方幻想乡：纪元裂隙单人玩还是联机玩更有意思？','这类帖子更偏向实战经验分享，适合整理流程、路线和资源分配建议。\n\n讨论主题：东方幻想乡：纪元裂隙。\n如果同一个内容既能单人也能多人，想比较两种节奏的差别。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,7,NULL,'攻略交流',NULL,142,56,0,0,0,'PUBLISHED','2025-10-05 11:27:54','2026-03-16 12:42:51',NULL),(95,'【世界观杂谈】设定考据现在这个阶段还值不值得入手？','这类帖子更适合讨论题材设定、背景世界和风格灵感来源。\n\n讨论主题：设定考据。\n结合内容量、价格和社区活跃度，想听听大家更实际的购买建议。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,2,NULL,'世界观杂谈',NULL,46,8,0,0,0,'PUBLISHED','2026-01-04 11:27:54','2026-03-15 12:12:08',NULL),(96,'【MOD分享】海洋群岛：暗影回响现在这个阶段还值不值得入手？','这类帖子适合交流 MOD、创意工坊和扩展玩法搭配。\n\n讨论主题：海洋群岛：暗影回响。\n结合内容量、价格和社区活跃度，想听听大家更实际的购买建议。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,7,NULL,'MOD分享',NULL,29,59,0,0,0,'PUBLISHED','2025-12-25 11:27:54','2026-03-16 12:42:51',NULL),(97,'【成就挑战】未来竞技城：黎明防线现在这个阶段还值不值得入手？','这类帖子适合整理成就路线、全收集规划和极限挑战心得。\n\n讨论主题：未来竞技城：黎明防线。\n结合内容量、价格和社区活跃度，想听听大家更实际的购买建议。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,6,NULL,'成就挑战',NULL,272,52,0,0,1,'PUBLISHED','2025-12-15 11:27:54','2026-03-16 12:42:51',NULL),(98,'【DLC评测】神话大陆：失落档案现在这个阶段还值不值得入手？','这类帖子适合讨论 DLC、季票和额外内容是否值得投入。\n\n讨论主题：神话大陆：失落档案。\n结合内容量、价格和社区活跃度，想听听大家更实际的购买建议。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,2,NULL,'DLC评测',NULL,255,45,0,0,0,'PUBLISHED','2025-12-05 11:27:54','2026-03-16 12:42:51',NULL),(99,'【折扣情报】购买建议现在这个阶段还值不值得入手？','这类帖子更偏向价格讨论、版本选择和活动入手时机。\n\n讨论主题：购买建议。\n结合内容量、价格和社区活跃度，想听听大家更实际的购买建议。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,7,NULL,'折扣情报',NULL,238,38,0,0,0,'PUBLISHED','2025-11-25 11:27:54','2026-03-15 12:12:08',NULL),(100,'【联机组队】末日废土：边境传说现在这个阶段还值不值得入手？','这类帖子适合寻找队友、讨论联机配合与语音沟通节奏。\n\n讨论主题：末日废土：边境传说。\n结合内容量、价格和社区活跃度，想听听大家更实际的购买建议。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,6,NULL,'联机组队',NULL,221,31,0,0,0,'PUBLISHED','2025-11-15 11:27:54','2026-03-16 12:42:51',NULL),(101,'【剧情讨论】星际边境：远征计划现在这个阶段还值不值得入手？','这类帖子适合讨论人物关系、叙事伏笔以及结局理解。\n\n讨论主题：星际边境：远征计划。\n结合内容量、价格和社区活跃度，想听听大家更实际的购买建议。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,2,NULL,'剧情讨论',NULL,204,24,0,0,0,'PUBLISHED','2025-11-05 11:27:54','2026-03-16 12:42:51',NULL),(102,'【配置优化】中世纪王国：星火联盟现在这个阶段还值不值得入手？','这类帖子聚焦于硬件配置、画面选项和稳定帧率的平衡方案。\n\n讨论主题：中世纪王国：星火联盟。\n结合内容量、价格和社区活跃度，想听听大家更实际的购买建议。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,7,NULL,'配置优化',NULL,187,17,0,0,0,'PUBLISHED','2025-10-26 11:27:54','2026-03-16 12:42:51',NULL),(103,'【新手求助】赛博都市：终局信标现在这个阶段还值不值得入手？','这类帖子更适合收集新手常见疑问，帮助刚接触游戏的玩家快速上手。\n\n讨论主题：赛博都市：终局信标。\n结合内容量、价格和社区活跃度，想听听大家更实际的购买建议。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,6,NULL,'新手求助',NULL,170,10,0,0,0,'PUBLISHED','2025-10-16 11:27:54','2026-03-16 12:42:51',NULL),(104,'【攻略交流】机械星域：终局信标现在这个阶段还值不值得入手？','这类帖子更偏向实战经验分享，适合整理流程、路线和资源分配建议。\n\n讨论主题：机械星域：终局信标。\n结合内容量、价格和社区活跃度，想听听大家更实际的购买建议。 欢迎大家从自己的游玩时长、设备配置、流派选择或购买时机出发，补充更具体的体验和建议。',NULL,2,NULL,'攻略交流',NULL,153,61,0,0,0,'PUBLISHED','2025-10-06 11:27:54','2026-03-16 12:42:51',NULL);
+/*!40000 ALTER TABLE `posts` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `products`
+--
+
+DROP TABLE IF EXISTS `products`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `products` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `name` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '商品名称',
+  `description` text COLLATE utf8mb4_unicode_ci COMMENT '商品描述',
+  `category_id` bigint NOT NULL COMMENT '分类ID',
+  `game_id` bigint DEFAULT NULL COMMENT '关联游戏ID',
+  `price` decimal(10,2) NOT NULL COMMENT '价格',
+  `discount_price` decimal(10,2) DEFAULT NULL COMMENT '折扣价格',
+  `stock_quantity` int DEFAULT '0' COMMENT '库存数量',
+  `image_url` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '主图片URL',
+  `gallery` json DEFAULT NULL COMMENT '图片集合',
+  `attributes` json DEFAULT NULL COMMENT '商品属性',
+  `is_digital` tinyint(1) DEFAULT '1' COMMENT '是否数字商品',
+  `is_featured` tinyint(1) DEFAULT '0' COMMENT '是否推荐',
+  `status` enum('ACTIVE','INACTIVE','OUT_OF_STOCK') COLLATE utf8mb4_unicode_ci DEFAULT 'ACTIVE',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_category_id` (`category_id`),
+  KEY `idx_game_id` (`game_id`),
+  KEY `idx_price` (`price`),
+  KEY `idx_status` (`status`),
+  FULLTEXT KEY `idx_name_desc` (`name`,`description`),
+  CONSTRAINT `products_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`),
+  CONSTRAINT `products_ibfk_2` FOREIGN KEY (`game_id`) REFERENCES `games` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='商品表';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `products`
+--
+
+LOCK TABLES `products` WRITE;
+/*!40000 ALTER TABLE `products` DISABLE KEYS */;
+INSERT INTO `products` VALUES (1,'赛博朋克2077 标准版','赛博朋克2077游戏本体数字版',2,NULL,298.00,NULL,999,'/images/cyberpunk2077.jpg',NULL,NULL,1,0,'ACTIVE','2025-10-16 13:24:03','2025-10-16 13:24:03'),(2,'巫师3：狂猎 年度版','包含所有DLC的完整版本',2,NULL,199.00,NULL,999,'/images/witcher3_goty.jpg',NULL,NULL,1,0,'ACTIVE','2025-10-16 13:24:03','2025-10-16 13:24:03'),(3,'使命召唤：现代战争','使命召唤现代战争数字版',4,NULL,399.00,NULL,999,'/images/cod_mw.jpg',NULL,NULL,1,0,'ACTIVE','2025-10-16 13:24:03','2025-10-16 13:24:03'),(4,'文明VI 白金版','包含所有扩展包的完整版',3,NULL,299.00,NULL,999,'/images/civ6_platinum.jpg',NULL,NULL,1,0,'ACTIVE','2025-10-16 13:24:03','2025-10-16 13:24:03'),(5,'FIFA 23 标准版','FIFA 23足球游戏标准版',5,NULL,399.00,NULL,999,'/images/fifa23.jpg',NULL,NULL,1,0,'ACTIVE','2025-10-16 13:24:03','2025-10-16 13:24:03'),(6,'赛博朋克2077 限定手办','游戏主角V的精美手办模型',6,NULL,299.00,NULL,50,'/images/cyberpunk_figure.jpg',NULL,NULL,0,0,'ACTIVE','2025-10-16 13:24:03','2025-10-16 13:24:03'),(7,'巫师3 杰洛特雕像','猎魔人杰洛特的收藏级雕像',6,NULL,599.00,NULL,30,'/images/geralt_statue.jpg',NULL,NULL,0,0,'ACTIVE','2025-10-16 13:24:03','2025-10-16 13:24:03'),(8,'游戏机械键盘','专为游戏设计的RGB机械键盘',6,NULL,899.00,NULL,100,'/images/gaming_keyboard.jpg',NULL,NULL,0,0,'ACTIVE','2025-10-16 13:24:03','2025-10-16 13:24:03'),(9,'游戏鼠标垫','大尺寸防滑游戏鼠标垫',6,NULL,99.00,NULL,200,'/images/mouse_pad.jpg',NULL,NULL,0,0,'ACTIVE','2025-10-16 13:24:03','2025-10-16 13:24:03');
+/*!40000 ALTER TABLE `products` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `user_badges`
+--
+
+DROP TABLE IF EXISTS `user_badges`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `user_badges` (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `user_id` bigint NOT NULL COMMENT '用户ID',
+  `code` varchar(50) NOT NULL COMMENT '勋章编码',
+  `name` varchar(100) NOT NULL COMMENT '勋章名称',
+  `description` varchar(255) NOT NULL COMMENT '勋章说明',
+  `earned_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '获得时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_user_badges_user_code` (`user_id`,`code`),
+  KEY `idx_user_badges_user_id` (`user_id`),
+  KEY `idx_user_badges_earned_at` (`earned_at`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户勋章表';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `user_badges`
+--
+
+LOCK TABLES `user_badges` WRITE;
+/*!40000 ALTER TABLE `user_badges` DISABLE KEYS */;
+INSERT INTO `user_badges` VALUES (1,10,'GAME_EXPLORER','兴趣探索家','已浏览并研究多款游戏，兴趣画像开始清晰','2026-03-15 19:53:58'),(2,6,'COMMUNITY_VOICE','社区发声者','已完成首次社区内容发布','2026-03-15 23:05:47'),(3,6,'GAME_EXPLORER','兴趣探索家','已浏览并研究多款游戏，兴趣画像开始清晰','2026-03-15 23:55:25');
+/*!40000 ALTER TABLE `user_badges` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `user_behavior_logs`
+--
+
+DROP TABLE IF EXISTS `user_behavior_logs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `user_behavior_logs` (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `user_id` bigint NOT NULL COMMENT '用户ID',
+  `behavior_type` enum('VIEW_GAME','ADD_TO_CART','PURCHASE_GAME','CLAIM_FREE_GAME','VIEW_FORUM_POST','CREATE_FORUM_POST','COMMENT_FORUM_POST','VIEW_COMMUNITY_POST','CREATE_COMMUNITY_POST','COMMENT_COMMUNITY_POST','REDEEM_POINT_ITEM','DAILY_CHECK_IN') NOT NULL,
+  `game_id` bigint DEFAULT NULL COMMENT '关联游戏ID',
+  `reference_id` bigint DEFAULT NULL COMMENT '关联业务ID，如帖子ID/订单ID',
+  `detail` varchar(255) DEFAULT NULL COMMENT '补充说明',
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_behavior_user_id` (`user_id`),
+  KEY `idx_behavior_game_id` (`game_id`),
+  KEY `idx_behavior_type` (`behavior_type`),
+  KEY `idx_behavior_created_at` (`created_at`)
+) ENGINE=InnoDB AUTO_INCREMENT=118 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户行为日志表';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `user_behavior_logs`
+--
+
+LOCK TABLES `user_behavior_logs` WRITE;
+/*!40000 ALTER TABLE `user_behavior_logs` DISABLE KEYS */;
+INSERT INTO `user_behavior_logs` VALUES (1,9,'VIEW_GAME',74,NULL,'神力科莎:竞技版','2026-03-15 17:22:01'),(2,9,'VIEW_GAME',73,NULL,'极品飞车:热度','2026-03-15 17:22:08'),(3,9,'PURCHASE_GAME',74,5,'完成订单购买','2026-03-15 17:22:20'),(4,10,'VIEW_GAME',56,NULL,'最后生还者','2026-03-15 17:25:15'),(5,10,'VIEW_GAME',60,NULL,'空洞骑士','2026-03-15 17:54:49'),(6,10,'VIEW_GAME',60,NULL,'空洞骑士','2026-03-15 18:22:19'),(7,10,'VIEW_GAME',57,NULL,'荒野大镖客2','2026-03-15 18:38:14'),(8,10,'VIEW_GAME',58,NULL,'古墓丽影:崛起','2026-03-15 18:38:21'),(9,10,'VIEW_GAME',223,NULL,'东方幻想乡：回合策略战棋·失落档案','2026-03-15 19:53:56'),(10,10,'VIEW_GAME',223,NULL,'东方幻想乡：回合策略战棋·失落档案','2026-03-15 19:53:58'),(11,10,'VIEW_GAME',223,NULL,'东方幻想乡：回合策略战棋·失落档案','2026-03-15 19:54:01'),(12,10,'VIEW_GAME',221,NULL,'机械星域：回合策略战棋·黎明防线','2026-03-15 20:01:11'),(13,10,'VIEW_GAME',221,NULL,'机械星域：回合策略战棋·黎明防线','2026-03-15 20:01:14'),(14,10,'VIEW_GAME',221,NULL,'机械星域：回合策略战棋·黎明防线','2026-03-15 20:01:18'),(15,6,'VIEW_GAME',208,NULL,'星际边境：生存建造远征·暗影回响','2026-03-15 23:05:47'),(16,6,'VIEW_GAME',18,NULL,'赛博朋克2077','2026-03-15 23:45:34'),(17,6,'VIEW_GAME',208,NULL,'星际边境：生存建造远征·暗影回响','2026-03-15 23:45:39'),(18,6,'VIEW_GAME',149,NULL,'神话大陆：开放世界动作·暗影回响','2026-03-15 23:54:55'),(19,6,'VIEW_GAME',18,NULL,'赛博朋克2077','2026-03-15 23:55:07'),(20,6,'VIEW_GAME',214,NULL,'未来竞技城：模拟经营工坊·远征计划','2026-03-15 23:55:16'),(21,6,'VIEW_GAME',219,NULL,'中世纪王国：模拟经营工坊·暗影回响','2026-03-15 23:55:21'),(22,6,'VIEW_GAME',216,NULL,'蒸汽群岛：模拟经营工坊·终局信标','2026-03-15 23:55:25'),(23,6,'VIEW_FORUM_POST',279,24,'【攻略交流】中世纪王国：音游派对挑战·远征计划流派搭配有没有更稳的思路？','2026-03-16 20:21:21'),(24,6,'VIEW_FORUM_POST',280,14,'【攻略交流】赛博都市：音游派对挑战·星火联盟开荒路线怎么安排更顺？','2026-03-16 20:21:23'),(25,6,'VIEW_FORUM_POST',NULL,55,'【世界观杂谈】设定考据地图探索时哪些区域最容易错过？','2026-03-16 20:21:27'),(26,6,'VIEW_FORUM_POST',264,86,'【MOD分享】未来竞技城：卡牌构筑试炼·黎明防线单人玩还是联机玩更有意思？','2026-03-16 20:21:30'),(27,6,'VIEW_FORUM_POST',270,26,'【MOD分享】赛博都市：卡牌构筑试炼·终局信标新手第一周最容易踩哪些坑？','2026-03-16 20:21:33'),(28,6,'VIEW_FORUM_POST',269,36,'【MOD分享】中世纪王国：卡牌构筑试炼·星火联盟画面设置和帧率应该怎么平衡？','2026-03-16 20:21:38'),(29,6,'VIEW_FORUM_POST',279,24,'【攻略交流】中世纪王国：音游派对挑战·远征计划流派搭配有没有更稳的思路？','2026-03-16 20:22:00'),(30,6,'VIEW_GAME',141,NULL,'机械星域：开放世界动作·星火联盟','2026-03-16 20:26:32'),(31,6,'VIEW_GAME',212,NULL,'东方幻想乡：风暴协议','2026-03-16 20:43:26'),(32,6,'VIEW_GAME',210,NULL,'赛博都市：失落档案','2026-03-16 20:54:52'),(33,6,'VIEW_GAME',564,NULL,'中国式网游','2026-03-16 22:02:26'),(34,6,'VIEW_GAME',19,NULL,'巫师3：狂猎','2026-03-16 22:03:46'),(35,6,'VIEW_GAME',20,NULL,'艾尔登法环','2026-03-16 22:03:57'),(36,6,'VIEW_GAME',18,NULL,'赛博朋克2077','2026-03-16 22:04:06'),(37,6,'VIEW_GAME',553,NULL,'恐鬼症','2026-03-16 22:43:15'),(38,6,'VIEW_GAME',72,NULL,'尘埃拉力赛2.0','2026-03-16 22:44:32'),(39,6,'VIEW_GAME',73,NULL,'极品飞车:热度','2026-03-16 23:59:37'),(40,6,'VIEW_GAME',527,NULL,'赛博朋克2077：往日之影','2026-03-16 23:59:43'),(41,6,'VIEW_GAME',74,NULL,'神力科莎:竞技版','2026-03-16 23:59:50'),(42,6,'VIEW_GAME',559,NULL,'饥荒','2026-03-16 23:59:59'),(43,6,'VIEW_GAME',557,NULL,'腐蚀','2026-03-17 00:00:03'),(44,6,'VIEW_GAME',549,NULL,'Apex英雄','2026-03-17 00:00:10'),(45,6,'VIEW_FORUM_POST',NULL,24,'【攻略交流】中世纪王国：远征计划流派搭配有没有更稳的思路？','2026-03-17 22:00:05'),(46,6,'VIEW_GAME',397,NULL,'黑神话：悟空','2026-03-17 22:02:51'),(47,6,'VIEW_FORUM_POST',NULL,24,'【攻略交流】中世纪王国：远征计划流派搭配有没有更稳的思路？','2026-03-17 22:35:07'),(48,6,'DAILY_CHECK_IN',NULL,NULL,'每日签到','2026-03-17 22:37:58'),(49,6,'VIEW_GAME',18,NULL,'赛博朋克2077','2026-03-22 13:46:03'),(50,6,'VIEW_GAME',18,NULL,'赛博朋克2077','2026-03-22 13:51:33'),(51,6,'VIEW_GAME',22,NULL,'侠盗猎车手V','2026-03-22 13:53:57'),(52,6,'VIEW_GAME',22,NULL,'侠盗猎车手V','2026-03-22 13:54:00'),(53,6,'VIEW_GAME',18,NULL,'赛博朋克2077','2026-03-22 13:54:13'),(54,6,'VIEW_GAME',22,NULL,'侠盗猎车手V','2026-03-22 13:54:28'),(55,6,'VIEW_GAME',22,NULL,'侠盗猎车手V','2026-03-22 13:54:33'),(56,6,'VIEW_GAME',22,NULL,'侠盗猎车手V','2026-03-22 13:54:35'),(57,6,'VIEW_GAME',26,NULL,'荒野大镖客：救赎2','2026-03-22 13:56:52'),(58,6,'VIEW_GAME',19,NULL,'巫师3：狂猎','2026-03-22 13:57:12'),(59,6,'VIEW_GAME',19,NULL,'巫师3：狂猎','2026-03-22 13:58:03'),(60,6,'VIEW_GAME',19,NULL,'巫师3：狂猎','2026-03-22 13:58:24'),(61,6,'VIEW_GAME',35,NULL,'黑暗之魂3','2026-03-22 14:02:53'),(62,6,'VIEW_GAME',18,NULL,'赛博朋克2077','2026-03-22 14:03:01'),(63,6,'VIEW_GAME',26,NULL,'荒野大镖客：救赎2','2026-03-22 14:03:17'),(64,6,'VIEW_GAME',37,NULL,'战神','2026-03-22 14:05:26'),(65,6,'VIEW_GAME',38,NULL,'鬼泣5','2026-03-22 14:07:55'),(66,6,'VIEW_GAME',523,NULL,'战地6','2026-03-22 14:43:17'),(67,6,'VIEW_GAME',553,NULL,'恐鬼症','2026-03-22 14:43:58'),(68,6,'VIEW_GAME',552,NULL,'逃生2','2026-03-22 14:47:29'),(69,6,'VIEW_GAME',551,NULL,'城市：天际线2','2026-03-22 14:48:09'),(70,6,'VIEW_GAME',547,NULL,'彩虹六号：围攻','2026-03-22 14:49:00'),(71,6,'VIEW_GAME',546,NULL,'无主之地3','2026-03-22 14:49:41'),(72,6,'VIEW_GAME',545,NULL,'泰坦陨落2','2026-03-22 14:50:23'),(73,6,'VIEW_GAME',544,NULL,'绝地潜兵2','2026-03-22 14:50:56'),(74,6,'VIEW_GAME',543,NULL,'逃离塔科夫','2026-03-22 14:51:43'),(75,6,'VIEW_GAME',542,NULL,'严阵以待','2026-03-22 14:52:31'),(76,6,'VIEW_GAME',541,NULL,'毁灭战士：黑暗时代','2026-03-22 14:53:56'),(77,6,'VIEW_GAME',540,NULL,'装甲核心6：境界天火','2026-03-22 14:54:30'),(78,6,'VIEW_GAME',539,NULL,'堕落之主','2026-03-22 14:55:11'),(79,6,'VIEW_GAME',538,NULL,'匹诺曹的谎言','2026-03-22 14:55:47'),(80,6,'VIEW_GAME',537,NULL,'卧龙：苍天陨落','2026-03-22 14:56:39'),(81,6,'VIEW_GAME',536,NULL,'仁王2','2026-03-22 14:57:14'),(82,6,'VIEW_GAME',535,NULL,'血源诅咒','2026-03-22 14:57:59'),(83,6,'VIEW_GAME',534,NULL,'只狼：影逝二度','2026-03-22 14:58:26'),(84,6,'VIEW_GAME',533,NULL,'上古卷轴5：天际','2026-03-22 14:59:25'),(85,6,'VIEW_GAME',532,NULL,'死亡搁浅2：冥滩之上','2026-03-22 15:00:11'),(86,6,'VIEW_GAME',568,NULL,'太吾绘卷','2026-03-22 15:00:36'),(87,6,'VIEW_GAME',567,NULL,'仙剑奇侠传7','2026-03-22 15:00:55'),(88,6,'VIEW_GAME',531,NULL,'使命召唤：黑色行动6','2026-03-22 15:01:49'),(89,6,'VIEW_GAME',530,NULL,'星空','2026-03-22 15:02:27'),(90,6,'VIEW_GAME',529,NULL,'生化危机4：重制版','2026-03-22 15:03:06'),(91,6,'VIEW_GAME',528,NULL,'最终幻想7：重生','2026-03-22 15:04:19'),(92,6,'VIEW_GAME',526,NULL,'刺客信条：影','2026-03-22 15:05:23'),(93,6,'VIEW_GAME',525,NULL,'怪物猎人：荒野','2026-03-22 15:06:03'),(94,6,'VIEW_GAME',524,NULL,'艾尔登法环：黑夜君临','2026-03-22 15:07:00'),(95,6,'VIEW_GAME',558,NULL,'方舟：生存进化','2026-03-22 15:07:37'),(96,6,'VIEW_GAME',559,NULL,'饥荒','2026-03-22 15:08:12'),(97,6,'VIEW_GAME',559,NULL,'饥荒','2026-03-22 15:08:59'),(98,6,'VIEW_GAME',545,NULL,'泰坦陨落2','2026-03-22 15:09:05'),(99,6,'VIEW_GAME',562,NULL,'山河旅探','2026-03-22 15:10:30'),(100,6,'VIEW_GAME',576,NULL,'神力科莎：竞速','2026-03-22 15:13:52'),(101,6,'VIEW_GAME',556,NULL,'漫漫长夜','2026-03-22 15:26:47'),(102,6,'VIEW_GAME',556,NULL,'漫漫长夜','2026-03-22 15:26:53'),(103,6,'VIEW_GAME',557,NULL,'腐蚀','2026-03-22 15:27:21'),(104,6,'VIEW_GAME',19,NULL,'巫师3：狂猎','2026-03-22 15:31:09'),(105,6,'VIEW_GAME',18,NULL,'赛博朋克2077','2026-03-22 15:31:12'),(106,6,'VIEW_GAME',20,NULL,'艾尔登法环','2026-03-22 15:31:21'),(107,6,'DAILY_CHECK_IN',NULL,NULL,'每日签到','2026-03-22 15:32:03'),(108,6,'VIEW_GAME',523,NULL,'战地6','2026-03-22 15:32:14'),(109,6,'VIEW_GAME',18,NULL,'赛博朋克2077','2026-03-22 15:35:31'),(110,6,'VIEW_GAME',523,NULL,'战地6','2026-03-22 15:47:22'),(111,6,'ADD_TO_CART',523,9,'加入购物车','2026-03-22 15:47:23'),(112,6,'VIEW_FORUM_POST',NULL,24,'【攻略交流】中世纪王国：远征计划流派搭配有没有更稳的思路？','2026-03-22 15:50:15'),(113,9,'VIEW_GAME',556,NULL,'漫漫长夜','2026-03-22 21:55:23'),(114,9,'VIEW_GAME',551,NULL,'城市：天际线2','2026-03-22 21:55:28'),(115,9,'ADD_TO_CART',551,10,'加入购物车','2026-03-22 21:55:29'),(116,9,'VIEW_GAME',18,NULL,'赛博朋克2077','2026-03-24 01:12:00'),(117,9,'VIEW_GAME',551,NULL,'城市：天际线2','2026-03-24 01:12:10');
+/*!40000 ALTER TABLE `user_behavior_logs` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `user_discount_cards`
+--
+
+DROP TABLE IF EXISTS `user_discount_cards`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `user_discount_cards` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `card_name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `description` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `discount_rate` decimal(5,2) NOT NULL,
+  `max_discount_amount` decimal(10,2) NOT NULL,
+  `points_cost` int NOT NULL,
+  `source_code` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `status` enum('AVAILABLE','USED','EXPIRED') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `used_at` datetime(6) DEFAULT NULL,
+  `used_order_id` bigint DEFAULT NULL,
+  `user_id` bigint NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_user_discount_cards_user_id` (`user_id`),
+  KEY `idx_user_discount_cards_status` (`status`),
+  KEY `idx_user_discount_cards_source_code` (`source_code`),
+  CONSTRAINT `fk_user_discount_cards_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `user_discount_cards`
+--
+
+LOCK TABLES `user_discount_cards` WRITE;
+/*!40000 ALTER TABLE `user_discount_cards` DISABLE KEYS */;
+/*!40000 ALTER TABLE `user_discount_cards` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `user_games`
+--
+
+DROP TABLE IF EXISTS `user_games`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `user_games` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `user_id` bigint NOT NULL COMMENT '用户ID',
+  `game_id` bigint NOT NULL COMMENT '游戏ID',
+  `purchase_date` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '购买时间',
+  `play_time` int DEFAULT '0' COMMENT '游戏时长(分钟)',
+  `last_played_at` timestamp NULL DEFAULT NULL COMMENT '最后游戏时间',
+  `rating` int DEFAULT NULL COMMENT '用户评分(1-5)',
+  `review` text COLLATE utf8mb4_unicode_ci COMMENT '用户评价',
+  `is_favorite` tinyint(1) DEFAULT '0' COMMENT '是否收藏',
+  `acquired_at` datetime(6) NOT NULL,
+  `acquired_price` decimal(10,2) NOT NULL,
+  `order_id` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_user_game` (`user_id`,`game_id`),
+  UNIQUE KEY `uk_user_games_user_game` (`user_id`,`game_id`),
+  KEY `idx_user_id` (`user_id`),
+  KEY `idx_game_id` (`game_id`),
+  KEY `idx_purchase_date` (`purchase_date`),
+  KEY `idx_user_games_user_id` (`user_id`),
+  KEY `idx_user_games_game_id` (`game_id`),
+  CONSTRAINT `user_games_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `user_games_ibfk_2` FOREIGN KEY (`game_id`) REFERENCES `games` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用户游戏库表';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `user_games`
+--
+
+LOCK TABLES `user_games` WRITE;
+/*!40000 ALTER TABLE `user_games` DISABLE KEYS */;
+/*!40000 ALTER TABLE `user_games` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `user_sessions`
+--
+
+DROP TABLE IF EXISTS `user_sessions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `user_sessions` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `user_id` bigint NOT NULL COMMENT '用户ID',
+  `session_token` varchar(255) NOT NULL COMMENT '会话令牌',
+  `ip_address` varchar(50) DEFAULT NULL COMMENT 'IP地址',
+  `user_agent` varchar(500) DEFAULT NULL COMMENT '用户代理',
+  `expires_at` timestamp NOT NULL COMMENT '过期时间',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `session_token` (`session_token`),
+  KEY `idx_user` (`user_id`),
+  KEY `idx_token` (`session_token`),
+  KEY `idx_expires` (`expires_at`),
+  CONSTRAINT `user_sessions_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户会话表';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `user_sessions`
+--
+
+LOCK TABLES `user_sessions` WRITE;
+/*!40000 ALTER TABLE `user_sessions` DISABLE KEYS */;
+INSERT INTO `user_sessions` VALUES (19,6,'10e042d8b0d54e6781d26019ca8088f11773576956766','127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36','2026-03-22 12:15:57','2026-03-15 12:15:57'),(21,9,'ae22cc7ddbc1405a9ebb2d4a532bfb2c1774187707502','127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36','2026-03-29 13:55:08','2026-03-22 13:55:08');
+/*!40000 ALTER TABLE `user_sessions` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `users`
+--
+
+DROP TABLE IF EXISTS `users`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `users` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `username` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '用户名',
+  `email` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '邮箱',
+  `password` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '密码(加密)',
+  `avatar` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '头像URL',
+  `role` enum('USER','ADMIN','MODERATOR') COLLATE utf8mb4_unicode_ci DEFAULT 'USER' COMMENT '用户角色',
+  `status` enum('ACTIVE','INACTIVE','BANNED') COLLATE utf8mb4_unicode_ci DEFAULT 'ACTIVE' COMMENT '用户状态',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `last_login_at` timestamp NULL DEFAULT NULL COMMENT '最后登录时间',
+  `points` int NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `username` (`username`),
+  UNIQUE KEY `email` (`email`),
+  KEY `idx_username` (`username`),
+  KEY `idx_email` (`email`),
+  KEY `idx_status` (`status`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用户表';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `users`
+--
+
+LOCK TABLES `users` WRITE;
+/*!40000 ALTER TABLE `users` DISABLE KEYS */;
+INSERT INTO `users` VALUES (2,'moderator','mod@gamestore.com','$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9tYjKUznkNvAWGG',NULL,'MODERATOR','ACTIVE','2025-10-16 13:24:03','2026-03-16 11:57:55',NULL,0),(3,'testuser1','user1@test.com','$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9tYjKUznkNvAWGG',NULL,'USER','ACTIVE','2025-10-16 13:24:03','2025-10-16 13:24:03',NULL,0),(4,'testuser2','user2@test.com','$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9tYjKUznkNvAWGG',NULL,'USER','ACTIVE','2025-10-16 13:24:03','2025-10-16 13:24:03',NULL,0),(5,'testuser3','user3@test.com','$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9tYjKUznkNvAWGG',NULL,'USER','ACTIVE','2025-10-16 13:24:03','2025-10-16 13:24:03',NULL,0),(6,'admin','admin@gamestore.com','pbkdf2$65536$+P01/vdggqP6F8ZTQqHAQg==$nqApRhwiABnsrvjBmjWo/0ldtyFY/73RIwZXGxfEyLQ=',NULL,'ADMIN','ACTIVE','2025-10-18 09:01:24','2026-03-22 07:32:03','2026-03-15 12:15:57',39),(7,'testuser','test@example.com','123456',NULL,'USER','ACTIVE','2025-10-18 09:01:24','2026-03-17 14:40:56',NULL,21),(8,'路人a','123456@gmail.com','123456',NULL,'USER','ACTIVE','2025-10-18 12:35:16','2025-10-18 15:11:38','2025-10-18 15:11:38',0),(9,'123','123@qq.com','pbkdf2$65536$222wwQnl8X5WIeUF9rPxqw==$1t9Ra9E68/O1YusHfaUsQTKNv2htbJVR6w+34Q0Fl4A=',NULL,'USER','ACTIVE','2026-03-14 13:51:14','2026-03-22 13:55:08','2026-03-22 13:55:08',324),(10,'321','321@qq.com','pbkdf2$65536$XYMgDbYzdnvqKnz36AQ5tA==$F8FHmt4KeBCDj+8c0emzv6Y7i+0hg1HRVKZORm7GmwM=',NULL,'USER','ACTIVE','2026-03-15 09:24:53','2026-03-15 09:24:58','2026-03-15 09:24:58',0);
+/*!40000 ALTER TABLE `users` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Dumping events for database 'bishe'
+--
+
+--
+-- Dumping routines for database 'bishe'
+--
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2026-04-16  8:38:30

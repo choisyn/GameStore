@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人中心 - 游戏社区商城</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --steam-dark-bg: #1b2838;
+            --steam-light-bg: #2a475e;
+            --steam-card-bg: #1e2837;
+            --steam-blue: #66c0f4;
+            --steam-text: #c7d5e0;
+            --steam-green: #6bdc8b;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1b2838 0%, #2a475e 100%);
+            color: var(--steam-text);
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: var(--steam-dark-bg);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            padding: 0.9rem 0;
+        }
+
+        .navbar .container {
+            gap: 0.75rem 1rem;
+            align-items: center;
+        }
+
+        .navbar-brand {
+            color: var(--steam-blue) !important;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            font-weight: 700;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .navbar-collapse {
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .navbar-nav {
+            align-items: center;
+            gap: 0.15rem;
+        }
+
+        .nav-link {
+            color: var(--steam-text) !important;
+            margin: 0;
+            padding: 0.55rem 0.85rem !important;
+            border-radius: 999px;
+            white-space: nowrap;
+            transition: color 0.2s ease, background 0.2s ease;
+        }
+
+        .nav-link:hover,
+        .nav-link:focus {
+            color: var(--steam-blue) !important;
+            background: rgba(102, 192, 244, 0.1);
+        }
+
+        .nav-link.active {
+            color: var(--steam-blue) !important;
+            background: rgba(102, 192, 244, 0.12);
+        }
+
+        .navbar-menu {
+            flex-wrap: wrap;
+        }
+
+        .navbar-toggler {
+            border: 1px solid rgba(102, 192, 244, 0.3);
+            border-radius: 999px;
+            padding: 0.45rem 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            color: var(--steam-text);
+        }
+
+        .navbar-toggler:hover {
+            background: rgba(102, 192, 244, 0.08);
+            border-color: rgba(102, 192, 244, 0.55);
+        }
+
+        .navbar-toggler:focus {
+            box-shadow: 0 0 0 0.2rem rgba(102, 192, 244, 0.18);
+        }
+
+        .navbar-toggler-icon {
+            width: 1.2rem;
+            height: 1.2rem;
+        }
+
+        .navbar-toggler-label {
+            font-size: 0.95rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+        }
+        .profile-container { max-width: 1280px; margin: 2rem auto; padding: 0 1rem 3rem; }
+
+        .panel {
+            background: rgba(30, 40, 55, 0.95);
+            border-radius: 18px;
+            padding: 1.5rem;
+            box-shadow: 0 18px 40px rgba(0,0,0,0.28);
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .profile-header {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .profile-info {
+            display: flex;
+            gap: 1.2rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .avatar {
+            width: 96px;
+            height: 96px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #66c0f4, #9ddcff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.4rem;
+            color: #123;
+            overflow: hidden;
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .section-title {
+            font-size: 1.15rem;
+            color: var(--steam-blue);
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .stats-grid,
+        .growth-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 1rem;
+        }
+
+        .stat-card,
+        .growth-card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 14px;
+            padding: 1rem;
+        }
+
+        .stat-value,
+        .growth-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .stat-label,
+        .growth-label,
+        .muted-text {
+            color: #96adbe;
+            font-size: 0.92rem;
+        }
+
+        .growth-header {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .level-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(102, 192, 244, 0.12);
+            border: 1px solid rgba(102, 192, 244, 0.18);
+            color: #c6ebff;
+            padding: 0.55rem 0.9rem;
+            border-radius: 999px;
+            font-weight: 700;
+        }
+
+        .progress-track {
+            height: 12px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #66c0f4, #6bdc8b);
+        }
+
+        .keyword-list,
+        .badge-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.65rem;
+        }
+
+        .keyword-chip,
+        .badge-chip {
+            padding: 0.4rem 0.8rem;
+            border-radius: 999px;
+            font-size: 0.88rem;
+        }
+
+        .keyword-chip {
+            background: rgba(102, 192, 244, 0.12);
+            color: #c7ebff;
+            border: 1px solid rgba(102, 192, 244, 0.18);
+        }
+
+        .badge-chip {
+            background: rgba(107, 220, 139, 0.12);
+            color: #c9f7d4;
+            border: 1px solid rgba(107, 220, 139, 0.18);
+        }
+
+        .task-item {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 14px;
+            padding: 1rem;
+            margin-bottom: 0.9rem;
+        }
+
+        .task-top {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 0.7rem;
+            flex-wrap: wrap;
+        }
+
+        .task-name {
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .task-status {
+            color: var(--steam-green);
+            font-weight: 700;
+        }
+
+        .form-control {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--steam-text);
+        }
+
+        .form-control:focus {
+            background: rgba(255,255,255,0.08);
+            border-color: var(--steam-blue);
+            color: var(--steam-text);
+            box-shadow: none;
+        }
+
+        .btn-main {
+            background: linear-gradient(135deg, #66c0f4, #8cdbff);
+            color: #123;
+            border: none;
+            font-weight: 700;
+        }
+
+        .btn-main:hover { background: linear-gradient(135deg, #7cd0ff, #a6e6ff); }
+
+        .btn-subtle {
+            background: transparent;
+            color: var(--steam-text);
+            border: 1px solid rgba(255,255,255,0.12);
+        }
+
+        .record-item {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 0.85rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .record-item:last-child { border-bottom: none; }
+        .record-change.positive { color: #97f497; font-weight: 700; }
+        .quick-links a { margin-right: 0.75rem; margin-bottom: 0.75rem; }
+
+        @media (max-width: 1199.98px) {
+            .navbar {
+                padding: 0.75rem 0;
+            }
+
+            .navbar-collapse {
+                width: 100%;
+                margin-top: 0.4rem;
+                padding: 1rem;
+                border-radius: 18px;
+                background: rgba(15, 26, 38, 0.96);
+                border: 1px solid rgba(102, 192, 244, 0.18);
+                box-shadow: 0 16px 36px rgba(0, 0, 0, 0.28);
+                max-height: calc(100vh - 92px);
+                max-height: calc(100dvh - 92px);
+                overflow-y: auto;
+                overscroll-behavior: contain;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .navbar-menu {
+                width: 100%;
+                align-items: stretch;
+                gap: 0.35rem;
+            }
+
+            .navbar-menu > * {
+                width: 100%;
+            }
+
+            .nav-link {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+        }
+
+        @media (max-width: 575.98px) {
+            .navbar-brand {
+                font-size: 1.05rem;
+            }
+
+            .navbar-toggler {
+                padding: 0.42rem 0.7rem;
+            }
+
+            .navbar-toggler-label {
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-xl navbar-dark sticky-top">
+    <div class="container">
+        <a class="navbar-brand" href="/"><i class="bi bi-controller"></i> 游戏社区商城</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#profileNavbar" aria-controls="profileNavbar" aria-expanded="false" aria-label="切换导航">
+            <span class="navbar-toggler-icon"></span>
+            <span class="navbar-toggler-label">菜单</span>
+        </button>
+        <div class="collapse navbar-collapse" id="profileNavbar">
+        <div class="navbar-nav navbar-menu ms-auto">
+            <a class="nav-link" href="/">商店</a>
+            <a class="nav-link" href="/community">社区</a>
+            <a class="nav-link" href="/library">游戏库</a>
+            <a class="nav-link" href="/points-shop">积分商店</a>
+            <a class="nav-link" href="/orders">订单</a>
+            <a class="nav-link" href="/cart">购物车</a>
+            <a class="nav-link active" href="/profile">个人中心</a>
+            <a class="nav-link" href="#" onclick="logout(event)">退出登录</a>
+        </div>
+        </div>
+    </div>
+</nav>
+
+<div class="profile-container">
+    <div class="panel profile-header">
+        <div class="profile-info">
+            <div class="avatar" id="avatarBox">
+                <i class="bi bi-person-fill"></i>
+            </div>
+            <div>
+                <h2 id="username" class="mb-1">加载中...</h2>
+                <div class="text-secondary mb-2" id="email">-</div>
+                <div class="d-flex gap-3 flex-wrap">
+                    <span class="badge text-bg-info" id="role">-</span>
+                    <span class="badge text-bg-success">积分 <span id="points">0</span></span>
+                </div>
+            </div>
+        </div>
+        <button class="btn btn-main" id="checkInButton" onclick="checkInToday()">
+            <i class="bi bi-calendar-check"></i> 今日签到
+        </button>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="panel">
+                <div class="section-title">我的数据</div>
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-value" id="forumPostCount">0</div><div class="stat-label">论坛帖子</div></div>
+                    <div class="stat-card"><div class="stat-value" id="forumCommentCount">0</div><div class="stat-label">论坛评论</div></div>
+                    <div class="stat-card"><div class="stat-value" id="communityPostCount">0</div><div class="stat-label">社区帖子</div></div>
+                    <div class="stat-card"><div class="stat-value" id="communityCommentCount">0</div><div class="stat-label">社区评论</div></div>
+                    <div class="stat-card"><div class="stat-value" id="orderCount">0</div><div class="stat-label">订单数量</div></div>
+                    <div class="stat-card"><div class="stat-value" id="libraryCount">0</div><div class="stat-label">游戏库数量</div></div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="growth-header">
+                    <div>
+                        <div class="section-title mb-2">成长与创新能力面板</div>
+                        <div class="muted-text">这里展示兴趣画像、成长等级、任务进度与已获得的勋章。</div>
+                    </div>
+                    <div class="level-badge" id="growthLevelBadge">
+                        <i class="bi bi-stars"></i> Lv.1 新晋玩家
+                    </div>
+                </div>
+                <div class="muted-text mb-2">距离下一等级还需更多活跃度</div>
+                <div class="progress-track mb-3">
+                    <div class="progress-fill" id="growthProgressBar" style="width: 0%"></div>
+                </div>
+                <div class="growth-grid mb-3">
+                    <div class="growth-card"><div class="growth-value" id="contributionScore">0</div><div class="growth-label">成长值</div></div>
+                    <div class="growth-card"><div class="growth-value" id="checkInStreak">0</div><div class="growth-label">连续签到天数</div></div>
+                    <div class="growth-card"><div class="growth-value" id="nextLevelScore">0</div><div class="growth-label">下一等级目标</div></div>
+                </div>
+                <div class="section-title">兴趣关键词</div>
+                <div class="keyword-list mb-3" id="interestKeywords">
+                    <span class="muted-text">正在分析你的兴趣标签...</span>
+                </div>
+                <div class="section-title">成长任务</div>
+                <div id="growthTasks">
+                    <div class="muted-text">正在加载任务进度...</div>
+                </div>
+                <div class="section-title mt-4">已获得勋章</div>
+                <div class="badge-list" id="badgeList">
+                    <span class="muted-text">还没有解锁勋章，先完成一些浏览、发帖和购买行为吧。</span>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="section-title">积分流水</div>
+                <div id="pointRecords">正在加载积分记录...</div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="panel">
+                <div class="section-title">快捷入口</div>
+                <div class="quick-links">
+                    <a class="btn btn-subtle" href="/library"><i class="bi bi-collection-play"></i> 游戏库</a>
+                    <a class="btn btn-subtle" href="/orders"><i class="bi bi-receipt"></i> 订单</a>
+                    <a class="btn btn-subtle" href="/cart"><i class="bi bi-cart3"></i> 购物车</a>
+                    <a class="btn btn-subtle" href="/points-shop"><i class="bi bi-stars"></i> 积分商店</a>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="section-title">修改个人信息</div>
+                <form id="updateProfileForm">
+                    <div class="mb-3">
+                        <label class="form-label">用户名</label>
+                        <input type="text" class="form-control" id="updateUsername" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">邮箱</label>
+                        <input type="email" class="form-control" id="updateEmail" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">头像地址</label>
+                        <input type="text" class="form-control" id="updateAvatar" placeholder="可选，填写图片链接">
+                    </div>
+                    <button type="submit" class="btn btn-main w-100">保存资料</button>
+                </form>
+            </div>
+
+            <div class="panel">
+                <div class="section-title">修改密码</div>
+                <form id="changePasswordForm">
+                    <div class="mb-3">
+                        <label class="form-label">当前密码</label>
+                        <input type="password" class="form-control" id="currentPassword" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">新密码</label>
+                        <input type="password" class="form-control" id="newPassword" required minlength="6">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">确认新密码</label>
+                        <input type="password" class="form-control" id="confirmNewPassword" required>
+                    </div>
+                    <button type="submit" class="btn btn-main w-100">修改密码</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/ui-feedback.js"></script>
+<script>
+    async function loadProfileSummary() {
+        const response = await fetch('/api/profile/summary');
+        const result = await response.json();
+        if (result.code !== 200) {
+            window.location.href = '/login';
+            return;
+        }
+
+        const profile = result.data;
+        document.getElementById('username').textContent = profile.username;
+        document.getElementById('email').textContent = profile.email;
+        document.getElementById('role').textContent = profile.role === 'ADMIN' ? '管理员' : '普通用户';
+        document.getElementById('points').textContent = profile.points || 0;
+        document.getElementById('updateUsername').value = profile.username;
+        document.getElementById('updateEmail').value = profile.email;
+        document.getElementById('updateAvatar').value = profile.avatar || '';
+
+        if (profile.avatar) {
+            document.getElementById('avatarBox').innerHTML =
+                `<img src="${profile.avatar}" alt="${profile.username}" onerror="this.parentElement.innerHTML='<i class=&quot;bi bi-person-fill&quot;></i>'">`;
+        }
+
+        document.getElementById('forumPostCount').textContent = profile.forumPostCount || 0;
+        document.getElementById('forumCommentCount').textContent = profile.forumCommentCount || 0;
+        document.getElementById('communityPostCount').textContent = profile.communityPostCount || 0;
+        document.getElementById('communityCommentCount').textContent = profile.communityCommentCount || 0;
+        document.getElementById('orderCount').textContent = profile.orderCount || 0;
+        document.getElementById('libraryCount').textContent = profile.libraryCount || 0;
+
+        renderPointRecords(profile.recentPointTransactions || []);
+    }
+
+    async function loadGrowthDashboard() {
+        const response = await fetch('/api/innovation/growth');
+        const result = await response.json();
+        if (result.code !== 200) {
+            return;
+        }
+
+        const growth = result.data;
+        document.getElementById('growthLevelBadge').innerHTML =
+            `<i class="bi bi-stars"></i> Lv.${growth.level} ${growth.title}`;
+        document.getElementById('growthProgressBar').style.width = `${growth.progressPercent || 0}%`;
+        document.getElementById('contributionScore').textContent = growth.contributionScore || 0;
+        document.getElementById('checkInStreak').textContent = growth.checkInStreak || 0;
+        document.getElementById('nextLevelScore').textContent = growth.nextLevelScore || 0;
+
+        const checkInButton = document.getElementById('checkInButton');
+        checkInButton.disabled = !!growth.checkedInToday;
+        checkInButton.innerHTML = growth.checkedInToday
+            ? '<i class="bi bi-check-circle"></i> 今日已签到'
+            : '<i class="bi bi-calendar-check"></i> 今日签到';
+
+        const keywords = growth.interestKeywords || [];
+        document.getElementById('interestKeywords').innerHTML = keywords.length
+            ? keywords.map(keyword => `<span class="keyword-chip">${keyword}</span>`).join('')
+            : '<span class="muted-text">当前兴趣画像还在形成中，可以多浏览、多发帖、多购买来完善推荐。</span>';
+
+        const tasks = growth.tasks || [];
+        document.getElementById('growthTasks').innerHTML = tasks.length
+            ? tasks.map(task => `
+                <div class="task-item">
+                    <div class="task-top">
+                        <div>
+                            <div class="task-name">${task.name}</div>
+                            <div class="muted-text">${task.description}</div>
+                        </div>
+                        <div class="task-status">${task.completed ? '已完成' : `${task.currentProgress}/${task.targetProgress}`}</div>
+                    </div>
+                    <div class="progress-track mb-2">
+                        <div class="progress-fill" style="width: ${Math.min(100, Math.round((task.currentProgress / Math.max(1, task.targetProgress)) * 100))}%"></div>
+                    </div>
+                    <div class="muted-text">${task.hint}</div>
+                </div>
+            `).join('')
+            : '<div class="muted-text">暂无成长任务。</div>';
+
+        const badges = growth.badges || [];
+        document.getElementById('badgeList').innerHTML = badges.length
+            ? badges.map(badge => `<span class="badge-chip" title="${badge.description}">${badge.name}</span>`).join('')
+            : '<span class="muted-text">还没有解锁勋章，先完成一些浏览、发帖和购买行为吧。</span>';
+    }
+
+    function renderPointRecords(records) {
+        const container = document.getElementById('pointRecords');
+        if (!records.length) {
+            container.innerHTML = '<div class="text-secondary">暂时还没有积分流水记录。</div>';
+            return;
+        }
+
+        container.innerHTML = records.map(record => `
+            <div class="record-item">
+                <div>
+                    <div class="text-white">${record.description}</div>
+                    <div class="small text-secondary">${formatDate(record.createdAt)} · 余额 ${record.balanceAfter}</div>
+                </div>
+                <div class="record-change ${record.changeAmount >= 0 ? 'positive' : ''}">
+                    ${record.changeAmount >= 0 ? '+' : ''}${record.changeAmount}
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function formatDate(value) {
+        return value ? value.replace('T', ' ').slice(0, 19) : '-';
+    }
+
+    async function checkInToday() {
+        const response = await fetch('/api/innovation/check-in', { method: 'POST' });
+        const result = await response.json();
+        if (result.code !== 200) {
+            appToast(result.message || '签到失败', 'warning', { title: '签到提示' });
+            return;
+        }
+
+        await appAlert(`签到成功，获得 ${result.data.rewardPoints} 积分。`, {
+            title: '签到完成',
+            type: 'success'
+        });
+        await Promise.all([loadProfileSummary(), loadGrowthDashboard()]);
+    }
+
+    async function logout(event) {
+        if (event) event.preventDefault();
+        await fetch('/api/auth/logout', { method: 'POST' });
+        window.location.href = '/login';
+    }
+
+    document.getElementById('updateProfileForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const response = await fetch('/api/profile', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                email: document.getElementById('updateEmail').value.trim(),
+                avatar: document.getElementById('updateAvatar').value.trim()
+            })
+        });
+        const result = await response.json();
+        appToast(result.message, result.code === 200 ? 'success' : 'warning', { title: result.code === 200 ? '保存成功' : '保存失败' });
+        if (result.code === 200) {
+            loadProfileSummary();
+        }
+    });
+
+    document.getElementById('changePasswordForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const response = await fetch('/api/profile/password', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                currentPassword: document.getElementById('currentPassword').value,
+                newPassword: document.getElementById('newPassword').value,
+                confirmPassword: document.getElementById('confirmNewPassword').value
+            })
+        });
+        const result = await response.json();
+        appToast(result.message, result.code === 200 ? 'success' : 'warning', { title: result.code === 200 ? '修改成功' : '修改失败' });
+        if (result.code === 200) {
+            document.getElementById('changePasswordForm').reset();
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', async function () {
+        await loadProfileSummary();
+        await loadGrowthDashboard();
+    });
+</script>
+</body>
+</html>

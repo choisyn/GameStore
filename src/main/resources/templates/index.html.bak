@@ -1,0 +1,1258 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>娓告垙绀惧尯鍟嗗煄 - 鍙戠幇绮惧僵娓告垙</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --steam-dark-bg: #1b2838;
+            --steam-light-bg: #2a475e;
+            --steam-card-bg: #1e2837;
+            --steam-hover: #16202d;
+            --steam-blue: #66c0f4;
+            --steam-green: #5cb85c;
+            --steam-text: #c7d5e0;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1b2838 0%, #2a475e 100%);
+            color: var(--steam-text);
+            font-family: 'Arial', 'Microsoft YaHei', sans-serif;
+            min-height: 100vh;
+        }
+
+        /* 瀵艰埅鏍?*/
+        .navbar {
+            background: var(--steam-dark-bg);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+            padding: 1rem 0;
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--steam-blue) !important;
+        }
+
+        .nav-link {
+            color: var(--steam-text) !important;
+            margin: 0 0.5rem;
+            transition: color 0.3s;
+        }
+
+        .nav-link:hover {
+            color: var(--steam-blue) !important;
+        }
+
+        /* 绀惧尯涓嬫媺鑿滃崟 */
+        .community-dropdown {
+            background: var(--steam-card-bg);
+            border: 1px solid var(--steam-light-bg);
+            border-radius: 8px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7);
+            min-width: 250px;
+            margin-top: 0.5rem;
+        }
+
+        .community-dropdown .dropdown-item {
+            color: var(--steam-text);
+            padding: 0.6rem 1.2rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .community-dropdown .dropdown-item:hover {
+            background: var(--steam-hover);
+            color: var(--steam-blue);
+        }
+
+        .community-dropdown .dropdown-item i {
+            font-size: 1.1rem;
+        }
+
+        .community-dropdown .dropdown-divider {
+            border-color: var(--steam-light-bg);
+            opacity: 0.5;
+        }
+
+        .community-dropdown .dropdown-item-text {
+            padding: 0.4rem 1.2rem;
+        }
+
+        /* 鐢ㄦ埛涓嬫媺鑿滃崟 */
+        .user-dropdown {
+            background: var(--steam-card-bg);
+            border: 1px solid var(--steam-light-bg);
+            border-radius: 8px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7);
+            min-width: 220px;
+            margin-top: 0.5rem;
+        }
+
+        .user-dropdown .dropdown-item {
+            color: var(--steam-text);
+            padding: 0.6rem 1.2rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .user-dropdown .dropdown-item:hover {
+            background: var(--steam-hover);
+            color: var(--steam-blue);
+        }
+
+        .user-dropdown .dropdown-item i {
+            font-size: 1.1rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .user-dropdown .dropdown-divider {
+            border-color: var(--steam-light-bg);
+            opacity: 0.5;
+        }
+
+        /* 杞挱澶у浘 */
+        .hero-carousel {
+            margin: 2rem 0;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7);
+        }
+
+        .carousel-item {
+            height: 500px;
+            position: relative;
+        }
+
+        .carousel-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .carousel-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 100%);
+            padding: 2rem;
+        }
+
+        .carousel-overlay h2 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: white;
+        }
+
+        .carousel-overlay p {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: #c7d5e0;
+        }
+
+        .carousel-price {
+            display: inline-block;
+            background: var(--steam-green);
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 4px;
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+
+        /* 鍒嗙被鏍囩 */
+        .category-tabs {
+            margin: 3rem 0 2rem 0;
+            border-bottom: 2px solid var(--steam-light-bg);
+        }
+
+        .category-tabs .nav-link {
+            color: var(--steam-text);
+            border: none;
+            border-bottom: 3px solid transparent;
+            padding: 1rem 1.5rem;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+        }
+
+        .category-tabs .nav-link:hover {
+            background: var(--steam-hover);
+            border-bottom-color: var(--steam-blue);
+        }
+
+        .category-tabs .nav-link.active {
+            background: var(--steam-card-bg);
+            border-bottom-color: var(--steam-blue);
+            color: white;
+        }
+
+        /* 娓告垙鍗＄墖缃戞牸 */
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .game-card {
+            background: var(--steam-card-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .game-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.6);
+        }
+
+        .game-card-image {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-bottom: 2px solid var(--steam-light-bg);
+        }
+
+        .owned-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            z-index: 2;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.4rem 0.7rem;
+            border-radius: 999px;
+            background: rgba(92, 184, 92, 0.92);
+            color: white;
+            font-size: 0.8rem;
+            font-weight: bold;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            z-index: 2;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.4rem 0.7rem;
+            border-radius: 999px;
+            background: rgba(240, 173, 78, 0.95);
+            color: #2a1b00;
+            font-size: 0.8rem;
+            font-weight: bold;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+        }
+
+        .game-card-body {
+            padding: 1rem;
+        }
+
+        .game-card-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 0.5rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .game-card-description {
+            font-size: 0.9rem;
+            color: var(--steam-text);
+            margin-bottom: 1rem;
+            height: 3em;
+            overflow: hidden;
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .game-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 0.5rem;
+            border-top: 1px solid var(--steam-light-bg);
+        }
+
+        .game-tags {
+            display: flex;
+            gap: 0.3rem;
+            flex-wrap: wrap;
+            margin-bottom: 0.5rem;
+        }
+
+        .game-tag {
+            background: var(--steam-light-bg);
+            color: var(--steam-blue);
+            padding: 0.2rem 0.6rem;
+            border-radius: 3px;
+            font-size: 0.75rem;
+        }
+
+        .game-rating {
+            color: #ffc107;
+            font-size: 0.9rem;
+        }
+
+        .game-price {
+            text-align: right;
+        }
+
+        .price-original {
+            text-decoration: line-through;
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        .price-current {
+            color: var(--steam-green);
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+
+        .price-free {
+            color: var(--steam-green);
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .price-discount {
+            background: var(--steam-green);
+            color: white;
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            font-size: 0.85rem;
+            margin-right: 0.5rem;
+        }
+
+        .section-shell {
+            background: linear-gradient(145deg, rgba(25, 38, 54, 0.95), rgba(29, 49, 68, 0.92));
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 18px;
+            padding: 1.4rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 14px 36px rgba(0, 0, 0, 0.28);
+        }
+
+        .section-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .section-title {
+            margin: 0;
+            font-size: 1.4rem;
+            color: #fff;
+            font-weight: 700;
+        }
+
+        .section-subtitle {
+            color: #8faec4;
+            font-size: 0.95rem;
+        }
+
+        .recommend-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1rem;
+        }
+
+        .recommend-card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            position: relative;
+        }
+
+        .recommend-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 18px 36px rgba(0, 0, 0, 0.3);
+        }
+
+        .recommend-image {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+
+        .recommend-body {
+            padding: 1rem;
+        }
+
+        .recommend-title {
+            font-size: 1.08rem;
+            color: #fff;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .recommend-reason {
+            background: rgba(102, 192, 244, 0.12);
+            border: 1px solid rgba(102, 192, 244, 0.18);
+            color: #bfe9ff;
+            border-radius: 12px;
+            padding: 0.75rem;
+            font-size: 0.88rem;
+            line-height: 1.55;
+            margin-bottom: 0.8rem;
+            min-height: 82px;
+        }
+
+        .recommend-reason-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 0.75rem;
+        }
+
+        .recommend-reason-text {
+            flex: 1;
+            font-weight: 600;
+            color: #d8f2ff;
+        }
+
+        .recommend-detail-btn {
+            border: 1px solid rgba(102, 192, 244, 0.32);
+            background: rgba(102, 192, 244, 0.14);
+            color: #d7f2ff;
+            border-radius: 999px;
+            padding: 0.28rem 0.72rem;
+            font-size: 0.78rem;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+        }
+
+        .recommend-detail-btn:hover {
+            background: rgba(102, 192, 244, 0.22);
+            border-color: rgba(156, 228, 255, 0.45);
+            transform: translateY(-1px);
+        }
+
+        .recommend-reason-note {
+            margin-top: 0.55rem;
+            color: rgba(191, 233, 255, 0.76);
+            font-size: 0.8rem;
+        }
+
+        .recommend-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .recommend-score {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            color: #9fe4a9;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        /* 鍔犺浇鏇村鎸夐挳 */
+        .load-more {
+            text-align: center;
+            margin: 2rem 0 3rem 0;
+        }
+
+        .btn-load-more {
+            background: var(--steam-light-bg);
+            color: white;
+            border: none;
+            padding: 1rem 3rem;
+            font-size: 1.1rem;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        .btn-load-more:hover {
+            background: var(--steam-blue);
+            transform: scale(1.05);
+        }
+
+        /* 椤佃剼 */
+        .footer {
+            background: var(--steam-dark-bg);
+            padding: 2rem 0;
+            text-align: center;
+            margin-top: 3rem;
+            border-top: 3px solid var(--steam-light-bg);
+        }
+
+        /* 鎼滅储妗?*/
+        .search-box {
+            max-width: 400px;
+        }
+
+        .search-box input {
+            background: var(--steam-card-bg);
+            border: 1px solid var(--steam-light-bg);
+            color: white;
+        }
+
+        .search-box input::placeholder {
+            color: #888;
+        }
+
+        .search-box input:focus {
+            background: var(--steam-hover);
+            border-color: var(--steam-blue);
+            color: white;
+        }
+
+        /* 鍝嶅簲寮忚璁?*/
+        @media (max-width: 768px) {
+            .carousel-item {
+                height: 300px;
+            }
+
+            .carousel-overlay h2 {
+                font-size: 1.5rem;
+            }
+
+            .games-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 瀵艰埅鏍?-->
+    <nav class="navbar navbar-expand-lg sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-controller"></i> 娓告垙绀惧尯鍟嗗煄
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/">鍟嗗簵</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="/community" id="communityDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            绀惧尯
+                        </a>
+                        <ul class="dropdown-menu community-dropdown" aria-labelledby="communityDropdown" id="communityMenu">
+                            <li><a class="dropdown-item" href="/community"><i class="bi bi-house-door"></i> 绀惧尯棣栭〉</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li class="dropdown-item-text text-muted small">鍔犺浇涓?..</li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/library">娓告垙搴?/a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/points-shop">绉垎鍟嗗簵</a>
+                    </li>
+                </ul>
+                <form class="d-flex search-box">
+                    <input class="form-control" type="search" placeholder="鎼滅储娓告垙..." id="searchInput">
+                </form>
+                <ul class="navbar-nav ms-3">
+                    <li class="nav-item" id="loginNav">
+                        <a class="nav-link" href="/login">鐧诲綍</a>
+                    </li>
+                    <li class="nav-item" id="registerNav">
+                        <a class="nav-link" href="/register">娉ㄥ唽</a>
+                    </li>
+                    <li class="nav-item dropdown d-none" id="userDropdownNav">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-person-circle"></i> <span id="usernameNav"></span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end user-dropdown">
+                            <li><a class="dropdown-item" href="/profile"><i class="bi bi-person"></i> 涓汉涓績</a></li>
+                            <li><a class="dropdown-item" href="/library"><i class="bi bi-collection-play"></i> 娓告垙搴?/a></li>
+                            <li><a class="dropdown-item" href="/points-shop"><i class="bi bi-stars"></i> 绉垎鍟嗗簵</a></li>
+                            <li><a class="dropdown-item" href="/orders"><i class="bi bi-receipt"></i> 鎴戠殑璁㈠崟</a></li>
+                            <li><a class="dropdown-item" href="/cart"><i class="bi bi-cart"></i> 璐墿杞?/a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#" onclick="logout(event)"><i class="bi bi-box-arrow-right"></i> 閫€鍑虹櫥褰?/a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- 杞挱澶у浘 -->
+        <div id="featuredCarousel" class="carousel slide hero-carousel" data-bs-ride="carousel">
+            <div class="carousel-indicators">
+                <button type="button" data-bs-target="#featuredCarousel" data-bs-slide-to="0" class="active"></button>
+                <button type="button" data-bs-target="#featuredCarousel" data-bs-slide-to="1"></button>
+                <button type="button" data-bs-target="#featuredCarousel" data-bs-slide-to="2"></button>
+                <button type="button" data-bs-target="#featuredCarousel" data-bs-slide-to="3"></button>
+            </div>
+            <div class="carousel-inner" id="carouselContent">
+                <!-- 杞挱鍐呭灏嗛€氳繃JS鍔ㄦ€佸姞杞?-->
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#featuredCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon"></span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#featuredCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon"></span>
+            </button>
+        </div>
+
+        <section class="section-shell">
+            <div class="section-head">
+                <div>
+                    <h2 class="section-title">涓轰綘鎺ㄨ崘</h2>
+                    <div class="section-subtitle">缁撳悎娴忚銆佽喘涔板拰绀惧尯鍙備笌琛屼负锛岀粰鍑哄彲瑙ｉ噴鐨勫€欓€夋父鎴忋€?/div>
+                </div>
+                <div class="section-subtitle">鎺ㄨ崘鍗＄墖浼氱洿鎺ュ睍绀烘帹鑽愬師鍥狅紝鏂逛究绛旇京婕旂ず銆?/div>
+            </div>
+            <div class="recommend-grid" id="recommendationGrid">
+                <div class="section-subtitle">姝ｅ湪鐢熸垚浣犵殑涓€у寲鎺ㄨ崘...</div>
+            </div>
+        </section>
+
+        <!-- 鍒嗙被鏍囩 -->
+        <ul class="nav category-tabs" id="categoryTabs">
+            <li class="nav-item">
+                <a class="nav-link active" href="#" data-category="all">鍏ㄩ儴娓告垙</a>
+            </li>
+            <!-- 鍒嗙被灏嗗姩鎬佸姞杞?-->
+        </ul>
+
+        <!-- 娓告垙缃戞牸 -->
+        <div class="games-grid" id="gamesGrid">
+            <!-- 娓告垙鍗＄墖灏嗛€氳繃JS鍔ㄦ€佸姞杞?-->
+        </div>
+
+        <!-- 鍔犺浇鏇村 -->
+        <div class="load-more">
+            <button class="btn btn-load-more" id="loadMoreBtn">
+                <i class="bi bi-arrow-down-circle"></i> 鍔犺浇鏇村娓告垙
+            </button>
+        </div>
+    </div>
+
+    <!-- 椤佃剼 -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 娓告垙绀惧尯鍟嗗煄. 鎵€鏈夋潈鍒╀繚鐣?</p>
+            <p>
+                <a href="#about" class="text-decoration-none text-light mx-2">鍏充簬鎴戜滑</a> |
+                <a href="#contact" class="text-decoration-none text-light mx-2">鑱旂郴鎴戜滑</a> |
+                <a href="#terms" class="text-decoration-none text-light mx-2">鏈嶅姟鏉℃</a>
+            </p>
+        </div>
+    </footer>
+
+    <script src="/js/ui-feedback.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentPage = 0;
+        let currentCategory = null;
+        const pageSize = 12;
+        const ownedGameIds = new Set();
+        const cartGameIds = new Set();
+        const recommendationDetailMap = new Map();
+
+        // 椤甸潰鍔犺浇鏃跺垵濮嬪寲
+        document.addEventListener('DOMContentLoaded', async function() {
+            await checkLoginStatus();
+            await loadOwnedGameIds();
+            await loadCartGameIds();
+            loadFeaturedGames();
+            loadRecommendations();
+            loadCategories();  // 鍔犺浇鍒嗙被鏍囩
+            loadGames();
+            initEventListeners();
+            loadCommunityMenu();  // 鍔犺浇绀惧尯鏉垮潡鑿滃崟
+        });
+
+        // 妫€鏌ョ櫥褰曠姸鎬?
+        async function checkLoginStatus() {
+            try {
+                const response = await fetch('/api/auth/current');
+                const data = await response.json();
+                
+                if (data.code === 200) {
+                    // 宸茬櫥褰曪紝鏄剧ず鐢ㄦ埛涓嬫媺鑿滃崟
+                    document.getElementById('loginNav').classList.add('d-none');
+                    document.getElementById('registerNav').classList.add('d-none');
+                    document.getElementById('userDropdownNav').classList.remove('d-none');
+                    document.getElementById('usernameNav').textContent = data.data.username;
+                    
+                    // 濡傛灉鏄鐞嗗憳,娣诲姞"绠＄悊绯荤粺"閾炬帴
+                    if (data.data.role === 'ADMIN') {
+                        const userDropdownMenu = document.querySelector('#userDropdownNav .dropdown-menu');
+                        
+                        // 妫€鏌ユ槸鍚﹀凡娣诲姞,閬垮厤閲嶅
+                        if (!document.getElementById('adminMenuItem')) {
+                            const divider = document.createElement('li');
+                            divider.innerHTML = '<hr class="dropdown-divider">';
+                            
+                            const adminMenuItem = document.createElement('li');
+                            adminMenuItem.id = 'adminMenuItem';
+                            adminMenuItem.innerHTML = '<a class="dropdown-item" href="/admin"><i class="bi bi-gear-fill"></i> 绠＄悊绯荤粺</a>';
+                            
+                            // 鎵惧埌鏈€鍚庝竴涓垎闅旂嚎,鍦ㄥ畠涔嬪墠鎻掑叆
+                            const lastDivider = userDropdownMenu.querySelector('hr.dropdown-divider');
+                            if (lastDivider && lastDivider.parentElement) {
+                                userDropdownMenu.insertBefore(divider, lastDivider.parentElement);
+                                userDropdownMenu.insertBefore(adminMenuItem, divider);
+                            }
+                        }
+                    }
+                } else {
+                    // 鏈櫥褰曪紝鏄剧ず鐧诲綍/娉ㄥ唽
+                    document.getElementById('loginNav').classList.remove('d-none');
+                    document.getElementById('registerNav').classList.remove('d-none');
+                    document.getElementById('userDropdownNav').classList.add('d-none');
+                    
+                    // 绉婚櫎绠＄悊鍛樿彍鍗曢」
+                    const adminMenuItem = document.getElementById('adminMenuItem');
+                    if (adminMenuItem) {
+                        const prevDivider = adminMenuItem.previousElementSibling;
+                        if (prevDivider) prevDivider.remove();
+                        adminMenuItem.remove();
+                    }
+                }
+            } catch (error) {
+                console.error('妫€鏌ョ櫥褰曠姸鎬佸け璐?', error);
+                // 鍑洪敊鏃舵樉绀虹櫥褰?娉ㄥ唽
+                document.getElementById('loginNav').classList.remove('d-none');
+                document.getElementById('registerNav').classList.remove('d-none');
+                document.getElementById('userDropdownNav').classList.add('d-none');
+                
+                // 绉婚櫎绠＄悊鍛樿彍鍗曢」
+                const adminMenuItem = document.getElementById('adminMenuItem');
+                if (adminMenuItem) {
+                    const prevDivider = adminMenuItem.previousElementSibling;
+                    if (prevDivider) prevDivider.remove();
+                    adminMenuItem.remove();
+                }
+            }
+        }
+
+        // 閫€鍑虹櫥褰?
+        async function logout(event) {
+            event.preventDefault();
+            if (await appConfirm('纭畾瑕侀€€鍑虹櫥褰曞悧锛?, { title: '閫€鍑虹櫥褰?, type: 'warning' })) {
+                try {
+                    await fetch('/api/auth/logout', { method: 'POST' });
+                    window.location.reload();
+                } catch (error) {
+                    console.error('閫€鍑虹櫥褰曞け璐?', error);
+                }
+            }
+        }
+
+        async function loadOwnedGameIds() {
+            ownedGameIds.clear();
+
+            try {
+                const response = await fetch('/api/store/library');
+                const data = await response.json();
+
+                if (data.code === 200 && Array.isArray(data.data)) {
+                    data.data.forEach(game => {
+                        const ownedId = Number(game.gameId ?? game.id);
+                        if (!Number.isNaN(ownedId)) {
+                            ownedGameIds.add(ownedId);
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('鍔犺浇宸叉嫢鏈夋父鎴忓け璐?', error);
+            }
+        }
+
+        async function loadCartGameIds() {
+            cartGameIds.clear();
+
+            try {
+                const response = await fetch('/api/store/cart');
+                const data = await response.json();
+
+                if (data.code === 200 && data.data && Array.isArray(data.data.items)) {
+                    data.data.items.forEach(item => {
+                        if (!item.alreadyOwned) {
+                            const cartId = Number(item.gameId ?? item.id);
+                            if (!Number.isNaN(cartId)) {
+                                cartGameIds.add(cartId);
+                            }
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('鍔犺浇璐墿杞︾姸鎬佸け璐?', error);
+            }
+        }
+
+        function getGameStatusBadge(gameId) {
+            const numericId = Number(gameId);
+            if (ownedGameIds.has(numericId)) {
+                return '<div class="owned-badge"><i class="bi bi-check-circle-fill"></i> 宸叉嫢鏈?/div>';
+            }
+            if (cartGameIds.has(numericId)) {
+                return '<div class="cart-badge"><i class="bi bi-cart-check-fill"></i> 宸插湪璐墿杞?/div>';
+            }
+            return '';
+        }
+
+        function formatRecommendationPrice(item) {
+            if (Number(item.price) === 0) {
+                return '免费';
+            }
+            const finalPrice = item.discountPrice ?? item.price;
+            return `￥${finalPrice}`;
+        }
+
+        function hasRecommendationDetails(item) {
+            return Array.isArray(item.detailReasons) && item.detailReasons.length > 0;
+        }
+
+        function formatRecommendationDetails(item) {
+            const sections = [];
+
+            if (item.primaryReason) {
+                sections.push(`核心理由\n${item.primaryReason}`);
+            }
+
+            if (item.secondaryReason) {
+                sections.push(`补充说明\n${item.secondaryReason}`);
+            }
+
+            if (Array.isArray(item.detailReasons)) {
+                item.detailReasons.forEach((detail, index) => {
+                    if (!detail || (!detail.title && !detail.explanation)) {
+                        return;
+                    }
+                    const title = detail.title || `推荐理由 ${index + 1}`;
+                    const explanation = detail.explanation || '暂无补充说明';
+                    sections.push(`${index + 1}. ${title}\n${explanation}`);
+                });
+            }
+
+            sections.push(`推荐分参考\n当前综合推荐度为 ${item.recommendationScore ?? '--'} 分，系统会结合兴趣画像、社区行为、价格和口碑共同计算。`);
+            return sections.join('\n\n');
+        }
+
+        async function showRecommendationDetails(event, gameId) {
+            event.stopPropagation();
+            const item = recommendationDetailMap.get(Number(gameId));
+            if (!item) {
+                await appAlert('当前暂时没有更多推荐解释可展示。', {
+                    title: '推荐详情',
+                    type: 'info',
+                    width: '680px'
+                });
+                return;
+            }
+
+            await appAlert(formatRecommendationDetails(item), {
+                title: `${item.name} 的推荐详情`,
+                type: 'info',
+                confirmText: '知道了',
+                width: '680px'
+            });
+        }
+        async function loadRecommendations() {
+            const container = document.getElementById('recommendationGrid');
+            if (!container) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/innovation/recommendations?size=6');
+                const data = await response.json();
+                recommendationDetailMap.clear();
+                if (data.code !== 200 || !Array.isArray(data.data) || !data.data.length) {
+                    container.innerHTML = '<div class="section-subtitle">当前还没有可展示的推荐结果，先去浏览几款游戏吧。</div>';
+                    return;
+                }
+
+                data.data.forEach(item => {
+                    recommendationDetailMap.set(Number(item.id), item);
+                });
+
+                container.innerHTML = data.data.map(item => `
+                    <div class="recommend-card" onclick="viewGame(${item.id})">
+                        ${getGameStatusBadge(item.id)}
+                        <img src="${item.imageUrl || 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=640&h=360&fit=crop'}"
+                             alt="${item.name}"
+                             class="recommend-image"
+                             onerror="this.src='https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=640&h=360&fit=crop'">
+                        <div class="recommend-body">
+                            <div class="recommend-title">${item.name}</div>
+                            <div class="recommend-reason">
+                                <div class="recommend-reason-head">
+                                    <div class="recommend-reason-text">${item.primaryReason || '系统已根据你的近期行为生成推荐。'}</div>
+                                    ${(hasRecommendationDetails(item) || item.secondaryReason)
+                                        ? `<button type="button" class="recommend-detail-btn" onclick="showRecommendationDetails(event, ${item.id})">详情</button>`
+                                        : ''}
+                                </div>
+                                ${(hasRecommendationDetails(item) || item.secondaryReason)
+                                    ? '<div class="recommend-reason-note">点击“详情”可查看完整推荐理由和解释</div>'
+                                    : ''}
+                            </div>
+                            <div class="recommend-meta">
+                                <span class="recommend-score"><i class="bi bi-stars"></i> 推荐度 ${item.recommendationScore}</span>
+                                <span class="price-current">${formatRecommendationPrice(item)}</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('加载推荐失败:', error);
+                container.innerHTML = '<div class="section-subtitle">推荐模块加载失败，请稍后刷新重试。</div>';
+            }
+        }
+        async function loadFeaturedGames() {
+            try {
+                // 浠嶣anner API鍔犺浇杞挱鍥?
+                const response = await fetch('/api/banners/type/HOME');
+                const data = await response.json();
+                
+                if (data.code === 200 && data.data && data.data.length > 0) {
+                    const carouselContent = document.getElementById('carouselContent');
+                    const carouselIndicators = document.querySelector('#featuredCarousel .carousel-indicators');
+                    
+                    // 鐢熸垚杞挱鍥惧唴瀹?
+                    carouselContent.innerHTML = data.data.map((banner, index) => `
+                        <div class="carousel-item ${index === 0 ? 'active' : ''}" 
+                             ${banner.linkUrl ? `onclick="window.location.href='${banner.linkUrl}'" style="cursor: pointer;"` : ''}>
+                            <img src="${banner.imageUrl}" alt="${banner.title}" 
+                                 onerror="this.src='https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1920&h=600&fit=crop'">
+                            <div class="carousel-overlay">
+                                <h2>${banner.title}</h2>
+                                ${banner.description ? `<p>${banner.description}</p>` : ''}
+                            </div>
+                        </div>
+                    `).join('');
+                    
+                    // 鐢熸垚鎸囩ず鍣?
+                    carouselIndicators.innerHTML = data.data.map((banner, index) => `
+                        <button type="button" data-bs-target="#featuredCarousel" data-bs-slide-to="${index}" 
+                                ${index === 0 ? 'class="active"' : ''}></button>
+                    `).join('');
+                } else {
+                    // 濡傛灉娌℃湁杞挱鍥?鏄剧ず榛樿鍐呭
+                    const carouselContent = document.getElementById('carouselContent');
+                    carouselContent.innerHTML = `
+                        <div class="carousel-item active">
+                            <img src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1920&h=600&fit=crop" alt="榛樿杞挱鍥?>
+                            <div class="carousel-overlay">
+                                <h2>娆㈣繋鏉ュ埌娓告垙绀惧尯鍟嗗煄</h2>
+                                <p>鎺㈢储绮惧僵鐨勬父鎴忎笘鐣?/p>
+                            </div>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('鍔犺浇杞挱鍥惧け璐?', error);
+            }
+        }
+
+        // 鍔犺浇鍒嗙被鏍囩
+        async function loadCategories() {
+            try {
+                const response = await fetch('/api/categories');
+                const data = await response.json();
+                
+                if (data.code === 200 && data.data) {
+                    const categoryTabs = document.getElementById('categoryTabs');
+                    
+                    // 鍙繚鐣?鍏ㄩ儴娓告垙"鏍囩
+                    categoryTabs.innerHTML = `
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#" data-category="all">鍏ㄩ儴娓告垙</a>
+                        </li>
+                    `;
+                    
+                    // 娣诲姞鍔ㄦ€佸垎绫绘爣绛?
+                    data.data.forEach(category => {
+                        if (category.status === 'ACTIVE') {
+                            const li = document.createElement('li');
+                            li.className = 'nav-item';
+                            li.innerHTML = `<a class="nav-link" href="#" data-category="${category.id}">${category.name}</a>`;
+                            categoryTabs.appendChild(li);
+                        }
+                    });
+                    
+                    // 閲嶆柊缁戝畾鍒嗙被鐐瑰嚮浜嬩欢
+                    initCategoryTabsEvent();
+                }
+            } catch (error) {
+                console.error('鍔犺浇鍒嗙被澶辫触:', error);
+            }
+        }
+        
+        // 鍒濆鍖栧垎绫绘爣绛剧偣鍑讳簨浠?
+        function initCategoryTabsEvent() {
+            document.querySelectorAll('#categoryTabs .nav-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // 绉婚櫎鎵€鏈塧ctive绫?
+                    document.querySelectorAll('#categoryTabs .nav-link').forEach(l => l.classList.remove('active'));
+                    // 娣诲姞active绫诲埌褰撳墠鐐瑰嚮鐨勯摼鎺?
+                    this.classList.add('active');
+                    
+                    const category = this.getAttribute('data-category');
+                    currentCategory = category === 'all' ? null : parseInt(category);
+                    currentPage = 0;
+                    loadGames();
+                });
+            });
+        }
+        
+        // 鍔犺浇娓告垙鍒楄〃
+        async function loadGames(append = false) {
+            try {
+                let url, response, data;
+                
+                if (currentCategory) {
+                    // 浣跨敤鏂扮殑鍒嗙被鏌ヨAPI(鏀寔澶氬澶?
+                    url = `/api/games/category/${currentCategory}`;
+                    response = await fetch(url);
+                    data = await response.json();
+                    
+                    if (data.code === 200 && data.data) {
+                        // 鎵嬪姩鍒嗛〉
+                        const start = currentPage * pageSize;
+                        const end = start + pageSize;
+                        const pagedGames = data.data.slice(start, end);
+                        
+                        const gamesGrid = document.getElementById('gamesGrid');
+                        const gamesHTML = pagedGames.map(game => createGameCard(game)).join('');
+                        
+                        if (append) {
+                            gamesGrid.innerHTML += gamesHTML;
+                        } else {
+                            gamesGrid.innerHTML = gamesHTML;
+                        }
+                        
+                        // 濡傛灉娌℃湁鏇村娓告垙锛岄殣钘忓姞杞芥洿澶氭寜閽?
+                        if (end >= data.data.length) {
+                            document.getElementById('loadMoreBtn').style.display = 'none';
+                        } else {
+                            document.getElementById('loadMoreBtn').style.display = 'inline-block';
+                        }
+                    }
+                } else {
+                    // 鍔犺浇鎵€鏈夋父鎴?鍘熸湁閫昏緫)
+                    url = `/api/games?page=${currentPage}&size=${pageSize}`;
+                    response = await fetch(url);
+                    data = await response.json();
+                    
+                    if (data.code === 200 && data.data) {
+                        const gamesGrid = document.getElementById('gamesGrid');
+                        const gamesHTML = data.data.map(game => createGameCard(game)).join('');
+                        
+                        if (append) {
+                            gamesGrid.innerHTML += gamesHTML;
+                        } else {
+                            gamesGrid.innerHTML = gamesHTML;
+                        }
+
+                        // 濡傛灉杩斿洖鐨勬父鎴忔暟灏戜簬pageSize锛岄殣钘忓姞杞芥洿澶氭寜閽?
+                        if (data.data.length < pageSize) {
+                            document.getElementById('loadMoreBtn').style.display = 'none';
+                        } else {
+                            document.getElementById('loadMoreBtn').style.display = 'inline-block';
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('鍔犺浇娓告垙澶辫触:', error);
+            }
+        }
+
+        // 鍒涘缓娓告垙鍗＄墖HTML
+        function createGameCard(game) {
+            const tags = game.tags ? game.tags.split(',').slice(0, 3) : [];
+            // 灏嗚瘎鍒嗚浆鎹负5鍒嗗埗(鍋囪鏁版嵁搴撴槸10鍒嗗埗)
+            const rating = game.rating ? (game.rating > 5 ? game.rating / 2 : game.rating) : 0;
+            const fullStars = Math.floor(rating);
+            const emptyStars = Math.max(0, 5 - fullStars); // 纭繚涓嶄负璐熸暟
+            const stars = '鈽?.repeat(fullStars) + '鈽?.repeat(emptyStars);
+            const isOwned = ownedGameIds.has(Number(game.id));
+            const isInCart = cartGameIds.has(Number(game.id));
+            const statusBadge = isOwned
+                ? '<div class="owned-badge"><i class="bi bi-check-circle-fill"></i> 宸叉嫢鏈?/div>'
+                : isInCart
+                ? '<div class="cart-badge"><i class="bi bi-cart-check-fill"></i> 宸插湪璐墿杞?/div>'
+                : '';
+            
+            let priceHTML = '';
+            if (game.price === 0) {
+                priceHTML = '<div class="price-free">鍏嶈垂鐣呯帺</div>';
+            } else if (game.discountPrice) {
+                const discount = Math.round((1 - game.discountPrice / game.price) * 100);
+                priceHTML = `
+                    <div>
+                        <span class="price-discount">-${discount}%</span>
+                        <div class="price-original">楼${game.price}</div>
+                        <div class="price-current">楼${game.discountPrice}</div>
+                    </div>
+                `;
+            } else {
+                priceHTML = `<div class="price-current">楼${game.price}</div>`;
+            }
+
+            return `
+                <div class="game-card" onclick="viewGame(${game.id})">
+                    ${statusBadge}
+                    <img src="${game.imageUrl || 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400&h=225&fit=crop'}" 
+                         alt="${game.name}" class="game-card-image"
+                         onerror="this.src='https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&h=450&fit=crop'">
+                    <div class="game-card-body">
+                        <div class="game-card-title">${game.name}</div>
+                        <div class="game-tags">
+                            ${tags.map(tag => `<span class="game-tag">${tag}</span>`).join('')}
+                        </div>
+                        <div class="game-card-description">${game.description}</div>
+                        <div class="game-card-footer">
+                            <div>
+                                <div class="game-rating">${stars}</div>
+                                <small>${game.ratingCount || 0} 璇勪环</small>
+                            </div>
+                            <div class="game-price">
+                                ${priceHTML}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 鍒濆鍖栦簨浠剁洃鍚櫒
+        function initEventListeners() {
+            // 鍒嗙被鍒囨崲浜嬩欢鍦╨oadCategories涓姩鎬佺粦瀹?
+
+            // 鍔犺浇鏇村
+            document.getElementById('loadMoreBtn').addEventListener('click', function() {
+                currentPage++;
+                loadGames(true);
+            });
+
+            // 鎼滅储鍔熻兘
+            let searchTimeout;
+            document.getElementById('searchInput').addEventListener('input', function(e) {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    const keyword = e.target.value.trim();
+                    if (keyword) {
+                        searchGames(keyword);
+                    } else {
+                        currentPage = 0;
+                        loadGames();
+                    }
+                }, 500);
+            });
+        }
+
+        // 鎼滅储娓告垙
+        async function searchGames(keyword) {
+            try {
+                const response = await fetch(`/api/games/search?keyword=${encodeURIComponent(keyword)}&page=0&size=${pageSize}`);
+                const data = await response.json();
+                
+                if (data.code === 200 && data.data) {
+                    const gamesGrid = document.getElementById('gamesGrid');
+                    gamesGrid.innerHTML = data.data.map(game => createGameCard(game)).join('');
+                    document.getElementById('loadMoreBtn').style.display = 'none';
+                }
+            } catch (error) {
+                console.error('鎼滅储澶辫触:', error);
+            }
+        }
+
+        // 鏌ョ湅娓告垙璇︽儏
+        function viewGame(gameId) {
+            window.location.href = `/game/${gameId}`;
+        }
+
+        // 鍔犺浇绀惧尯鏉垮潡鑿滃崟
+        async function loadCommunityMenu() {
+            try {
+                const response = await fetch('/api/community/sections');
+                const data = await response.json();
+                
+                if (data.code === 200 && data.data) {
+                    const menu = document.getElementById('communityMenu');
+                    
+                    // 鏋勫缓鑿滃崟HTML
+                    let menuHTML = `
+                        <li><a class="dropdown-item" href="/community"><i class="bi bi-house-door"></i> 绀惧尯棣栭〉</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="/forum.html"><i class="bi bi-chat-dots"></i> 璁ㄨ骞垮満</a></li>
+                    `;
+                    
+                    // 娣诲姞鍏朵粬鏉垮潡(杩囨护鎺夐噸澶嶇殑璁ㄨ骞垮満)
+                    const sections = data.data.filter(section => section.name !== '璁ㄨ骞垮満');
+                    sections.forEach(section => {
+                        const icon = section.icon || 'bi-chat-square-text';
+                        menuHTML += `
+                            <li>
+                                <a class="dropdown-item" href="/community">
+                                    <i class="${icon}"></i> ${section.name}
+                                </a>
+                            </li>
+                        `;
+                    });
+                    
+                    menu.innerHTML = menuHTML;
+                } else {
+                    // 濡傛灉鍔犺浇澶辫触,鏄剧ず鍩烘湰鑿滃崟
+                    const menu = document.getElementById('communityMenu');
+                    menu.innerHTML = `
+                        <li><a class="dropdown-item" href="/community"><i class="bi bi-house-door"></i> 绀惧尯棣栭〉</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="/forum.html"><i class="bi bi-chat-dots"></i> 璁ㄨ骞垮満</a></li>
+                    `;
+                }
+            } catch (error) {
+                console.error('鍔犺浇绀惧尯鏉垮潡鑿滃崟澶辫触:', error);
+                // 鍔犺浇澶辫触鏃舵樉绀哄熀鏈彍鍗?
+                const menu = document.getElementById('communityMenu');
+                menu.innerHTML = `
+                    <li><a class="dropdown-item" href="/community"><i class="bi bi-house-door"></i> 绀惧尯棣栭〉</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="/forum.html"><i class="bi bi-chat-dots"></i> 璁ㄨ骞垮満</a></li>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>
+
