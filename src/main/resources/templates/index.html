@@ -1217,6 +1217,7 @@
         let nextGamePage = 0;
         let currentKeyword = '';
         let recommendationBatchIndex = 0;
+        let recommendationSeed = createRecommendationSeed();
         let isCategoryPanelCollapsed = true;
         let searchDebounceTimer = null;
         let activeGameRequestId = 0;
@@ -1461,6 +1462,13 @@
             return '';
         }
 
+        function createRecommendationSeed() {
+            if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+                return window.crypto.randomUUID();
+            }
+            return `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+        }
+
         function refreshRecommendationBadgeStates() {
             document.querySelectorAll('#recommendationGrid .recommend-card[data-game-id]').forEach(card => {
                 const statusSlot = card.querySelector('[data-recommend-status-slot]');
@@ -1605,7 +1613,9 @@
                     message: recommendationBatchIndex > 0 ? '正在为你刷新推荐...' : '正在生成你的个性化推荐...'
                 });
 
-                const response = await fetch(`/api/innovation/recommendations?size=${recommendationBatchSize}&batch=${recommendationBatchIndex}`);
+                const response = await fetch(
+                    `/api/innovation/recommendations?size=${recommendationBatchSize}&batch=${recommendationBatchIndex}&seed=${encodeURIComponent(recommendationSeed)}`
+                );
                 if (requestId !== activeRecommendationRequestId) {
                     return;
                 }
@@ -1617,6 +1627,7 @@
 
                 if (data.code === 200 && Array.isArray(data.data) && data.data.length === 0 && recommendationBatchIndex > 0 && allowReset) {
                     recommendationBatchIndex = 0;
+                    recommendationSeed = createRecommendationSeed();
                     return await loadRecommendations(false);
                 }
 

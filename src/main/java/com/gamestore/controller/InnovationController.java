@@ -39,11 +39,12 @@ public class InnovationController {
     public ResponseEntity<ApiResponse<List<RecommendationResponse>>> getRecommendations(
             @RequestParam(defaultValue = "6") int size,
             @RequestParam(defaultValue = "0") int batch,
+            @RequestParam(required = false) String seed,
             HttpServletRequest request) {
         User user = currentUserService.getCurrentUser(request);
         return ResponseUtil.success(
             "获取推荐列表成功",
-            innovationService.getRecommendations(user == null ? null : user.getId(), size, batch)
+            innovationService.getRecommendations(user == null ? null : user.getId(), size, batch, seed)
         );
     }
 

@@ -9,7 +9,7 @@ COPY .m2repo ./.m2repo
 RUN groupadd --system spring \
     && useradd --system --create-home --gid spring spring \
     && mkdir -p /app/uploads \
-    && mvn -o -B -Dmaven.repo.local=/app/.m2repo -DskipTests package \
+    && mvn -B -Dmaven.repo.local=/app/.m2repo -DskipTests package \
     && cp target/*.jar /app/app.jar \
     && rm -rf /app/.m2repo /app/src /app/target \
     && chown -R spring:spring /app

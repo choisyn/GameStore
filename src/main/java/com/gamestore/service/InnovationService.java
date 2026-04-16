@@ -116,10 +116,14 @@ public class InnovationService {
     }
 
     public List<RecommendationResponse> getRecommendations(Long userId, int size) {
-        return getRecommendations(userId, size, 0);
+        return getRecommendations(userId, size, 0, null);
     }
 
     public List<RecommendationResponse> getRecommendations(Long userId, int size, int batch) {
+        return getRecommendations(userId, size, batch, null);
+    }
+
+    public List<RecommendationResponse> getRecommendations(Long userId, int size, int batch, String seed) {
         int safeSize = Math.max(1, size);
         int safeBatch = Math.max(0, batch);
         long offset = (long) safeSize * safeBatch;
@@ -127,7 +131,14 @@ public class InnovationService {
         if (rankedRecommendations.isEmpty()) {
             return List.of();
         }
-        return rankedRecommendations.stream()
+
+        List<RecommendationResponse> variedRecommendations = applySeededRecommendationOrder(
+            rankedRecommendations,
+            seed,
+            safeSize
+        );
+
+        return variedRecommendations.stream()
             .skip(offset)
             .limit(safeSize)
             .toList();
@@ -1058,6 +1069,47 @@ public class InnovationService {
         return deduplicateRecommendations(rankedRecommendations).stream()
             .map(ScoredRecommendation::response)
             .toList();
+    }
+
+    private List<RecommendationResponse> applySeededRecommendationOrder(
+            List<RecommendationResponse> rankedRecommendations,
+            String seed,
+            int batchSize) {
+        if (!hasText(seed) || rankedRecommendations.size() <= Math.max(2, batchSize)) {
+            return rankedRecommendations;
+        }
+
+        int chunkSize = Math.max(8, batchSize * 2);
+        int rotationWindow = Math.min(
+            rankedRecommendations.size(),
+            Math.max(chunkSize * 4, batchSize * 8)
+        );
+
+        List<RecommendationResponse> variedRecommendations = new ArrayList<>(rankedRecommendations.size());
+        for (int start = 0; start < rotationWindow; start += chunkSize) {
+            int end = Math.min(rotationWindow, start + chunkSize);
+            int chunkIndex = start / chunkSize;
+            List<RecommendationResponse> chunk = new ArrayList<>(rankedRecommendations.subList(start, end));
+            chunk.sort(Comparator.<RecommendationResponse>comparingLong(
+                    item -> seededRecommendationRank(seed, item, chunkIndex)
+                )
+                .thenComparing(item -> buildRecommendationUniqueKey(item)));
+            variedRecommendations.addAll(chunk);
+        }
+
+        if (rotationWindow < rankedRecommendations.size()) {
+            variedRecommendations.addAll(rankedRecommendations.subList(rotationWindow, rankedRecommendations.size()));
+        }
+        return variedRecommendations;
+    }
+
+    private long seededRecommendationRank(String seed, RecommendationResponse response, int chunkIndex) {
+        return Integer.toUnsignedLong(Objects.hash(
+            seed,
+            chunkIndex,
+            response.id(),
+            normalizeKeyword(response.name())
+        ));
     }
 
     private List<Long> selectRecommendationCandidateIds(
